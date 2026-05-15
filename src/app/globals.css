@@ -59,7 +59,8 @@
   --duration-dramatic: 600ms;
 }
 
-/* Subuh Mode — auto-activates 02:00-05:30 (Asia/Jakarta) via use-subuh-mode hook */
+/* Subuh Mode — auto-activates 02:00-05:30 (Asia/Jakarta) via use-subuh-mode hook
+   DESIGN_SYSTEM.md §4 — warm dark, never pure black, no harsh white. */
 html.subuh-mode {
   background: var(--color-neutral-900);
   color: var(--color-neutral-100);
@@ -68,6 +69,63 @@ html.subuh-mode {
 html.subuh-mode body {
   background: var(--color-neutral-900);
   color: var(--color-neutral-100);
+}
+
+/* Invert neutral semantics on dark surfaces.
+   Components keep Tailwind utility classes (text-neutral-700, bg-neutral-50, ...);
+   we re-map those tokens under .subuh-mode so the cream→ink swap is global. */
+html.subuh-mode {
+  --color-neutral-50: #2b241b;
+  --color-neutral-100: #1a1611;
+  --color-neutral-200: #3d3327;
+  --color-neutral-300: #564a38;
+  --color-neutral-400: #7a6b55;
+  --color-neutral-500: #a89880;
+  --color-neutral-600: #d3c5ae;
+  --color-neutral-700: #e8dfd0;
+  --color-neutral-800: #f5f0e8;
+  --color-neutral-900: #fbf8f4;
+
+  /* Warm primary in dark mode — slightly more saturated */
+  --color-brand-500: #ff8e3c;
+  --color-brand-600: #f26f1b;
+  --color-brand-700: #ffae6b;
+
+  /* Softer shadow on dark surface */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Signature animation — Belanja Card reveal (DESIGN_SYSTEM.md §12). */
+@keyframes belanja-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes belanja-item-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.belanja-card-reveal {
+  animation: belanja-card-reveal var(--duration-dramatic) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.belanja-item-reveal {
+  animation: belanja-item-reveal var(--duration-base) cubic-bezier(0.16, 1, 0.3, 1) both;
+  opacity: 0;
 }
 
 /* Base reset — warm cream default, never pure white */

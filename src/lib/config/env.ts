@@ -7,6 +7,19 @@ import { z } from 'zod';
  *
  * Source: .docs/FOUNDATION_BLUEPRINT.md §7.3
  */
+
+// Treat empty strings in .env.local as "not set" for optional URL fields.
+const optionalUrl = z
+  .string()
+  .optional()
+  .transform((v) => (v === '' || v === undefined ? undefined : v))
+  .pipe(z.string().url().optional());
+
+const optionalString = z
+  .string()
+  .optional()
+  .transform((v) => (v === '' || v === undefined ? undefined : v));
+
 const EnvSchema = z.object({
   // Public — safe in client bundle
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
@@ -17,14 +30,14 @@ const EnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
   GEMINI_API_KEY: z.string().min(10),
 
-  BMKG_API_BASE_URL: z.string().url().optional(),
+  BMKG_API_BASE_URL: optionalUrl,
 
-  KV_REST_API_URL: z.string().url().optional(),
-  KV_REST_API_TOKEN: z.string().optional(),
+  KV_REST_API_URL: optionalUrl,
+  KV_REST_API_TOKEN: optionalString,
 
   // Phase 1 demo only
-  DEMO_USER_ID: z.string().uuid().optional(),
-  DEMO_OUTLET_ID: z.string().uuid().optional(),
+  DEMO_USER_ID: optionalString.pipe(z.string().uuid().optional()),
+  DEMO_OUTLET_ID: optionalString.pipe(z.string().uuid().optional()),
 
   // Feature flags
   FEATURE_AUTH_REQUIRED: z.enum(['true', 'false']).default('false'),
@@ -33,10 +46,10 @@ const EnvSchema = z.object({
   FEATURE_PROMO_GENERATION: z.enum(['true', 'false']).default('true'),
 
   // Ops
-  CRON_SECRET: z.string().min(16).optional(),
-  SENTRY_DSN: z.string().url().optional(),
-  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
-  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
+  CRON_SECRET: optionalString.pipe(z.string().min(16).optional()),
+  SENTRY_DSN: optionalUrl,
+  NEXT_PUBLIC_POSTHOG_KEY: optionalString,
+  NEXT_PUBLIC_POSTHOG_HOST: optionalUrl,
 
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 });
