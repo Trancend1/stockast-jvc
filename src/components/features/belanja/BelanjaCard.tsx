@@ -27,7 +27,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-neutral-50 via-brand-50 to-neutral-50 border-brand-100">
+    <Card className="belanja-card-reveal bg-gradient-to-br from-neutral-50 via-brand-50 to-neutral-50 border-brand-100">
       <CardContent>
         <div className="flex items-baseline justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-brand-700">
@@ -41,10 +41,11 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
         </h2>
 
         <ul className="mt-2 flex flex-col gap-3">
-          {data.items.map((it) => (
+          {data.items.map((it, idx) => (
             <li
               key={it.menuItemId}
-              className="flex flex-col gap-1 rounded-[12px] border border-neutral-200 bg-neutral-50 p-3"
+              className="belanja-item-reveal flex flex-col gap-1 rounded-[12px] border border-neutral-200 bg-neutral-50 p-3"
+              style={{ animationDelay: `${120 + idx * 60}ms` }}
             >
               <div className="flex items-baseline justify-between gap-3">
                 <span className="font-semibold text-neutral-900">{it.menuName}</span>

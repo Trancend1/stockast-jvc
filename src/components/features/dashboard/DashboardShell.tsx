@@ -3,15 +3,21 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  CloudMark,
+  EmptyState,
+  NotebookMark,
+  SproutMark,
+} from '@/components/ui/illustration';
 import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
 import { PromoCardList } from '@/components/features/belanja/PromoCardList';
+import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { readOnboardingState } from '@/components/features/onboarding/OnboardingForm';
 import { getBelanjaCard, type BelanjaCardData } from '@/app/actions/recommendation';
 import { getPromosForToday } from '@/app/actions/promo';
 import type { PromoSuggestion } from '@/lib/services/PromoService';
 import { belanja } from '@/lib/copy/belanja';
-import { common } from '@/lib/copy/common';
 
 type Phase = 'loading' | 'ready' | 'no-history' | 'error';
 
@@ -64,11 +70,14 @@ export function DashboardShell() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <p className="text-sm text-neutral-600">Halo,</p>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-          {warungName ?? 'warung'}
-        </h1>
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm text-neutral-600">Halo,</p>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+            {warungName ?? 'warung'}
+          </h1>
+        </div>
+        <SubuhToggle />
       </header>
 
       {phase === 'loading' ? <LoadingCard /> : null}
@@ -113,7 +122,11 @@ function LoadingCard() {
   return (
     <Card>
       <CardContent>
-        <p className="text-sm text-neutral-600">{common.state.loading}</p>
+        <EmptyState
+          icon={<CloudMark />}
+          title={belanja.loading.title}
+          description={belanja.loading.description}
+        />
       </CardContent>
     </Card>
   );
@@ -123,8 +136,18 @@ function EmptyCard() {
   return (
     <Card>
       <CardContent>
-        <CardTitle>{belanja.heading}</CardTitle>
-        <CardDescription>{belanja.empty.no_history}</CardDescription>
+        <EmptyState
+          icon={<SproutMark />}
+          title={belanja.empty.no_history_title}
+          description={belanja.empty.no_history}
+          action={
+            <Link href="/catat">
+              <Button size="lg" className="w-full">
+                {belanja.catat_cta}
+              </Button>
+            </Link>
+          }
+        />
       </CardContent>
     </Card>
   );
@@ -134,8 +157,11 @@ function ErrorCard({ message }: { message: string | null }) {
   return (
     <Card>
       <CardContent>
-        <CardTitle>Ups</CardTitle>
-        <CardDescription>{message ?? common.state.error_generic}</CardDescription>
+        <EmptyState
+          icon={<NotebookMark />}
+          title={belanja.error.title}
+          description={message ?? belanja.error.fallback}
+        />
       </CardContent>
     </Card>
   );

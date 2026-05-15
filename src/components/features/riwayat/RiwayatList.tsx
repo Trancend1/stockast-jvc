@@ -4,6 +4,12 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  CloudMark,
+  EmptyState,
+  NotebookMark,
+  SproutMark,
+} from '@/components/ui/illustration';
 import { riwayat } from '@/lib/copy/riwayat';
 import { common } from '@/lib/copy/common';
 import { getRiwayat7d, type RiwayatDay } from '@/app/actions/riwayat';
@@ -45,17 +51,33 @@ export function RiwayatList() {
         </Link>
       </header>
 
-      {phase === 'loading' ? <p className="text-sm text-neutral-500">{common.state.loading}</p> : null}
+      {phase === 'loading' ? (
+        <Card>
+          <CardContent>
+            <EmptyState
+              icon={<CloudMark />}
+              title={common.state.loading}
+              description="Lagi ambil 7 hari terakhir."
+            />
+          </CardContent>
+        </Card>
+      ) : null}
 
       {phase === 'empty' ? (
         <Card>
           <CardContent>
-            <p className="text-sm text-neutral-700">{riwayat.empty}</p>
-            <Link href="/catat">
-              <Button size="md" className="mt-3 w-full">
-                Catat hari ini
-              </Button>
-            </Link>
+            <EmptyState
+              icon={<SproutMark />}
+              title="Belum ada catatan"
+              description={riwayat.empty}
+              action={
+                <Link href="/catat">
+                  <Button size="md" className="w-full">
+                    Catat hari ini
+                  </Button>
+                </Link>
+              }
+            />
           </CardContent>
         </Card>
       ) : null}
@@ -63,7 +85,11 @@ export function RiwayatList() {
       {phase === 'error' ? (
         <Card>
           <CardContent>
-            <p className="text-sm text-danger">{errorMsg ?? common.state.error_generic}</p>
+            <EmptyState
+              icon={<NotebookMark />}
+              title="Gagal ambil riwayat"
+              description={errorMsg ?? common.state.error_generic}
+            />
           </CardContent>
         </Card>
       ) : null}

@@ -81,11 +81,11 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 
 ### Current phase
 
-- **Phase:** 1 — Demo MVP (Sprint B)
-- **Sprint:** Sprint B — Magic Layer (DONE on branch `feat/sprint-b-magic-layer`)
-- **Magic moment ready?** Yes — Belanja Card renders, WhatsApp copy works
+- **Phase:** 1 — Demo MVP (Sprint C)
+- **Sprint:** Sprint C — Polish & Demo Prep (DONE on branch `feat/sprint-b-magic-layer`)
+- **Magic moment ready?** Yes — Belanja Card renders + animates, WhatsApp copy works, Subuh Mode toggleable
 - **Next milestone:** M3 — Demo MVP deployed on Vercel
-- **Last updated:** 2026-05-16 (Sprint B magic layer landed)
+- **Last updated:** 2026-05-16 (Sprint C polish landed)
 
 ### Research findings (baked into rules)
 
@@ -100,7 +100,7 @@ From 5 interviews (`.docs/research/`). Key signals for Sprint A:
 
 ### Now (in-flight this session)
 
-_(kosong — Sprint B complete, ready for Sprint C polish or PR)_
+_(kosong — Sprint C complete, ready for PR + Vercel deploy)_
 
 ### Sprint A — Backbone (DONE)
 
@@ -123,17 +123,25 @@ Catatan teknis:
 - `server-only` package belum di-install — pure mapping modules (`stock-mapping`, `recommendation-mapping`, `promo-detection`) sengaja dipisah supaya tests bypass.
 - Runtime end-to-end butuh `pnpm db:start` (Docker) + `pnpm db:reset` untuk seed Bu Yati.
 
-### Up next — Sprint C
+### Sprint C — Polish & Demo Prep (DONE on branch `feat/sprint-b-magic-layer`)
 
-1. End-to-end smoke test against local Supabase (Docker) — verify magic moment < 30s.
-2. Empty/loading/error states polish — Stockflow already done, polish /dashboard + /riwayat copy + illustration.
-3. Subuh Mode toggle (CSS class `html.subuh-mode` + time-based auto-activate hook 02:00-05:30 Asia/Jakarta).
-4. 1 signature animation (Belanja Card reveal — spring scale + stagger items).
-5. Demo dry-run 5min zero-bug + Vercel production deploy.
-6. Backup demo video recording.
+1. ✅ Subuh Mode — pure time gate (`src/lib/subuh.ts`, 02:00-05:30 Asia/Jakarta, no DST), `useSubuhMode` hook (manual override via localStorage wins; polls every 60s), `SubuhToggle` button on Dashboard. CSS re-maps `--color-neutral-*` tokens + warmer brand under `.subuh-mode` — global cream→ink swap without rewriting components.
+2. ✅ Belanja Card signature animation — keyframe `belanja-card-reveal` (translate + scale-in spring) + per-item stagger via `animation-delay` (120ms base + 60ms increments). Respects `prefers-reduced-motion`.
+3. ✅ Empty/loading/error illustrations — `SproutMark`, `NotebookMark`, `CloudMark` SVGs + `EmptyState` component. Replaces generic `<p>` placeholders on `/dashboard` + `/riwayat`. Warmer copy in `lib/copy/belanja.ts`.
+4. ✅ Tests: 12 new tests for Subuh time gate boundaries (02:00 inclusive, 05:30 exclusive, Jakarta TZ regardless of runner TZ). 65/65 total green.
+5. ⏸ End-to-end smoke against local Supabase — defer ke deploy phase (butuh Docker).
+6. ⏸ Vercel production deploy + dry-run + backup video — user-triggered.
+
+### Up next — Deploy
+
+1. End-to-end smoke against local Supabase (`pnpm db:start && pnpm db:reset && pnpm dev` + manual lele→Belanja flow).
+2. Vercel production deploy via `vercel --prod` (install CLI first).
+3. Demo dry-run 5min zero-bug.
+4. Backup demo video recording.
 
 ### Done log (append-only, newest first)
 
+- **2026-05-16** — Sprint C polish landed. Subuh Mode (pure time gate + hook + toggle + dark token remap), Belanja Card spring reveal + item stagger, empty/loading/error illustrations (Sprout/Notebook/Cloud SVG + EmptyState component), warmer Indonesian copy across all states. Env Zod schema fixed to coerce blank `""` to undefined (KV/Sentry URLs). 65/65 tests pass (was 53). Build green, all 5 routes 200 on `pnpm dev`.
 - **2026-05-16** — Sprint B magic layer landed on branch `feat/sprint-b-magic-layer`. RecommendationService + explain-recommendation@v1 prompt, PromoService + promo-detection + promo-draft@v1 prompt, BelanjaCard UI with copy-to-WA, PromoCardList, Riwayat 7 hari page, Server Actions getBelanjaCard / getPromosForToday / getRiwayat7d / markPromoCopiedAction. 53/53 tests pass. Build green (5 static routes).
 - **2026-05-15** — Sprint A backbone landed. AI module (Gemini client, versioned `parse-stock@v1` prompt, Zod schema), copy module (id-ID), DB layer (admin client + queries), StockService + Server Actions, UI primitives (button/input/textarea/card/label/select), Onboarding variant B, StockFlow (input→parse→confirm→save), DashboardShell placeholder, AppGate redirect. 36/36 tests pass. Build green.
 - **2026-05-15** — Phase 0 complete. 5/5 user interviews validated. Pain confirmed (Rp 40K-250K loss/minggu). Sprint A gate cleared. Key product signals captured ke Research findings section.
