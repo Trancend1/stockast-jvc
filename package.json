@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "verify-gemini": "tsx scripts/verify-gemini-model.ts",
+    "verify-gemini": "tsx --env-file=.env.local scripts/verify-gemini-model.ts",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
