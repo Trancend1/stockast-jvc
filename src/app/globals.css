@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+/* ─────────────────────────────────────────────────────────────────
+   Stockast Design Tokens
+   Source: .docs/DESIGN_SYSTEM.md §3-6
+   Source: .docs/BRAND_DIRECTION.md §5
+   No defaults. Every token is intentional.
+   ───────────────────────────────────────────────────────────────── */
+@theme {
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Brand — Warm Brick Orange (kayu manis, kulit ayam goreng, matahari subuh) */
+  --color-brand-50: #fff5ee;
+  --color-brand-100: #ffe6d2;
+  --color-brand-200: #ffcca0;
+  --color-brand-300: #ffae6b;
+  --color-brand-400: #ff8e3c;
+  --color-brand-500: #f26f1b;
+  --color-brand-600: #d85710;
+  --color-brand-700: #b04308;
+  --color-brand-800: #843107;
+  --color-brand-900: #5c2208;
+
+  /* Accent — Daun Mint */
+  --color-accent-500: #4da66e;
+
+  /* Neutral — Warm Cream (NEVER pure white/black) */
+  --color-neutral-50: #fbf8f4;
+  --color-neutral-100: #f5f0e8;
+  --color-neutral-200: #e8dfd0;
+  --color-neutral-300: #d3c5ae;
+  --color-neutral-400: #a89880;
+  --color-neutral-500: #7a6b55;
+  --color-neutral-600: #564a38;
+  --color-neutral-700: #3d3327;
+  --color-neutral-800: #2b241b;
+  --color-neutral-900: #1a1611;
+
+  /* Semantic */
+  --color-success: #4da66e;
+  --color-warning: #e8a82e;
+  --color-danger: #d04a3e;
+  --color-info: #5a8fbf;
+
+  /* Radius — warm, friendly, not sharp */
+  --radius-card: 16px;
+  --radius-button: 12px;
+
+  /* Shadow — soft elevation, not heavy default */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.06);
+
+  /* Animation tokens (DESIGN_SYSTEM.md §12) */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-dramatic: 600ms;
+}
+
+/* Subuh Mode — auto-activates 02:00-05:30 (Asia/Jakarta) via use-subuh-mode hook */
+html.subuh-mode {
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-100);
+}
+
+html.subuh-mode body {
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-100);
+}
+
+/* Base reset — warm cream default, never pure white */
+html,
+body {
+  font-family: var(--font-sans);
+  background: var(--color-neutral-50);
+  color: var(--color-neutral-900);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  /* Minimum body 16px to prevent iOS zoom on focus */
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Reduce motion (DESIGN_SYSTEM.md §12) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Container max-width capped at 480px (DESIGN_SYSTEM.md §5) */
+.app-container {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
