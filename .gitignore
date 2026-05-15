@@ -32,10 +32,18 @@ pnpm-debug.log*
 .pnpm-store/
 
 # folder
-.docs/
 .claude/
 .vscode/
 .agent/
+
+# Project docs split (decision 2026-05-16):
+# Tracked = engineering / architecture / standards (judges + devs can read).
+# Ignored = strategy / research / brand / private how-to.
+.docs/EXECUTION_BLUEPRINT.md
+.docs/FUTURE_ROADMAP.md
+.docs/BRAND_DIRECTION.md
+.docs/DESIGN_PROMPT.md
+.docs/research/
 
 # env files — NEVER commit
 .env
@@ -61,5 +69,7 @@ supabase/.temp/
 !.vscode/extensions.json
 
 # generated
-src/lib/db/types.ts
+# NOTE 2026-05-16: src/lib/db/types.ts is hand-rolled in Phase 1 (no Docker yet)
+# so it must be tracked. Re-add to .gitignore in Phase 2 once `pnpm db:types`
+# generates it from running local Supabase.
 .docs/models.json

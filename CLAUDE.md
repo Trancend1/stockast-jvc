@@ -81,11 +81,12 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 
 ### Current phase
 
-- **Phase:** 1 — Demo MVP (Sprint C)
-- **Sprint:** Sprint C — Polish & Demo Prep (DONE on branch `feat/sprint-b-magic-layer`)
-- **Magic moment ready?** Yes — Belanja Card renders + animates, WhatsApp copy works, Subuh Mode toggleable
-- **Next milestone:** M3 — Demo MVP deployed on Vercel
-- **Last updated:** 2026-05-16 (Sprint C polish landed)
+- **Phase:** 1.5 — JVC Submission Sprint (planning → Sprint D start)
+- **Sprint:** Sprint D — Wow Layer (next, on new branch after PR #2 merge)
+- **Magic moment ready?** Yes in dev, but Phase 1.5 pulls 2-3 features forward before deploy
+- **Next milestone:** M3.5 — JVC Wow Layer ready (dry-run 5x zero-bug), then M4 — Event Submission
+- **Deployment status:** **HELD** until Sprint F dry-run passes (user decision 2026-05-16)
+- **Last updated:** 2026-05-16 (Phase 1.5 strategy locked)
 
 ### Research findings (baked into rules)
 
@@ -129,18 +130,51 @@ Catatan teknis:
 2. ✅ Belanja Card signature animation — keyframe `belanja-card-reveal` (translate + scale-in spring) + per-item stagger via `animation-delay` (120ms base + 60ms increments). Respects `prefers-reduced-motion`.
 3. ✅ Empty/loading/error illustrations — `SproutMark`, `NotebookMark`, `CloudMark` SVGs + `EmptyState` component. Replaces generic `<p>` placeholders on `/dashboard` + `/riwayat`. Warmer copy in `lib/copy/belanja.ts`.
 4. ✅ Tests: 12 new tests for Subuh time gate boundaries (02:00 inclusive, 05:30 exclusive, Jakarta TZ regardless of runner TZ). 65/65 total green.
-5. ⏸ End-to-end smoke against local Supabase — defer ke deploy phase (butuh Docker).
-6. ⏸ Vercel production deploy + dry-run + backup video — user-triggered.
+5. ⏸ End-to-end smoke against local Supabase — moved to Phase 1.5 Sprint F (butuh Docker).
+6. ⏸ Vercel production deploy + dry-run + backup video — moved to Phase 1.5 Sprint F.
 
-### Up next — Deploy
+### Phase 1.5 — JVC Submission Sprint (decision 2026-05-16, NEXT)
 
-1. End-to-end smoke against local Supabase (`pnpm db:start && pnpm db:reset && pnpm dev` + manual lele→Belanja flow).
-2. Vercel production deploy via `vercel --prod` (install CLI first).
-3. Demo dry-run 5min zero-bug.
-4. Backup demo video recording.
+**Goal:** Demo wow + zero-bug + deployment ke production saat submission. Detail: `.docs/EXECUTION_BLUEPRINT.md §2 Phase 1.5`.
+
+**Features pulled forward** (lihat `.docs/FEATURE_PRIORITY_MATRIX.md §2.5`):
+- Voice Input ← Phase 3 (behind `FEATURE_VOICE_INPUT` flag, conditional demo)
+- Pola Mingguan ← Phase 3 (SVG manual bar chart × 7 hari + auto-insight)
+- Offline PWA + draft queue ← Phase 2 (`next-pwa`, IndexedDB sync)
+- Pre-seeded sample data (NEW) — Belanja Card jalan instan setelah onboarding
+- Cuaca mock card (NEW) — visualkan weather factor sebelum BMKG real
+
+**Sprint D — Wow Layer (3 hari)**
+1. Pola Mingguan card on Dashboard (SVG manual, leverage `weekdayRatio`).
+2. Pre-seeded sample data on onboarding (ensure 7 hari ke DEMO_OUTLET_ID).
+3. Cuaca mock card (3-state cycling, hardcode).
+
+**Sprint E — Reliability Layer (2-3 hari)**
+4. Offline PWA: `next-pwa` plugin, cache shell + last Belanja Card, draft queue IndexedDB.
+5. Loading skeletons ganti spinner di `/dashboard` + `/catat`.
+6. Error recovery: retry button + auto-retry pada `AI_PARSE_FAILED`.
+7. Voice input behind `FEATURE_VOICE_INPUT` flag (default OFF di production).
+
+**Sprint F — Submission Prep (2 hari)**
+8. Demo script + 3x dry-run < 90s to magic moment.
+9. Backup demo video 60s.
+10. Mobile real device test (iPhone SE, Android low-end).
+11. README polish untuk judge.
+12. Vercel `--prod` deploy + custom domain (opsional).
+13. Voice flag enable decision (dry-run 5x lurus → ON).
+
+**Milestone gate Phase 1.5:** Demo dry-run 5 menit zero-bug + Vercel live + backup video siap → M4 submission.
+
+**Total estimasi:** 7-9 hari kerja sebelum deployment.
+
+### Up next — Post-JVC
+
+- Phase 2 hardening: real auth + RLS + BMKG + Sentry + PostHog + rate limit + 5 pedagang nyata onboarding.
+- Phase 3 (post private beta): WhatsApp Cloud API + Multi-staff + Pricing experiment. *Catatan: user mengindikasikan fitur Phase 3 mungkin ditarik lagi tergantung situasi post-JVC.*
 
 ### Done log (append-only, newest first)
 
+- **2026-05-16** — Phase 1.5 strategy locked. Pull Voice (behind flag), Pola Mingguan, Offline PWA forward; new pre-seeded data + cuaca mock. Deployment held until Sprint F dry-run pass. Docs updated: EXECUTION_BLUEPRINT (Phase 1.5 section + M3.5 milestone), FEATURE_PRIORITY_MATRIX (§2.5 + pulled markers), FUTURE_ROADMAP (drift log), LAUNCH_CHECKLIST (Phase 1.5 additions section).
 - **2026-05-16** — Sprint C polish landed. Subuh Mode (pure time gate + hook + toggle + dark token remap), Belanja Card spring reveal + item stagger, empty/loading/error illustrations (Sprout/Notebook/Cloud SVG + EmptyState component), warmer Indonesian copy across all states. Env Zod schema fixed to coerce blank `""` to undefined (KV/Sentry URLs). 65/65 tests pass (was 53). Build green, all 5 routes 200 on `pnpm dev`.
 - **2026-05-16** — Sprint B magic layer landed on branch `feat/sprint-b-magic-layer`. RecommendationService + explain-recommendation@v1 prompt, PromoService + promo-detection + promo-draft@v1 prompt, BelanjaCard UI with copy-to-WA, PromoCardList, Riwayat 7 hari page, Server Actions getBelanjaCard / getPromosForToday / getRiwayat7d / markPromoCopiedAction. 53/53 tests pass. Build green (5 static routes).
 - **2026-05-15** — Sprint A backbone landed. AI module (Gemini client, versioned `parse-stock@v1` prompt, Zod schema), copy module (id-ID), DB layer (admin client + queries), StockService + Server Actions, UI primitives (button/input/textarea/card/label/select), Onboarding variant B, StockFlow (input→parse→confirm→save), DashboardShell placeholder, AppGate redirect. 36/36 tests pass. Build green.
