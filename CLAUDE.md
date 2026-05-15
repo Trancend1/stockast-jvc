@@ -100,30 +100,28 @@ From 5 interviews (`.docs/research/`). Key signals for Sprint A:
 
 ### Now (in-flight this session)
 
-_(kosong — Sprint A complete)_
+_(kosong — Sprint B complete, ready for Sprint C polish or PR)_
 
 ### Sprint A — Backbone (DONE)
-
-All scope items landed:
 
 1. ✅ Onboarding 3-layar (variant B single-page scroll, state local in `localStorage`)
 2. ✅ Stock input textarea + Gemini `parseStockNote` via Server Action
 3. ✅ AI parse confirm card (editable items, weather mention, confidence badges)
 4. ✅ Save to Supabase via service-role admin client (single-tenant DEMO_OUTLET_ID)
 
-### Up next — Sprint B
-Catatan untuk Sprint B:
+### Sprint B — Magic Layer (DONE on branch `feat/sprint-b-magic-layer`)
 
-- RecommendationService belum dibangun — Belanja Card di Dashboard masih placeholder
-- Service-role admin client bypass RLS (Phase 1 only); Phase 2 ganti pakai cookie session
-- server-only package belum di-install — tidak masalah karena Next.js handle import-nya di build, dan test sengaja pakai pure mapping module yang tidak import server-only
-- Untuk test runtime end-to-end: butuh pnpm db:start (Docker required), pnpm db:reset untuk seed Bu Yati
+1. ✅ RecommendationService — fetch 7-day history + menu → `rules.recommend` per item → AI `explain-recommendation@v1` → upsert. AI never decides numbers.
+2. ✅ Belanja Card UI on `/dashboard` — signature visual, per-item suggested + reasoning + leftoverYesterday + confidence badge, copy-to-WhatsApp.
+3. ✅ PromoService — `promo-detection.ts` pure rule (ratio + min-units) + `promo-draft@v1` Gemini prompt + `clampDiscount` + `validatePromo` defense-in-depth + frequency cap.
+4. ✅ Promo card list with copy-to-WA + discount badge.
+5. ✅ Riwayat 7 hari at `/riwayat`.
+6. ⏸ End-to-end smoke test against local Supabase → moved to Sprint C dry-run.
 
-1. Wire rules engine (`src/lib/rules/recommendation.ts`) → `RecommendationService` → real Belanja Card render on `/dashboard`.
-2. Gemini explanation layer (`src/lib/ai/prompts/explain-v1.ts`) — reasoning per item.
-3. Promo draft generator + copy-to-WhatsApp button (use `clampDiscount` from `src/lib/rules/promo.ts`).
-4. Riwayat 7 hari list page.
-5. End-to-end smoke test: type "lele sisa 5 dari 30..." → 3s → Belanja Card visible.
+Catatan teknis:
+- Service-role admin client bypass RLS (Phase 1 only); Phase 2 ganti cookie session + RLS.
+- `server-only` package belum di-install — pure mapping modules (`stock-mapping`, `recommendation-mapping`, `promo-detection`) sengaja dipisah supaya tests bypass.
+- Runtime end-to-end butuh `pnpm db:start` (Docker) + `pnpm db:reset` untuk seed Bu Yati.
 
 ### Up next — Sprint C
 
