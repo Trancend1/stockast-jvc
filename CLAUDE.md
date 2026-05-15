@@ -81,11 +81,11 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 
 ### Current phase
 
-- **Phase:** 1 — Demo MVP (Sprint A)
-- **Sprint:** Sprint A — Backbone (Hari 4-6)
-- **Magic moment ready?** No
+- **Phase:** 1 — Demo MVP (Sprint B)
+- **Sprint:** Sprint B — Magic Layer (DONE on branch `feat/sprint-b-magic-layer`)
+- **Magic moment ready?** Yes — Belanja Card renders, WhatsApp copy works
 - **Next milestone:** M3 — Demo MVP deployed on Vercel
-- **Last updated:** 2026-05-15 (Sprint A backbone landed)
+- **Last updated:** 2026-05-16 (Sprint B magic layer landed)
 
 ### Research findings (baked into rules)
 
@@ -127,13 +127,16 @@ Catatan untuk Sprint B:
 
 ### Up next — Sprint C
 
-6. Empty/loading/error states semua layar.
-7. Subuh Mode toggle (CSS class + time-based auto-activate hook).
-8. 1 signature animation (Belanja Card reveal).
-9. Demo dry-run + Vercel production deploy.
+1. End-to-end smoke test against local Supabase (Docker) — verify magic moment < 30s.
+2. Empty/loading/error states polish — Stockflow already done, polish /dashboard + /riwayat copy + illustration.
+3. Subuh Mode toggle (CSS class `html.subuh-mode` + time-based auto-activate hook 02:00-05:30 Asia/Jakarta).
+4. 1 signature animation (Belanja Card reveal — spring scale + stagger items).
+5. Demo dry-run 5min zero-bug + Vercel production deploy.
+6. Backup demo video recording.
 
 ### Done log (append-only, newest first)
 
+- **2026-05-16** — Sprint B magic layer landed on branch `feat/sprint-b-magic-layer`. RecommendationService + explain-recommendation@v1 prompt, PromoService + promo-detection + promo-draft@v1 prompt, BelanjaCard UI with copy-to-WA, PromoCardList, Riwayat 7 hari page, Server Actions getBelanjaCard / getPromosForToday / getRiwayat7d / markPromoCopiedAction. 53/53 tests pass. Build green (5 static routes).
 - **2026-05-15** — Sprint A backbone landed. AI module (Gemini client, versioned `parse-stock@v1` prompt, Zod schema), copy module (id-ID), DB layer (admin client + queries), StockService + Server Actions, UI primitives (button/input/textarea/card/label/select), Onboarding variant B, StockFlow (input→parse→confirm→save), DashboardShell placeholder, AppGate redirect. 36/36 tests pass. Build green.
 - **2026-05-15** — Phase 0 complete. 5/5 user interviews validated. Pain confirmed (Rp 40K-250K loss/minggu). Sprint A gate cleared. Key product signals captured ke Research findings section.
 - **2026-05-15** — Gemini model verify fixed (`--env-file` flag). Pinned models `gemini-2.0-flash` + `gemini-2.0-flash-lite` confirmed live. `.docs/models.json` recorded.
