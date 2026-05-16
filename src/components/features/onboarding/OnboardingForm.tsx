@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { onboarding as t, LOCATION_OPTIONS } from '@/lib/copy/onboarding';
 import { common } from '@/lib/copy/common';
+import { ensureDemoSeed } from '@/app/actions/onboarding';
 
 const STORAGE_KEY = 'stockast.onboarding.v1';
 
@@ -45,7 +46,7 @@ export function OnboardingForm() {
     menu.trim().length === 0 ||
     submitting;
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (disabled) return;
     setSubmitting(true);
@@ -60,6 +61,9 @@ export function OnboardingForm() {
     } catch {
       // Storage failure is non-fatal — proceed to dashboard anyway.
     }
+    // Best-effort pre-seed so Belanja Card has data on first dashboard view.
+    // Failure here is silent — the dashboard's no-history empty state handles it.
+    void ensureDemoSeed().catch(() => undefined);
     router.push('/dashboard');
   }
 

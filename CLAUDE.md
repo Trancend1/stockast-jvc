@@ -81,12 +81,12 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 
 ### Current phase
 
-- **Phase:** 1.5 — JVC Submission Sprint (planning → Sprint D start)
-- **Sprint:** Sprint D — Wow Layer (next, on new branch after PR #2 merge)
-- **Magic moment ready?** Yes in dev, but Phase 1.5 pulls 2-3 features forward before deploy
-- **Next milestone:** M3.5 — JVC Wow Layer ready (dry-run 5x zero-bug), then M4 — Event Submission
-- **Deployment status:** **HELD** until Sprint F dry-run passes (user decision 2026-05-16)
-- **Last updated:** 2026-05-16 (Phase 1.5 strategy locked)
+- **Phase:** 1.5 — JVC Submission Sprint (Sprint D DONE → Sprint E next)
+- **Sprint:** Sprint D — Wow Layer (DONE on branch `sprint-d-wowlayer`)
+- **Magic moment ready?** Yes — Pola Mingguan + Cuaca + Belanja Card render after onboarding (pre-seeded data ensures no cold start)
+- **Next milestone:** M3.5 — JVC Wow Layer ready (after Sprint E reliability + dry-run 5x zero-bug)
+- **Deployment status:** **HELD** until Sprint F dry-run passes
+- **Last updated:** 2026-05-16 (Sprint D landed, codebase audit pending)
 
 ### Research findings (baked into rules)
 
@@ -144,10 +144,10 @@ Catatan teknis:
 - Pre-seeded sample data (NEW) — Belanja Card jalan instan setelah onboarding
 - Cuaca mock card (NEW) — visualkan weather factor sebelum BMKG real
 
-**Sprint D — Wow Layer (3 hari)**
-1. Pola Mingguan card on Dashboard (SVG manual, leverage `weekdayRatio`).
-2. Pre-seeded sample data on onboarding (ensure 7 hari ke DEMO_OUTLET_ID).
-3. Cuaca mock card (3-state cycling, hardcode).
+**Sprint D — Wow Layer (DONE on branch `sprint-d-wowlayer`)**
+1. ✅ Pola Mingguan card on Dashboard — pure `computePolaMingguan` (weekday avg + samples per item), SVG manual bar chart × 7 hari, today bar highlighted, auto-insight when |weekdayRatio - 1| > 15%. Indonesian copy in `lib/copy/pola-mingguan.ts`.
+2. ✅ Pre-seeded sample data on onboarding — `ensureDemoSeed` Server Action called from `OnboardingForm.handleSubmit`. Pure `buildDemoSeedDays` generator (UTC-anchored, deterministic per date) + `upsertStockLogBatch` query. Idempotent via `countRecentStockLogDays` + `(outlet_id, service_date)` UNIQUE.
+3. ✅ Cuaca mock card — `getMockWeather(date)` 3-state FNV-1a hash cycling, deterministic per date. Visible on `/dashboard` above Belanja Card. Phase 2 swaps real BMKG via `FEATURE_MOCK_WEATHER` flag.
 
 **Sprint E — Reliability Layer (2-3 hari)**
 4. Offline PWA: `next-pwa` plugin, cache shell + last Belanja Card, draft queue IndexedDB.
@@ -174,6 +174,7 @@ Catatan teknis:
 
 ### Done log (append-only, newest first)
 
+- **2026-05-16** — Sprint D Wow Layer landed on branch `sprint-d-wowlayer`. Pola Mingguan card (pure `computePolaMingguan` + SVG bar chart × 7 hari + auto-insight via `weekdayRatio`), pre-seeded demo data on onboarding (`ensureDemoSeed` Server Action + idempotent UTC-anchored generator), cuaca mock card (3-state hash cycling). Fixed TZ bug in `buildDemoSeedDays` (parse anchor as UTC). 82/82 tests pass (was 65). Build green (5 routes, dashboard 7.64 kB / 114 kB First Load JS).
 - **2026-05-16** — Phase 1.5 strategy locked. Pull Voice (behind flag), Pola Mingguan, Offline PWA forward; new pre-seeded data + cuaca mock. Deployment held until Sprint F dry-run pass. Docs updated: EXECUTION_BLUEPRINT (Phase 1.5 section + M3.5 milestone), FEATURE_PRIORITY_MATRIX (§2.5 + pulled markers), FUTURE_ROADMAP (drift log), LAUNCH_CHECKLIST (Phase 1.5 additions section).
 - **2026-05-16** — Sprint C polish landed. Subuh Mode (pure time gate + hook + toggle + dark token remap), Belanja Card spring reveal + item stagger, empty/loading/error illustrations (Sprout/Notebook/Cloud SVG + EmptyState component), warmer Indonesian copy across all states. Env Zod schema fixed to coerce blank `""` to undefined (KV/Sentry URLs). 65/65 tests pass (was 53). Build green, all 5 routes 200 on `pnpm dev`.
 - **2026-05-16** — Sprint B magic layer landed on branch `feat/sprint-b-magic-layer`. RecommendationService + explain-recommendation@v1 prompt, PromoService + promo-detection + promo-draft@v1 prompt, BelanjaCard UI with copy-to-WA, PromoCardList, Riwayat 7 hari page, Server Actions getBelanjaCard / getPromosForToday / getRiwayat7d / markPromoCopiedAction. 53/53 tests pass. Build green (5 static routes).

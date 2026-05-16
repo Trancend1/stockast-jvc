@@ -12,11 +12,15 @@ import {
 } from '@/components/ui/illustration';
 import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
 import { PromoCardList } from '@/components/features/belanja/PromoCardList';
+import { CuacaCard } from '@/components/features/cuaca/CuacaCard';
+import { PolaMingguanCard } from '@/components/features/pola-mingguan/PolaMingguanCard';
 import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { readOnboardingState } from '@/components/features/onboarding/OnboardingForm';
 import { getBelanjaCard, type BelanjaCardData } from '@/app/actions/recommendation';
 import { getPromosForToday } from '@/app/actions/promo';
+import { getPolaMingguan } from '@/app/actions/pola-mingguan';
 import type { PromoSuggestion } from '@/lib/services/PromoService';
+import type { PolaMingguanData } from '@/lib/services/pola-mingguan';
 import { belanja } from '@/lib/copy/belanja';
 
 type Phase = 'loading' | 'ready' | 'no-history' | 'error';
@@ -26,6 +30,7 @@ export function DashboardShell() {
   const [phase, setPhase] = React.useState<Phase>('loading');
   const [card, setCard] = React.useState<BelanjaCardData | null>(null);
   const [promos, setPromos] = React.useState<PromoSuggestion[]>([]);
+  const [pola, setPola] = React.useState<PolaMingguanData | null>(null);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -36,9 +41,10 @@ export function DashboardShell() {
 
   async function loadAll(name: string) {
     setPhase('loading');
-    const [cardResult, promoResult] = await Promise.all([
+    const [cardResult, promoResult, polaResult] = await Promise.all([
       getBelanjaCard(),
       getPromosForToday({ warungName: name }),
+      getPolaMingguan(),
     ]);
 
     if (cardResult.error) {
@@ -53,6 +59,7 @@ export function DashboardShell() {
 
     setCard(cardResult.data);
     setPromos(promoResult.error ? [] : promoResult.data.promos);
+    setPola(polaResult.error ? null : polaResult.data);
     setPhase('ready');
   }
 
@@ -88,6 +95,7 @@ export function DashboardShell() {
 
       {phase === 'ready' && card ? (
         <>
+          <CuacaCard serviceDate={card.serviceDate} />
           <BelanjaCard data={card} />
           {card.cached ? (
             <button
@@ -98,6 +106,7 @@ export function DashboardShell() {
               {belanja.cached_badge} · {belanja.refresh.toLowerCase()}
             </button>
           ) : null}
+          {pola ? <PolaMingguanCard data={pola} /> : null}
           <PromoCardList promos={promos} />
         </>
       ) : null}
