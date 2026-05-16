@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { getMockWeather } from '@/lib/cuaca-mock';
 import { cuaca } from '@/lib/copy/cuaca';
+import { tomorrowIsoUtc } from '@/lib/utils';
 
 /**
  * Mock cuaca card visible on /dashboard. Phase 1.5 only — Phase 2 swaps for
@@ -14,7 +15,7 @@ import { cuaca } from '@/lib/copy/cuaca';
  */
 export function CuacaCard({ serviceDate }: { serviceDate?: string }) {
   const isoDate = React.useMemo(
-    () => serviceDate ?? tomorrowIsoLocal(),
+    () => serviceDate ?? tomorrowIsoUtc(),
     [serviceDate],
   );
   const weather = React.useMemo(() => getMockWeather(isoDate), [isoDate]);
@@ -47,8 +48,3 @@ export function CuacaCard({ serviceDate }: { serviceDate?: string }) {
   );
 }
 
-function tomorrowIsoLocal(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
-}

@@ -1,5 +1,6 @@
 import { weekdayRatio } from '@/lib/rules/stock';
 import type { HistoryPoint } from '@/lib/rules/stock';
+import { WEEKDAY_LABELS_ID, weekdayFromServiceDate } from '@/lib/utils';
 import type { MenuRef, StockLogShape } from './recommendation-mapping';
 
 /**
@@ -39,7 +40,6 @@ export type PolaMingguanData = {
   insight: PolaMingguanInsight | null;
 };
 
-const WEEKDAY_LABELS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as const;
 const INSIGHT_DELTA_THRESHOLD = 0.15; // 15% deviation surfaces as an insight.
 
 export function computePolaMingguan(
@@ -54,19 +54,27 @@ export function computePolaMingguan(
     a.service_date < b.service_date ? -1 : a.service_date > b.service_date ? 1 : 0,
   );
 
+  // Pre-compute weekday once per log so the inner menu loop is O(menu × logs)
+  // instead of O(menu × logs × Date-construction).
+  const logWeekdays: number[] = sorted.map((log) =>
+    weekdayFromServiceDate(log.service_date),
+  );
+
   const items: PolaMingguanItem[] = menuItems.map((menu) => {
     const buckets = new Map<number, { sum: number; count: number }>();
-    for (const log of sorted) {
+    for (let i = 0; i < sorted.length; i += 1) {
+      const log = sorted[i];
+      const weekday = logWeekdays[i];
+      if (!log || weekday === undefined) continue;
       const it = log.items.find((x) => x.menu_item_id === menu.id);
       if (!it) continue;
-      const weekday = new Date(log.service_date + 'T00:00:00').getDay();
       const cur = buckets.get(weekday) ?? { sum: 0, count: 0 };
       cur.sum += it.sold;
       cur.count += 1;
       buckets.set(weekday, cur);
     }
 
-    const bars: WeekdayBar[] = WEEKDAY_LABELS.map((_, idx) => {
+    const bars: WeekdayBar[] = WEEKDAY_LABELS_ID.map((_, idx) => {
       const bucket = buckets.get(idx);
       return {
         weekday: idx,
@@ -90,7 +98,7 @@ export function computePolaMingguan(
 }
 
 export function weekdayLabel(weekday: number): string {
-  return WEEKDAY_LABELS[weekday] ?? '';
+  return WEEKDAY_LABELS_ID[weekday] ?? '';
 }
 
 /**
@@ -124,7 +132,7 @@ function findStrongestInsight(
       best = {
         menuName: menu.name,
         weekday,
-        weekdayLabel: WEEKDAY_LABELS[weekday] ?? '',
+        weekdayLabel: WEEKDAY_LABELS_ID[weekday] ?? '',
         deltaPercent: Math.round(delta * 100),
         direction: delta > 0 ? 'up' : 'down',
       };

@@ -6,9 +6,22 @@ import { EmptyState, NotebookMark } from '@/components/ui/illustration';
 import { polaMingguan } from '@/lib/copy/pola-mingguan';
 import type { PolaMingguanData, PolaMingguanItem } from '@/lib/services/pola-mingguan';
 
+/**
+ * Today's weekday is computed once at the card level (UTC-stable) and passed
+ * down to each row to avoid `new Date().getDay()` on every render — that
+ * would cause hydration mismatch when the server pre-renders.
+ */
+
 const WEEKDAY_SHORT = ['M', 'S', 'S', 'R', 'K', 'J', 'S'] as const;
 
 export function PolaMingguanCard({ data }: { data: PolaMingguanData }) {
+  // Compute today's weekday once, after mount, so the SSR HTML doesn't pin a
+  // weekday that will mismatch on hydration when the client clock differs.
+  const [today, setToday] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    setToday(new Date().getUTCDay());
+  }, []);
+
   if (data.items.length === 0) {
     return (
       <Card>
@@ -36,13 +49,13 @@ export function PolaMingguanCard({ data }: { data: PolaMingguanData }) {
       </CardHeader>
       <CardContent>
         {insightText ? (
-          <p className="rounded-[12px] bg-brand-50 px-3 py-2 text-sm font-medium text-brand-800">
+          <p className="rounded-button bg-brand-50 px-3 py-2 text-sm font-medium text-brand-800">
             💡 {insightText}
           </p>
         ) : null}
         <ul className="flex flex-col gap-3">
           {data.items.map((item) => (
-            <PolaItemRow key={item.menuItemId} item={item} />
+            <PolaItemRow key={item.menuItemId} item={item} today={today} />
           ))}
         </ul>
       </CardContent>
@@ -50,8 +63,13 @@ export function PolaMingguanCard({ data }: { data: PolaMingguanData }) {
   );
 }
 
-function PolaItemRow({ item }: { item: PolaMingguanItem }) {
-  const today = new Date().getDay();
+function PolaItemRow({
+  item,
+  today,
+}: {
+  item: PolaMingguanItem;
+  today: number | null;
+}) {
   return (
     <li className="flex flex-col gap-1.5">
       <div className="flex items-baseline justify-between">
@@ -75,7 +93,7 @@ function WeekdayChart({
 }: {
   bars: ReadonlyArray<{ weekday: number; avgSold: number; samples: number }>;
   max: number;
-  today: number;
+  today: number | null;
 }) {
   const usableW = CHART_W;
   const barW = (usableW - BAR_GAP * 6) / 7;

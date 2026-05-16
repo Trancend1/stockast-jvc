@@ -7,6 +7,7 @@ import {
   type BelanjaCardItem,
 } from '@/lib/services/RecommendationService';
 import { type ActionResult, fail, ok } from '@/types/action-result';
+import { tomorrowIsoUtc } from '@/lib/utils';
 import type { Recommendation } from '@/types/domain';
 
 export type BelanjaCardData = {
@@ -23,7 +24,7 @@ export async function getBelanjaCard(input?: {
   forceRefresh?: boolean;
 }): Promise<ActionResult<BelanjaCardData>> {
   const { outletId } = getDemoContext();
-  const serviceDate = input?.serviceDate ?? tomorrowIsoLocal();
+  const serviceDate = input?.serviceDate ?? tomorrowIsoUtc();
 
   const result = await getTomorrowRecommendation({
     outletId,
@@ -40,10 +41,4 @@ export async function getBelanjaCard(input?: {
 
   if (input?.forceRefresh) revalidatePath('/dashboard');
   return ok(result.data);
-}
-
-function tomorrowIsoLocal(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
 }

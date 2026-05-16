@@ -1,6 +1,7 @@
 import { recommend } from '@/lib/rules/recommendation';
 import type { HistoryPoint } from '@/lib/rules/stock';
 import type { WeatherCategory } from '@/lib/config/thresholds';
+import { WEEKDAY_LABELS_ID } from '@/lib/utils';
 import type { ConfidenceLabel, RecommendationItem } from '@/types/domain';
 
 /**
@@ -95,6 +96,5 @@ function downgrade(current: ConfidenceLabel, candidate: ConfidenceLabel): Confid
 }
 
 export function indonesianWeekdayLabel(weekday: number): string {
-  const labels = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  return labels[weekday] ?? 'hari ini';
+  return WEEKDAY_LABELS_ID[weekday] ?? 'hari ini';
 }

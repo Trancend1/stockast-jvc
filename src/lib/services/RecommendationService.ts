@@ -62,9 +62,12 @@ export async function getTomorrowRecommendation(
 ): Promise<BelanjaCardResult> {
   if (!input.forceRefresh) {
     try {
-      const existing = await findRecommendation(input.outletId, input.serviceDate);
+      const [existing, menuItemsForCache] = await Promise.all([
+        findRecommendation(input.outletId, input.serviceDate),
+        safeListMenuItems(input.outletId),
+      ]);
       if (existing) {
-        return toCachedResult(existing, await safeListMenuItems(input.outletId));
+        return toCachedResult(existing, menuItemsForCache);
       }
     } catch {
       // Best-effort cache hit. Fall through to recompute.
