@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  CloudMark,
   EmptyState,
   NotebookMark,
   SproutMark,
 } from '@/components/ui/illustration';
 import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
+import { BelanjaCardSkeleton } from '@/components/features/belanja/BelanjaCardSkeleton';
 import { PromoCardList } from '@/components/features/belanja/PromoCardList';
 import { CuacaCard } from '@/components/features/cuaca/CuacaCard';
 import { PolaMingguanCard } from '@/components/features/pola-mingguan/PolaMingguanCard';
@@ -100,11 +100,13 @@ export function DashboardShell() {
         <SubuhToggle />
       </header>
 
-      {phase === 'loading' ? <LoadingCard /> : null}
+      {phase === 'loading' ? <BelanjaCardSkeleton /> : null}
 
       {phase === 'empty' ? <EmptyCard reason={emptyReason} message={errorMsg} /> : null}
 
-      {phase === 'error' ? <ErrorCard message={errorMsg} /> : null}
+      {phase === 'error' ? (
+        <ErrorCard message={errorMsg} onRetry={() => loadAll(warungName)} />
+      ) : null}
 
       {phase === 'unavailable' ? <UnavailableCard message={errorMsg} /> : null}
 
@@ -148,20 +150,6 @@ function BottomNav() {
   );
 }
 
-function LoadingCard() {
-  return (
-    <Card>
-      <CardContent>
-        <EmptyState
-          icon={<CloudMark />}
-          title={belanja.loading.title}
-          description={belanja.loading.description}
-        />
-      </CardContent>
-    </Card>
-  );
-}
-
 function EmptyCard({ reason, message }: { reason: EmptyReason; message: string | null }) {
   const copy =
     reason === 'NO_MENU'
@@ -191,7 +179,7 @@ function readEmptyReason(reason: unknown): EmptyReason {
   return reason === 'NO_MENU' ? 'NO_MENU' : 'NO_HISTORY';
 }
 
-function ErrorCard({ message }: { message: string | null }) {
+function ErrorCard({ message, onRetry }: { message: string | null; onRetry: () => void }) {
   return (
     <Card>
       <CardContent>
@@ -199,6 +187,11 @@ function ErrorCard({ message }: { message: string | null }) {
           icon={<NotebookMark />}
           title={belanja.error.title}
           description={message ?? belanja.error.fallback}
+          action={
+            <Button size="lg" className="w-full" onClick={onRetry}>
+              {belanja.error.retry}
+            </Button>
+          }
         />
       </CardContent>
     </Card>

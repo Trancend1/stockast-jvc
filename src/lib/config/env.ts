@@ -45,6 +45,7 @@ const EnvSchema = z.object({
   FEATURE_AI_PARSE_ENABLED: z.enum(['true', 'false']).default('true'),
   FEATURE_PROMO_GENERATION: z.enum(['true', 'false']).default('true'),
   FEATURE_DEMO_AUTOSEED: z.enum(['true', 'false']).default('true'),
+  FEATURE_VOICE_INPUT: z.enum(['true', 'false']).default('false'),
 
   // Ops
   CRON_SECRET: optionalString.pipe(z.string().min(16).optional()),
@@ -71,4 +72,5 @@ export const flags = {
   aiParseEnabled: env.FEATURE_AI_PARSE_ENABLED === 'true',
   promoGeneration: env.FEATURE_PROMO_GENERATION === 'true',
   demoAutoseed: env.FEATURE_DEMO_AUTOSEED === 'true',
+  voiceInput: env.FEATURE_VOICE_INPUT === 'true',
 } as const;

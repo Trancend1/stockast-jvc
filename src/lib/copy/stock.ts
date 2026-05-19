@@ -8,8 +8,28 @@ export const stock = {
     subheading: 'Tulis aja apa adanya. Aku bakal rapihin.',
     placeholder: 'lele sisa 5 dari 30, ayam habis jam 2, hujan sore',
     submit: 'Baca catatan',
+    offline_submit: 'Simpan offline',
     parsing: 'Lagi baca catatan kamu...',
     char_limit_label: 'maks 2000 karakter',
+  },
+  parsing: {
+    heading: 'Lagi baca catatan kamu',
+    subheading: 'Sebentar ya, AI lagi nyusun ulang biar rapi.',
+  },
+  voice: {
+    idle: '🎙 Pakai suara',
+    listening: '🔴 Mendengarkan...',
+    denied: '🚫 Mic ditolak',
+  },
+  offline: {
+    queued_title: 'Tersimpan offline',
+    queued_description:
+      'Belum ada sinyal — catatannya udah aku simpan. Buka lagi nanti pas online buat dikirim.',
+    queued_again: 'Catat lagi',
+    banner_draft_available: 'Ada draft offline',
+    banner_restore: 'Pulihkan draft',
+    banner_discard: 'Hapus',
+    offline_indicator: 'Mode offline',
   },
   confirm: {
     heading: 'Ini yang aku tangkap',

@@ -24,6 +24,7 @@ export const belanja = {
   error: {
     title: 'Ada yang kurang beres',
     fallback: 'Coba refresh halaman, atau cek koneksi internet kamu.',
+    retry: 'Coba lagi',
   },
   confidence: {
     'Pola jelas': 'Pola jelas',

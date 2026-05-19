@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { SubuhModeProvider } from '@/components/features/subuh/SubuhModeProvider';
+import { RegisterServiceWorker } from '@/components/pwa/RegisterServiceWorker';
 import {
   SUBUH_CLASS_NAME,
   SUBUH_END_MINUTES,
@@ -27,8 +28,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'Stockast' }],
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icons/icon.svg',
-    apple: '/icons/apple-touch-icon.png',
+    icon: [{ url: '/icons/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/icons/icon.svg', type: 'image/svg+xml' }],
   },
   openGraph: {
     type: 'website',
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SubuhBootstrapScript />
         <SubuhModeProvider />
+        <RegisterServiceWorker />
         {children}
       </body>
     </html>
