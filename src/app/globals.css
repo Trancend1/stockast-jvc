@@ -43,6 +43,10 @@
   --color-warning: #e8a82e;
   --color-danger: #d04a3e;
   --color-info: #5a8fbf;
+  --color-on-brand: #fff5ee;
+  --color-subuh-page: #1a1611;
+  --color-subuh-surface: #2b241b;
+  --color-subuh-surface-soft: #3d3327;
 
   /* Radius — warm, friendly, not sharp */
   --radius-card: 16px;
@@ -62,13 +66,15 @@
 /* Subuh Mode — auto-activates 02:00-05:30 (Asia/Jakarta) via use-subuh-mode hook
    DESIGN_SYSTEM.md §4 — warm dark, never pure black, no harsh white. */
 html.subuh-mode {
-  background: var(--color-neutral-900);
-  color: var(--color-neutral-100);
+  background: var(--color-subuh-page);
+  color: var(--color-neutral-900);
 }
 
 html.subuh-mode body {
-  background: var(--color-neutral-900);
-  color: var(--color-neutral-100);
+  background:
+    radial-gradient(circle at 50% -10%, rgba(242, 111, 27, 0.16), transparent 28rem),
+    var(--color-subuh-page);
+  color: var(--color-neutral-900);
 }
 
 /* Invert neutral semantics on dark surfaces.
@@ -87,9 +93,13 @@ html.subuh-mode {
   --color-neutral-900: #fbf8f4;
 
   /* Warm primary in dark mode — slightly more saturated */
+  --color-brand-50: #3d2718;
+  --color-brand-100: #5c2f13;
   --color-brand-500: #ff8e3c;
   --color-brand-600: #f26f1b;
   --color-brand-700: #ffae6b;
+  --color-brand-800: #ffd3af;
+  --color-brand-900: #fff5ee;
 
   /* Softer shadow on dark surface */
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -97,6 +107,18 @@ html.subuh-mode {
 }
 
 /* Signature animation — Belanja Card reveal (DESIGN_SYSTEM.md §12). */
+.belanja-card-surface {
+  background:
+    linear-gradient(135deg, var(--color-neutral-50), var(--color-brand-50), var(--color-neutral-50));
+}
+
+html.subuh-mode .belanja-card-surface {
+  background:
+    linear-gradient(135deg, rgba(43, 36, 27, 0.98), rgba(61, 51, 39, 0.94)),
+    var(--color-subuh-surface);
+  border-color: rgba(255, 174, 107, 0.35);
+}
+
 @keyframes belanja-card-reveal {
   from {
     opacity: 0;

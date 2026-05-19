@@ -7,31 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
-import { onboarding as t, LOCATION_OPTIONS } from '@/lib/copy/onboarding';
+import { onboarding as t } from '@/lib/copy/onboarding';
 import { common } from '@/lib/copy/common';
-import { ensureDemoSeed } from '@/app/actions/onboarding';
+import { LOCATION_OPTIONS } from '@/lib/config/locations';
+import { THRESHOLDS } from '@/lib/config/thresholds';
+import { applyOnboardingProfile, ensureDemoSeed } from '@/app/actions/onboarding';
+import { type OnboardingState, writeOnboardingState } from '@/lib/onboarding-state';
 
-const STORAGE_KEY = 'stockast.onboarding.v1';
-
-type OnboardingState = {
-  warungName: string;
-  location: string;
-  menu: string;
-  completedAt: string;
-};
-
-export function readOnboardingState(): OnboardingState | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as OnboardingState;
-    if (!parsed.completedAt) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
+const FIELD_LIMITS = THRESHOLDS.ONBOARDING;
 
 export function OnboardingForm() {
   const router = useRouter();
@@ -39,6 +22,7 @@ export function OnboardingForm() {
   const [location, setLocation] = React.useState('');
   const [menu, setMenu] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   const disabled =
     warungName.trim().length === 0 ||
@@ -50,18 +34,32 @@ export function OnboardingForm() {
     event.preventDefault();
     if (disabled) return;
     setSubmitting(true);
-    const state: OnboardingState = {
+    setErrorMsg(null);
+
+    const payload = {
       warungName: warungName.trim(),
       location,
       menu: menu.trim(),
+    };
+
+    const result = await applyOnboardingProfile(payload);
+    if (result.error) {
+      setErrorMsg(result.error.message || t.errors.profile_failed);
+      setSubmitting(false);
+      return;
+    }
+
+    const state: OnboardingState = {
+      ...payload,
       completedAt: new Date().toISOString(),
     };
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      writeOnboardingState(state);
     } catch {
-      // Storage failure is non-fatal — proceed to dashboard anyway.
+      // Storage failure non-fatal — DB is the source of truth now.
     }
-    // Best-effort pre-seed so Belanja Card has data on first dashboard view.
+
+    // Best-effort pre-seed against the merchant's actual menu_items.
     // Failure here is silent — the dashboard's no-history empty state handles it.
     void ensureDemoSeed().catch(() => undefined);
     router.push('/dashboard');
@@ -83,7 +81,7 @@ export function OnboardingForm() {
           placeholder={t.fields.warung_name.placeholder}
           value={warungName}
           onChange={(e) => setWarungName(e.target.value)}
-          maxLength={80}
+          maxLength={FIELD_LIMITS.WARUNG_NAME_MAX}
         />
         <p className="text-xs text-neutral-500">{t.fields.warung_name.help}</p>
       </div>
@@ -111,14 +109,20 @@ export function OnboardingForm() {
         <Label htmlFor="menu">{t.fields.menu.label}</Label>
         <Textarea
           id="menu"
-          rows={3}
+          rows={FIELD_LIMITS.MENU_TEXTAREA_ROWS}
           placeholder={t.fields.menu.placeholder}
           value={menu}
           onChange={(e) => setMenu(e.target.value)}
-          maxLength={200}
+          maxLength={FIELD_LIMITS.MENU_LIST_MAX_CHARS}
         />
         <p className="text-xs text-neutral-500">{t.fields.menu.help}</p>
       </div>
+
+      {errorMsg ? (
+        <p role="alert" className="text-danger text-sm">
+          {errorMsg}
+        </p>
+      ) : null}
 
       <Button type="submit" size="lg" disabled={disabled} loading={submitting}>
         {submitting ? t.finishing : t.submit}

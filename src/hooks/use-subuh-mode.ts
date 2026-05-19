@@ -1,13 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { isSubuhTime } from '@/lib/subuh';
+import {
+  resolveSubuhMode,
+  SUBUH_CLASS_NAME,
+  SUBUH_STORAGE_KEY,
+  type SubuhOverride,
+} from '@/lib/subuh-mode';
 
-const CLASS_NAME = 'subuh-mode';
-const STORAGE_KEY = 'stockast.subuh.override';
 const POLL_INTERVAL_MS = 60_000;
-
-type Override = 'on' | 'off' | null;
 
 /**
  * Manages `html.subuh-mode` class.
@@ -17,7 +18,7 @@ type Override = 'on' | 'off' | null;
  */
 export function useSubuhMode() {
   const [active, setActive] = React.useState(false);
-  const [override, setOverrideState] = React.useState<Override>(null);
+  const [override, setOverrideState] = React.useState<SubuhOverride>(null);
 
   React.useEffect(() => {
     const stored = readOverride();
@@ -30,42 +31,38 @@ export function useSubuhMode() {
     return () => window.clearInterval(interval);
   }, []);
 
-  const setOverride = React.useCallback((next: Override) => {
+  const setOverride = React.useCallback((next: SubuhOverride) => {
     writeOverride(next);
     setOverrideState(next);
     applyState(next, new Date(), setActive);
   }, []);
 
   const toggle = React.useCallback(() => {
-    const next: Override = active ? 'off' : 'on';
+    const next: SubuhOverride = active ? 'off' : 'on';
     setOverride(next);
   }, [active, setOverride]);
 
   return { active, override, setOverride, toggle };
 }
 
-function applyState(
-  override: Override,
-  now: Date,
-  setActive: (v: boolean) => void,
-): void {
-  const next = override === 'on' ? true : override === 'off' ? false : isSubuhTime(now);
+function applyState(override: SubuhOverride, now: Date, setActive: (v: boolean) => void): void {
+  const next = resolveSubuhMode(override, now);
   setActive(next);
   if (typeof document === 'undefined') return;
-  document.documentElement.classList.toggle(CLASS_NAME, next);
+  document.documentElement.classList.toggle(SUBUH_CLASS_NAME, next);
 }
 
-function readOverride(): Override {
+function readOverride(): SubuhOverride {
   if (typeof window === 'undefined') return null;
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = window.localStorage.getItem(SUBUH_STORAGE_KEY);
   return raw === 'on' || raw === 'off' ? raw : null;
 }
 
-function writeOverride(next: Override): void {
+function writeOverride(next: SubuhOverride): void {
   if (typeof window === 'undefined') return;
   if (next === null) {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(SUBUH_STORAGE_KEY);
   } else {
-    window.localStorage.setItem(STORAGE_KEY, next);
+    window.localStorage.setItem(SUBUH_STORAGE_KEY, next);
   }
 }

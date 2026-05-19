@@ -9,6 +9,7 @@ import {
   updateStockDraftParsed,
   upsertConfirmedStockLog,
 } from '@/lib/db/queries/stock-logs';
+import { MissingTableError } from '@/lib/db/errors';
 import type { Json, StockLogDraftRow, StockLogItemRow, StockLogRow } from '@/lib/db/types';
 import type { ParsedStockPayload } from '@/types/domain';
 import { THRESHOLDS } from '@/lib/config/thresholds';
@@ -25,6 +26,7 @@ export type StockServiceFailure =
   | 'INPUT_INVALID'
   | 'AI_PARSE_FAILED'
   | 'AI_VALIDATION_FAILED'
+  | 'SERVICE_UNAVAILABLE'
   | 'INTERNAL';
 
 export type ParseAndStoreInput = {
@@ -54,7 +56,7 @@ export async function parseAndStore(input: ParseAndStoreInput): Promise<ParseAnd
       serviceDate: input.serviceDate,
     });
   } catch (err) {
-    return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
+    return failureFromError(err);
   }
 
   const menuItems = await safeListMenuItems(input.outletId);
@@ -89,7 +91,7 @@ export async function parseAndStore(input: ParseAndStoreInput): Promise<ParseAnd
       status: 'parsed',
     });
   } catch (err) {
-    return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
+    return failureFromError(err);
   }
 
   return { ok: true, draft: updated, parsed: mapped };
@@ -103,14 +105,18 @@ export type ConfirmDraftInput = {
 
 export type ConfirmDraftResult =
   | { ok: true; log: StockLogRow }
-  | { ok: false; reason: 'NOT_FOUND' | 'CONFLICT_STATE' | 'INTERNAL'; message: string };
+  | {
+      ok: false;
+      reason: 'NOT_FOUND' | 'CONFLICT_STATE' | 'SERVICE_UNAVAILABLE' | 'INTERNAL';
+      message: string;
+    };
 
 export async function confirmDraft(input: ConfirmDraftInput): Promise<ConfirmDraftResult> {
   let draft: StockLogDraftRow | null;
   try {
     draft = await findStockDraft(input.draftId);
   } catch (err) {
-    return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
+    return confirmFailureFromError(err);
   }
   if (!draft) {
     return { ok: false, reason: 'NOT_FOUND', message: 'Catatan tidak ditemukan.' };
@@ -131,8 +137,26 @@ export async function confirmDraft(input: ConfirmDraftInput): Promise<ConfirmDra
     });
     return { ok: true, log };
   } catch (err) {
-    return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
+    return confirmFailureFromError(err);
   }
+}
+
+function failureFromError(
+  err: unknown,
+): { ok: false; reason: StockServiceFailure; message: string } {
+  if (err instanceof MissingTableError) {
+    return { ok: false, reason: 'SERVICE_UNAVAILABLE', message: err.message };
+  }
+  return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
+}
+
+function confirmFailureFromError(
+  err: unknown,
+): { ok: false; reason: 'NOT_FOUND' | 'CONFLICT_STATE' | 'SERVICE_UNAVAILABLE' | 'INTERNAL'; message: string } {
+  if (err instanceof MissingTableError) {
+    return { ok: false, reason: 'SERVICE_UNAVAILABLE', message: err.message };
+  }
+  return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
 }
 
 function aiFailureMessage(reason: string): string {

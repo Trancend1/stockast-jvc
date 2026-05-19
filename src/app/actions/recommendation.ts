@@ -34,7 +34,7 @@ export async function getBelanjaCard(input?: {
 
   if (!result.ok) {
     if (result.reason === 'NO_MENU' || result.reason === 'NO_HISTORY') {
-      return fail('NOT_FOUND', result.message);
+      return fail('NOT_FOUND', result.message, { reason: result.reason });
     }
     return fail('INTERNAL', result.message);
   }

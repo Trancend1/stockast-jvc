@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import {
   CloudMark,
   EmptyState,
@@ -42,13 +43,16 @@ export function RiwayatList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex items-baseline justify-between gap-4">
+      <header className="flex items-start justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{riwayat.heading}</h1>
-        <Link href="/dashboard">
-          <Button variant="ghost" size="sm">
-            {riwayat.back}
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="sm">
+              {riwayat.back}
+            </Button>
+          </Link>
+          <SubuhToggle />
+        </div>
       </header>
 
       {phase === 'loading' ? (

@@ -2,6 +2,7 @@
  * Stock input + parse confirm copy.
  */
 export const stock = {
+  cancel: 'Batal',
   input: {
     heading: 'Catat hari ini',
     subheading: 'Tulis aja apa adanya. Aku bakal rapihin.',
@@ -31,7 +32,8 @@ export const stock = {
     },
   },
   errors: {
-    parse_failed: 'Aku belum nangkep catatannya. Coba diketik ulang ya, contoh: "lele sisa 5 dari 30".',
+    parse_failed:
+      'Aku belum nangkep catatannya. Coba diketik ulang ya, contoh: "lele sisa 5 dari 30".',
     parse_timeout: 'Lama banget. Coba lagi sebentar.',
     save_failed: 'Belum kesimpan. Sinyal kamu gimana?',
     empty: 'Isinya kosong nih.',

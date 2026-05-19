@@ -77,6 +77,7 @@ export async function confirmStockLog(
   if (!result.ok) {
     if (result.reason === 'NOT_FOUND') return fail('NOT_FOUND', result.message);
     if (result.reason === 'CONFLICT_STATE') return fail('CONFLICT_STATE', result.message);
+    if (result.reason === 'SERVICE_UNAVAILABLE') return fail('SERVICE_UNAVAILABLE', result.message);
     return fail('INTERNAL', result.message);
   }
 
@@ -92,6 +93,8 @@ function serviceFailureToCode(reason: string) {
       return 'AI_PARSE_FAILED' as const;
     case 'AI_VALIDATION_FAILED':
       return 'AI_VALIDATION_FAILED' as const;
+    case 'SERVICE_UNAVAILABLE':
+      return 'SERVICE_UNAVAILABLE' as const;
     default:
       return 'INTERNAL' as const;
   }

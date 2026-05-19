@@ -31,7 +31,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
   }
 
   return (
-    <Card className="belanja-card-reveal bg-linear-to-br from-neutral-50 via-brand-50 to-neutral-50 border-brand-100">
+    <Card className="belanja-card-reveal belanja-card-surface border-brand-100">
       <CardContent>
         <div className="flex items-baseline justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-brand-700">

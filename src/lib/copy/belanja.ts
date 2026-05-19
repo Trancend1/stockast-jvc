@@ -1,9 +1,16 @@
 export const belanja = {
   heading: 'Belanja besok',
+  greeting: 'Halo,',
+  warung_fallback: 'warung',
   cached_badge: 'pakai data tersimpan',
   refresh: 'Hitung ulang',
   catat_cta: 'Catat hari ini',
   riwayat_cta: 'Lihat riwayat 7 hari',
+  service_unavailable: {
+    title: 'Database belum siap',
+    description:
+      'Tabel di Supabase belum di-migrate. Jalankan `pnpm db:reset` atau hubungi admin.',
+  },
   loading: {
     title: 'Lagi nyiapin rekomendasi besok',
     description: 'Bentar ya, lagi baca catatan kamu seminggu terakhir.',

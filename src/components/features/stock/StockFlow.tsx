@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +14,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { stock as t } from '@/lib/copy/stock';
 import { common } from '@/lib/copy/common';
 import { THRESHOLDS } from '@/lib/config/thresholds';
@@ -157,11 +159,15 @@ function InputBlock(props: {
   const len = props.value.length;
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-          {t.input.heading}
-        </h1>
-        <p className="text-base text-neutral-600">{t.input.subheading}</p>
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{t.input.heading}</h1>
+          <p className="text-base text-neutral-600">{t.input.subheading}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <CancelCatatLink />
+          <SubuhToggle />
+        </div>
       </header>
       <Textarea
         rows={6}
@@ -179,7 +185,7 @@ function InputBlock(props: {
         </span>
       </div>
       {props.errorMessage ? (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="text-danger text-sm">
           {props.errorMessage}
         </p>
       ) : null}
@@ -218,18 +224,29 @@ function ConfirmCard(props: {
           <ItemRow key={idx} item={it} onChange={(patch) => update(idx, patch)} />
         ))}
         {props.weather ? (
-          <p className="mt-2 text-sm text-neutral-600">
-            🌤 {t.confirm.weather[props.weather]}
-          </p>
+          <p className="mt-2 text-sm text-neutral-600">🌤 {t.confirm.weather[props.weather]}</p>
         ) : null}
       </CardContent>
-      <CardFooter>
-        <Button variant="ghost" onClick={props.onEdit}>
-          {t.confirm.edit}
-        </Button>
-        <Button onClick={props.onConfirm}>{t.confirm.save}</Button>
+      <CardFooter className="justify-between">
+        <CancelCatatLink />
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" onClick={props.onEdit}>
+            {t.confirm.edit}
+          </Button>
+          <Button onClick={props.onConfirm}>{t.confirm.save}</Button>
+        </div>
       </CardFooter>
     </Card>
+  );
+}
+
+function CancelCatatLink() {
+  return (
+    <Link href="/dashboard">
+      <Button variant="ghost" size="sm">
+        {t.cancel}
+      </Button>
+    </Link>
   );
 }
 
@@ -267,7 +284,7 @@ function ItemRow(props: { item: EditableItem; onChange: (patch: Partial<Editable
         />
       </div>
       {item.menuItemId === null ? (
-        <p className="text-xs text-warning">
+        <p className="text-warning text-xs">
           Belum cocok ke menu kamu — bakal di-skip pas disimpan.
         </p>
       ) : null}

@@ -9,8 +9,9 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
   return (
     <main className="app-container flex min-h-dvh flex-col py-8">
-      <AppGate fallback={<p className="text-sm text-neutral-500">Sebentar ya...</p>} />
-      <DashboardShell />
+      <AppGate fallback={<p className="text-sm text-neutral-500">Sebentar ya...</p>}>
+        <DashboardShell />
+      </AppGate>
     </main>
   );
 }

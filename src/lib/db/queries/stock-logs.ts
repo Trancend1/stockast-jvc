@@ -1,10 +1,17 @@
 import 'server-only';
 import { adminDb } from '../admin';
+import { isMissingTableError, throwIfMissingTable } from '../errors';
 import type { Json, StockLogDraftRow, StockLogItemRow, StockLogRow } from '../types';
 
 /**
  * Stock draft + confirmed log persistence. Single-tenant demo: outletId is
  * the seeded DEMO_OUTLET_ID; no RLS check here because adminDb() bypasses it.
+ *
+ * Error policy:
+ * - Reads degrade to empty/null when tables are missing (schema cache miss)
+ *   so the dashboard shows the empty state instead of crashing.
+ * - Writes surface `MissingTableError` so the Server Action can return a
+ *   SERVICE_UNAVAILABLE result and prompt `pnpm db:reset`.
  */
 
 export type InsertStockDraftInput = {
@@ -30,6 +37,7 @@ export async function insertStockDraft(
     .single();
 
   if (error || !data) {
+    throwIfMissingTable(error, 'stock_log_drafts');
     throw new Error(`insertStockDraft failed: ${error?.message ?? 'no row returned'}`);
   }
   return data as StockLogDraftRow;
@@ -56,6 +64,7 @@ export async function updateStockDraftParsed(
     .single();
 
   if (error || !data) {
+    throwIfMissingTable(error, 'stock_log_drafts');
     throw new Error(`updateStockDraftParsed failed: ${error?.message ?? 'no row returned'}`);
   }
   return data as StockLogDraftRow;
@@ -88,6 +97,7 @@ export async function upsertConfirmedStockLog(
     .single();
 
   if (error || !data) {
+    throwIfMissingTable(error, 'stock_logs');
     throw new Error(`upsertConfirmedStockLog failed: ${error?.message ?? 'no row returned'}`);
   }
 
@@ -98,6 +108,7 @@ export async function upsertConfirmedStockLog(
     .eq('id', input.sourceDraftId);
 
   if (draftUpdate.error) {
+    throwIfMissingTable(draftUpdate.error, 'stock_log_drafts');
     throw new Error(`mark draft confirmed failed: ${draftUpdate.error.message}`);
   }
 
@@ -112,6 +123,7 @@ export async function findStockDraft(draftId: string): Promise<StockLogDraftRow 
     .maybeSingle();
 
   if (error) {
+    if (isMissingTableError(error, 'stock_log_drafts')) return null;
     throw new Error(`findStockDraft failed: ${error.message}`);
   }
   return (data ?? null) as StockLogDraftRow | null;
@@ -134,6 +146,7 @@ export async function listRecentStockLogs(
     .order('service_date', { ascending: false });
 
   if (error) {
+    if (isMissingTableError(error, 'stock_logs')) return [];
     throw new Error(`listRecentStockLogs failed: ${error.message}`);
   }
   return (data ?? []) as StockLogRow[];

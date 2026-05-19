@@ -1,6 +1,9 @@
 /**
  * Onboarding copy. Variant B (single-page scroll) per wireframe.
  * Target: < 60 detik dari buka app ke Dashboard.
+ *
+ * Location options moved to `src/lib/config/locations.ts` — they pair labels
+ * with BMKG adm4 codes and belong in config, not copy.
  */
 export const onboarding = {
   heading: 'Halo! Yuk kenalan dulu.',
@@ -8,7 +11,7 @@ export const onboarding = {
   fields: {
     warung_name: {
       label: '1 · nama warung',
-      placeholder: 'Warung Bu Yati',
+      placeholder: 'Warung kamu',
       help: 'biar aku bisa nyebut nama',
     },
     location: {
@@ -24,12 +27,8 @@ export const onboarding = {
   },
   submit: 'Mulai catat stok',
   finishing: 'Lagi siapin warung kamu...',
+  errors: {
+    profile_failed: 'Gagal nyimpen data warung. Coba lagi ya.',
+    menu_empty: 'Minimal 1 menu ya.',
+  },
 } as const;
-
-export const LOCATION_OPTIONS = [
-  { value: 'salatiga', label: 'Salatiga, Jawa Tengah' },
-  { value: 'jakarta', label: 'Jakarta' },
-  { value: 'bandung', label: 'Bandung' },
-  { value: 'yogyakarta', label: 'Yogyakarta' },
-  { value: 'surabaya', label: 'Surabaya' },
-] as const;

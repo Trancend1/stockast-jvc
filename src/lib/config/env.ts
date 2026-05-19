@@ -44,6 +44,7 @@ const EnvSchema = z.object({
   FEATURE_MOCK_WEATHER: z.enum(['true', 'false']).default('true'),
   FEATURE_AI_PARSE_ENABLED: z.enum(['true', 'false']).default('true'),
   FEATURE_PROMO_GENERATION: z.enum(['true', 'false']).default('true'),
+  FEATURE_DEMO_AUTOSEED: z.enum(['true', 'false']).default('true'),
 
   // Ops
   CRON_SECRET: optionalString.pipe(z.string().min(16).optional()),
@@ -69,4 +70,5 @@ export const flags = {
   mockWeather: env.FEATURE_MOCK_WEATHER === 'true',
   aiParseEnabled: env.FEATURE_AI_PARSE_ENABLED === 'true',
   promoGeneration: env.FEATURE_PROMO_GENERATION === 'true',
+  demoAutoseed: env.FEATURE_DEMO_AUTOSEED === 'true',
 } as const;

@@ -17,6 +17,7 @@ export type ActionErrorCode =
   | 'WEATHER_FETCH_FAILED'
   | 'CONFLICT_STATE'
   | 'NOT_FOUND'
+  | 'SERVICE_UNAVAILABLE'
   | 'INTERNAL';
 
 export type ActionError = {
