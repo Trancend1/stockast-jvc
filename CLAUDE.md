@@ -81,12 +81,12 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 
 ### Current phase
 
-- **Phase:** 1.5 — JVC Submission Sprint (Sprint D DONE → Sprint E next)
-- **Sprint:** Sprint D — Wow Layer (DONE on branch `sprint-d-wowlayer`)
-- **Magic moment ready?** Yes — Pola Mingguan + Cuaca + Belanja Card render after onboarding (pre-seeded data ensures no cold start)
-- **Next milestone:** M3.5 — JVC Wow Layer ready (after Sprint E reliability + dry-run 5x zero-bug)
+- **Phase:** 1.5 — JVC Submission Sprint (Sprint E DONE → Sprint F next)
+- **Sprint:** Sprint E — Reliability Layer (DONE on branch `sprint-d-wowlayer`)
+- **Magic moment ready?** Yes — Pola Mingguan + Cuaca + Belanja Card render after onboarding (pre-seeded data ensures no cold start). PWA installable; offline draft queue + skeletons + retry land in /catat + /dashboard.
+- **Next milestone:** M3.5 — JVC Wow Layer ready (after Sprint F dry-run 5x zero-bug)
 - **Deployment status:** **HELD** until Sprint F dry-run passes
-- **Last updated:** 2026-05-16 (Sprint D landed, codebase audit pending)
+- **Last updated:** 2026-05-20 (Sprint E landed)
 
 ### Research findings (baked into rules)
 
@@ -149,11 +149,13 @@ Catatan teknis:
 2. ✅ Pre-seeded sample data on onboarding — `ensureDemoSeed` Server Action called from `OnboardingForm.handleSubmit`. Pure `buildDemoSeedDays` generator (UTC-anchored, deterministic per date) + `upsertStockLogBatch` query. Idempotent via `countRecentStockLogDays` + `(outlet_id, service_date)` UNIQUE.
 3. ✅ Cuaca mock card — `getMockWeather(date)` 3-state FNV-1a hash cycling, deterministic per date. Visible on `/dashboard` above Belanja Card. Phase 2 swaps real BMKG via `FEATURE_MOCK_WEATHER` flag.
 
-**Sprint E — Reliability Layer (2-3 hari)**
-4. Offline PWA: `next-pwa` plugin, cache shell + last Belanja Card, draft queue IndexedDB.
-5. Loading skeletons ganti spinner di `/dashboard` + `/catat`.
-6. Error recovery: retry button + auto-retry pada `AI_PARSE_FAILED`.
-7. Voice input behind `FEATURE_VOICE_INPUT` flag (default OFF di production).
+**Sprint E — Reliability Layer (DONE on branch `sprint-d-wowlayer`)**
+1. ✅ Offline PWA — `public/manifest.webmanifest` (brand colors + standalone + start_url=/dashboard), SVG icons (`any` + `maskable` purposes), custom service worker (`public/sw.js`) with shell precache + cache-first for `/_next/static` + network-first for HTML + offline fallback to `/dashboard`. `RegisterServiceWorker` client component registers in production only (dev HMR + SW caching conflict).
+2. ✅ IndexedDB draft queue — `lib/offline/draft-queue.ts` (raw IDB, no deps) + `useOnlineStatus` hook + `OfflineQueuedCard` + `OfflineDraftsBanner` on `/catat`. Offline submit → queue, online return → restore via banner. Auto parse+confirm on reconnect deferred (confirm needs user-in-loop for AI mismatch).
+3. ✅ Loading skeletons — `ui/skeleton.tsx` primitive + shimmer keyframe (respects `prefers-reduced-motion`), `BelanjaCardSkeleton` matches BelanjaCard footprint (no layout shift), `ParseLoadingCard` shows 3 skeleton item rows during AI parse.
+4. ✅ Error recovery — `ErrorCard` on `/dashboard` gets retry button calling `loadAll`. `StockFlow` auto-retries once on `AI_PARSE_FAILED` before surfacing error (Gemini occasionally flaky on first call).
+5. ✅ Voice input behind flag — `FEATURE_VOICE_INPUT` env (default `false`). `VoiceInputButton` (Web Speech API id-ID, idle/listening/denied/unsupported state machine) renders in `InputBlock` when flag on. `next.config.ts` relaxes `Permissions-Policy` to `microphone=(self)` only when flag enabled.
+6. ⏸ Cache last Belanja Card client-side — deferred. SW caches HTML shell so /dashboard renders offline with skeleton then ErrorCard; localStorage echo of last good card postponed to follow-up if needed.
 
 **Sprint F — Submission Prep (2 hari)**
 8. Demo script + 3x dry-run < 90s to magic moment.
@@ -174,6 +176,8 @@ Catatan teknis:
 
 ### Done log (append-only, newest first)
 
+- **2026-05-20** — Sprint E Reliability Layer landed on branch `sprint-d-wowlayer`. PWA (manifest + SVG icons + custom SW with shell precache, cache-first static, network-first HTML), IndexedDB offline draft queue + `useOnlineStatus` hook + offline banner on /catat, skeleton primitive + BelanjaCardSkeleton + ParseLoadingCard (no layout shift, respects prefers-reduced-motion), retry button on ErrorCard + auto-retry once on AI_PARSE_FAILED, voice input behind `FEATURE_VOICE_INPUT` flag (default OFF) with `Permissions-Policy` relaxed only when on. 104/104 tests pass, build green (6 static routes, dashboard 6.78 kB / 113 kB First Load JS), all routes 200 + PWA assets served on `pnpm dev`.
+- **2026-05-20** — Sprint D audit pipeline landed (`30e3fe1`). Onboarding-to-DB persistence (`applyOnboardingProfile` Server Action + `syncOutletMenu` query + locations config with adm4 codes), `MissingTableError` graceful degrade with `UnavailableCard`, SubuhModeProvider + `beforeInteractive` bootstrap script (FOUC fix), `FEATURE_DEMO_AUTOSEED` flag gate, onboarding-profile normalization service. +22 tests (db-errors, subuh-mode, onboarding-profile, app-gate). 104/104 pass.
 - **2026-05-16** — Sprint D Wow Layer landed on branch `sprint-d-wowlayer`. Pola Mingguan card (pure `computePolaMingguan` + SVG bar chart × 7 hari + auto-insight via `weekdayRatio`), pre-seeded demo data on onboarding (`ensureDemoSeed` Server Action + idempotent UTC-anchored generator), cuaca mock card (3-state hash cycling). Fixed TZ bug in `buildDemoSeedDays` (parse anchor as UTC). 82/82 tests pass (was 65). Build green (5 routes, dashboard 7.64 kB / 114 kB First Load JS).
 - **2026-05-16** — Phase 1.5 strategy locked. Pull Voice (behind flag), Pola Mingguan, Offline PWA forward; new pre-seeded data + cuaca mock. Deployment held until Sprint F dry-run pass. Docs updated: EXECUTION_BLUEPRINT (Phase 1.5 section + M3.5 milestone), FEATURE_PRIORITY_MATRIX (§2.5 + pulled markers), FUTURE_ROADMAP (drift log), LAUNCH_CHECKLIST (Phase 1.5 additions section).
 - **2026-05-16** — Sprint C polish landed. Subuh Mode (pure time gate + hook + toggle + dark token remap), Belanja Card spring reveal + item stagger, empty/loading/error illustrations (Sprout/Notebook/Cloud SVG + EmptyState component), warmer Indonesian copy across all states. Env Zod schema fixed to coerce blank `""` to undefined (KV/Sentry URLs). 65/65 tests pass (was 53). Build green, all 5 routes 200 on `pnpm dev`.
