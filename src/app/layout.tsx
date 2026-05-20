@@ -1,5 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
+import Script from 'next/script';
+import { SubuhModeProvider } from '@/components/features/subuh/SubuhModeProvider';
+import { RegisterServiceWorker } from '@/components/pwa/RegisterServiceWorker';
+import {
+  SUBUH_CLASS_NAME,
+  SUBUH_END_MINUTES,
+  SUBUH_START_MINUTES,
+  SUBUH_STORAGE_KEY,
+} from '@/lib/subuh-mode';
 import './globals.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -19,8 +28,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'Stockast' }],
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icons/icon.svg',
-    apple: '/icons/apple-touch-icon.png',
+    icon: [{ url: '/icons/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/icons/icon.svg', type: 'image/svg+xml' }],
   },
   openGraph: {
     type: 'website',
@@ -39,7 +48,38 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" className={plusJakartaSans.variable} suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <SubuhBootstrapScript />
+        <SubuhModeProvider />
+        <RegisterServiceWorker />
+        {children}
+      </body>
     </html>
+  );
+}
+
+function SubuhBootstrapScript() {
+  const code = `
+(function () {
+  try {
+    var raw = window.localStorage.getItem(${JSON.stringify(SUBUH_STORAGE_KEY)});
+    var parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Jakarta',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+    var hour = Number((parts.find(function (p) { return p.type === 'hour'; }) || {}).value || 0);
+    var minute = Number((parts.find(function (p) { return p.type === 'minute'; }) || {}).value || 0);
+    var minutes = hour * 60 + minute;
+    var active = raw === 'on' || (raw !== 'off' && minutes >= ${SUBUH_START_MINUTES} && minutes < ${SUBUH_END_MINUTES});
+    document.documentElement.classList.toggle(${JSON.stringify(SUBUH_CLASS_NAME)}, active);
+  } catch (error) {}
+})();`;
+
+  return (
+    <Script id="subuh-mode-bootstrap" strategy="beforeInteractive">
+      {code}
+    </Script>
   );
 }

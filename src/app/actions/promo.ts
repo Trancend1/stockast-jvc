@@ -7,6 +7,7 @@ import {
   type PromoSuggestion,
 } from '@/lib/services/PromoService';
 import { type ActionResult, fail, ok } from '@/types/action-result';
+import { todayIsoUtc } from '@/lib/utils';
 
 export type GetPromosData = { promos: PromoSuggestion[] };
 
@@ -15,7 +16,7 @@ export async function getPromosForToday(input?: {
   serviceDate?: string;
 }): Promise<ActionResult<GetPromosData>> {
   const { outletId } = getDemoContext();
-  const serviceDate = input?.serviceDate ?? todayIsoLocal();
+  const serviceDate = input?.serviceDate ?? todayIsoUtc();
   const warungName = input?.warungName ?? 'Warung';
 
   const result = await generatePromosForLatestStock({
@@ -41,6 +42,3 @@ export async function markPromoCopiedAction(promoId: string): Promise<ActionResu
   }
 }
 
-function todayIsoLocal(): string {
-  return new Date().toISOString().slice(0, 10);
-}

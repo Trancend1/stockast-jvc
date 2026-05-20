@@ -5,15 +5,26 @@ import { useSubuhMode } from '@/hooks/use-subuh-mode';
 
 export function SubuhToggle() {
   const { active, toggle } = useSubuhMode();
+  const label = active ? 'Subuh' : 'Normal';
   return (
     <button
       type="button"
       onClick={toggle}
       aria-pressed={active}
-      aria-label={active ? 'Matikan Subuh Mode' : 'Aktifkan Subuh Mode'}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700 transition-colors hover:bg-neutral-100"
+      aria-label={
+        active
+          ? 'Subuh Mode aktif. Ketuk untuk mode normal'
+          : 'Mode normal. Ketuk untuk Subuh Mode'
+      }
+      title={active ? 'Subuh Mode aktif' : 'Mode normal'}
+      className={
+        active
+          ? 'inline-flex h-9 items-center justify-center gap-2 rounded-full border border-brand-500 bg-brand-500 px-3 text-xs font-semibold text-[var(--color-on-brand)] shadow-[var(--shadow-card)] transition-colors hover:bg-brand-600'
+          : 'inline-flex h-9 items-center justify-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-100'
+      }
     >
       {active ? <SunIcon /> : <MoonIcon />}
+      <span>{label}</span>
     </button>
   );
 }

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { readOnboardingState } from '@/components/features/onboarding/OnboardingForm';
+import { readOnboardingState } from '@/lib/onboarding-state';
 
 /**
  * Phase 1 entry: route to /onboarding if not done, otherwise /dashboard.

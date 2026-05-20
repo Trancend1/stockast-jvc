@@ -2,14 +2,20 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { readOnboardingState } from '@/components/features/onboarding/OnboardingForm';
+import { readOnboardingState } from '@/lib/onboarding-state';
 
 /**
  * Phase 1 client-side gate: if onboarding state is missing in localStorage,
  * redirect to /onboarding. Phase 2 replaces this with a server-side cookie
  * + RLS gate.
  */
-export function AppGate({ fallback }: { fallback?: React.ReactNode }) {
+export function AppGate({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}) {
   const router = useRouter();
   const [ready, setReady] = React.useState(false);
 
@@ -25,5 +31,5 @@ export function AppGate({ fallback }: { fallback?: React.ReactNode }) {
   if (!ready) {
     return <>{fallback ?? null}</>;
   }
-  return null;
+  return <>{children}</>;
 }

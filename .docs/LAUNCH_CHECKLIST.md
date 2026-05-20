@@ -12,11 +12,16 @@ Three sections, applied at different milestones:
 
 | Milestone | Apply Sections |
 |---|---|
-| **Phase 1.5 — JVC Submission (Sprint F dry-run + Vercel deploy)** | Sections 2, 3, 4 (comprehensive) + Phase 1.5 additions |
-| **Private Beta launch (10-50 users)** | All sections, baseline |
+| **Sprint F (Auth + Multi-tenancy)** | Sections 3 (Auth/Multi-tenancy), 4 (perf), 11 (general checks) |
+| **Sprint G (Real Integrations)** | Sections 2 (QA additions), 3 (Rate Limit, Webhook), 4 (AI/DB perf) |
+| **Sprint H (Observability)** | Section 7 (analytics), 8 (monitoring), 9 (backup) |
+| **Sprint I (Beta Onboarding)** | Section 11 Private Beta Specific + 12 First Week monitoring |
+| **Sprint J — JVC Submission (DEFERRED until after Sprint I gate)** | Sections 2, 3, 4 (comprehensive) + Phase 1.5+2 additions |
 | **Production v1 (200+ users)** | All sections, comprehensive |
 
-**Note (2026-05-16):** Demo MVP launch milestone digabung ke **Phase 1.5 — JVC Submission Sprint** per EXECUTION_BLUEPRINT.md. Deployment ditahan sampai Sprint F dry-run lurus 5x. Lihat `EXECUTION_BLUEPRINT.md §2 Phase 1.5`.
+**Note (2026-05-20):** Strategy pivot — old Phase 2 hardening (auth + RLS + BMKG + observability + Beta onboarding) pulled forward into pre-submission target. Submission Prep (Sprint J) gated on Sprint I exit (5 pedagang D7 + retention/accuracy pass). Lihat `EXECUTION_BLUEPRINT.md §2 Phase 1.5+2`.
+
+**Note (2026-05-16, historical):** Demo MVP launch milestone digabung ke **Phase 1.5 — JVC Submission Sprint**. Now extends to Phase 1.5+2 per 2026-05-20 pivot.
 
 Mark items `✅` (done), `🟡` (in progress), `⏸` (deferred with reason), `❌` (blocker).
 Items marked `⏸` require justification + revisit date.
@@ -37,17 +42,48 @@ Items marked `⏸` require justification + revisit date.
 - [ ] Back navigation preserves state where appropriate
 - [ ] Subuh Mode toggle works + persists
 
-### Phase 1.5 — JVC Submission Additions
-- [ ] Pola Mingguan card renders bar chart × 7 hari + auto-insight
-- [ ] Pre-seeded sample data shows immediately after onboarding (no cold start)
-- [ ] Cuaca mock card visible on Dashboard
-- [ ] Offline PWA: shell cached, last Belanja Card readable offline
-- [ ] Offline PWA: draft input queues to IndexedDB, syncs on online
-- [ ] Voice input (if `FEATURE_VOICE_INPUT` ON) — mic button records, Gemini Audio parse works
-- [ ] Voice input fallback to text on AI failure
+### Phase 1.5+2 — Pre-Submission Additions
+
+**Sprint D-E (DONE):**
+- [x] Pola Mingguan card renders bar chart × 7 hari + auto-insight
+- [x] Pre-seeded sample data shows immediately after onboarding (no cold start)
+- [x] Cuaca mock card visible on Dashboard
+- [x] Offline PWA: shell cached + manifest installable
+- [x] Offline PWA: draft input queues to IndexedDB, restore banner shows on reconnect
+- [x] Voice input behind `FEATURE_VOICE_INPUT` flag (default OFF); button renders only when flag on
+- [x] Loading skeletons (BelanjaCardSkeleton + ParseLoadingCard) replace spinner
+- [x] Error recovery: retry button + auto-retry once on AI_PARSE_FAILED
+
+**Sprint F (Auth + Multi-tenancy) — NEXT:**
+- [ ] Phone OTP auth flow works end-to-end (Indonesia provider verified)
+- [ ] RLS policies enforced on all tables (cross-tenant attempt denied)
+- [ ] DEMO_OUTLET_ID removed from Server Actions; session-driven outlet resolution
+- [ ] Middleware session check + Server Action role guards
+
+**Sprint G (Real Integrations):**
+- [ ] BMKG real API integrated + per-adm4 cache (6h TTL)
+- [ ] `FEATURE_MOCK_WEATHER=false` path tested live
+- [ ] Rate limiting active (AI per user/day, OTP per phone/15min, IP/min)
+- [ ] Audit log writes for recommendation + promo generation
+
+**Sprint H (Observability):**
+- [ ] Sentry capturing server + client errors
+- [ ] PostHog events firing for full analytics taxonomy
+- [ ] Recommendation accuracy spot-check tool runs against random log
+
+**Sprint I (Beta Onboarding):**
+- [ ] 5 pedagang nyata onboarded
+- [ ] Daily WhatsApp check-in completed week 1
+- [ ] 5/5 active D7
+- [ ] Retention week 1 > 60%
+- [ ] Spot-check pass on recommendation accuracy
+
+**Sprint J (Submission — DEFERRED):**
 - [ ] Demo dry-run < 90s to magic moment (5 consecutive runs zero-bug)
 - [ ] Backup demo video 60s recorded
 - [ ] Vercel production deploy live + custom domain (optional) responding
+- [ ] README polish with beta cohort testimonials
+- [ ] Voice flag decision (ON if dry-run lurus 5x)
 
 ### Cross-Device Testing
 - [ ] iPhone SE (375px) — Safari iOS

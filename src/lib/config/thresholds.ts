@@ -56,6 +56,14 @@ export const THRESHOLDS = {
   // Input limits
   STOCK_NOTE_MAX_CHARS: 2_000,
   MENU_NAME_MAX_CHARS: 60,
+
+  // Onboarding form
+  ONBOARDING: {
+    WARUNG_NAME_MAX: 80,
+    MENU_LIST_MAX_CHARS: 200,
+    MENU_ITEMS_MAX: 20,
+    MENU_TEXTAREA_ROWS: 3,
+  },
 } as const;
 
 export type WeatherCategory = keyof typeof THRESHOLDS.WEATHER_FACTOR;

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Stockast">
+  <rect width="512" height="512" fill="#f26f1b"/>
+  <g transform="translate(128 128) scale(4)" fill="none" stroke="#fff5ee" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 56V36"/>
+    <path d="M32 36C32 28 24 24 18 26C20 34 26 38 32 36Z"/>
+    <path d="M32 36C32 28 40 24 46 26C44 34 38 38 32 36Z"/>
+  </g>
+</svg>

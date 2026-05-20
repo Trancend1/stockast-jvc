@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { belanja } from '@/lib/copy/belanja';
+import { weekdayFromServiceDate } from '@/lib/utils';
 import type { BelanjaCardData } from '@/app/actions/recommendation';
 
 /**
@@ -13,7 +14,10 @@ import type { BelanjaCardData } from '@/app/actions/recommendation';
 
 export function BelanjaCard({ data }: { data: BelanjaCardData }) {
   const [copied, setCopied] = React.useState(false);
-  const weekdayLabel = belanja.weekday[new Date(data.serviceDate + 'T00:00:00').getDay()] ?? '';
+  const weekdayLabel = React.useMemo(() => {
+    const idx = weekdayFromServiceDate(data.serviceDate);
+    return belanja.weekday[idx] ?? '';
+  }, [data.serviceDate]);
 
   async function handleCopy() {
     const text = buildShareText(data, weekdayLabel);
@@ -27,7 +31,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
   }
 
   return (
-    <Card className="belanja-card-reveal bg-gradient-to-br from-neutral-50 via-brand-50 to-neutral-50 border-brand-100">
+    <Card className="belanja-card-reveal belanja-card-surface border-brand-100">
       <CardContent>
         <div className="flex items-baseline justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-brand-700">
@@ -44,7 +48,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
           {data.items.map((it, idx) => (
             <li
               key={it.menuItemId}
-              className="belanja-item-reveal flex flex-col gap-1 rounded-[12px] border border-neutral-200 bg-neutral-50 p-3"
+              className="belanja-item-reveal flex flex-col gap-1 rounded-button border border-neutral-200 bg-neutral-50 p-3"
               style={{ animationDelay: `${120 + idx * 60}ms` }}
             >
               <div className="flex items-baseline justify-between gap-3">
