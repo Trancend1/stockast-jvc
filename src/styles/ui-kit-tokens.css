@@ -1,0 +1,110 @@
+/* UI Kit token alias layer.
+ * Maps `--sk-*` (UI Kit source vocabulary) onto prod design tokens.
+ * Single source-of-truth = src/app/globals.css @theme block.
+ * Where prod has a near-exact match, alias via `var(--color-*)`.
+ * Where UI Kit specifies an intentional distinct value (smaller radii,
+ * literal surface tones), keep the literal — these are signature.
+ *
+ * Subuh palette under `html.subuh-mode` deliberately diverges into the
+ * UI Kit deep-sea direction (independent of prod's warm-dark Subuh) so
+ * that UI Kit components retain their identity. Prod components keep
+ * the cream→ink swap baked into globals.css. */
+:root {
+  /* Surfaces */
+  --sk-bg: var(--color-neutral-50);
+  --sk-surface: #ffffff;
+  --sk-surface-2: var(--color-neutral-100);
+  --sk-surface-3: #efe9dc;
+
+  /* Text */
+  --sk-text: var(--color-neutral-900);
+  --sk-text-2: #5d5447;
+  --sk-text-3: #8a8073;
+  --sk-text-disabled: #b8ae9d;
+
+  /* Lines */
+  --sk-line: var(--color-neutral-200);
+  --sk-line-strong: #ddd3bd;
+  --sk-line-active: var(--color-neutral-900);
+
+  /* Brand */
+  --sk-brand: var(--color-brand-500);
+  --sk-brand-press: var(--color-brand-600);
+  --sk-brand-soft: var(--color-brand-50);
+  --sk-brand-ink: #6b2e08;
+
+  /* Semantic — preserve UI Kit's slightly muted tones */
+  --sk-success: #3f9568;
+  --sk-success-soft: #e5f1ea;
+  --sk-warn: #b68220;
+  --sk-warn-soft: #faefd4;
+  --sk-danger: #b83e33;
+  --sk-danger-soft: #fbeae6;
+
+  /* Radii — UI Kit uses tighter values than prod for Linear-precise feel */
+  --sk-r-card: 14px;
+  --sk-r-btn: 10px;
+  --sk-r-input: 10px;
+  --sk-r-chip: 8px;
+  --sk-r-pill: 999px;
+
+  /* Shadows */
+  --sk-shadow-sm: 0 1px 2px rgba(26, 22, 17, 0.04);
+  --sk-shadow-card: 0 1px 2px rgba(26, 22, 17, 0.03), 0 0 0 1px var(--sk-line);
+  --sk-shadow-lift: 0 1px 2px rgba(26, 22, 17, 0.04), 0 8px 24px rgba(26, 22, 17, 0.06);
+
+  /* Type — bridge prod next/font CSS variables */
+  --sk-font: var(--font-sans);
+  --sk-font-serif: var(--font-serif);
+  --sk-font-mono: var(--font-mono);
+
+  /* Motion */
+  --sk-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --sk-ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+
+  /* Sheet scrim */
+  --sk-scrim: rgba(26, 22, 17, 0.32);
+
+  /* Paper grain intensity (0–0.12) */
+  --sk-grain: 0.05;
+}
+
+/* Subuh — deep sea palette. Triggered by `.subuh-mode` (prod canonical class). */
+html.subuh-mode {
+  --sk-bg: #001f54;
+  --sk-surface: rgba(173, 232, 244, 0.05);
+  --sk-surface-2: rgba(173, 232, 244, 0.03);
+  --sk-surface-3: rgba(173, 232, 244, 0.10);
+
+  --sk-text: #c8e2ec;
+  --sk-text-2: #7eb4cc;
+  --sk-text-3: #4a7ea0;
+  --sk-text-disabled: #2a4470;
+
+  --sk-line: rgba(173, 232, 244, 0.08);
+  --sk-line-strong: rgba(173, 232, 244, 0.18);
+  --sk-line-active: #c8e2ec;
+
+  --sk-brand: #61a5c2;
+  --sk-brand-press: #76b8d0;
+  --sk-brand-soft: rgba(97, 165, 194, 0.12);
+  --sk-brand-ink: #001f54;
+
+  --sk-success: #7ed9a8;
+  --sk-success-soft: rgba(126, 217, 168, 0.10);
+  --sk-warn: #e8c074;
+  --sk-warn-soft: rgba(232, 192, 116, 0.10);
+  --sk-danger: #e08278;
+  --sk-danger-soft: rgba(224, 130, 120, 0.10);
+
+  --sk-shadow-card:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 24px 56px rgba(0, 18, 53, 0.6);
+  --sk-shadow-lift:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 32px 80px rgba(0, 18, 53, 0.75);
+
+  --sk-grain: 0;
+  --sk-scrim: rgba(0, 18, 53, 0.78);
+}

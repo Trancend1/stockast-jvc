@@ -56,7 +56,9 @@ Full list: `.docs/AI_SLOP_PREVENTION.md`.
 
 ## Stack (locked)
 
-Next.js 15 App Router · React 19 · TS strict · Tailwind v4 · shadcn primitives · Supabase (Postgres + Auth + RLS + Storage) · Gemini direct SDK (`@google/genai`) · Vercel KV (rate-limit/cache) · Vitest · pnpm 9 · Node 22.
+Next.js 15 App Router · React 19 · TS strict · Tailwind v4 · shadcn primitives · Supabase (Postgres + Auth + RLS + Storage) · Gemini direct SDK (`@google/genai`) · Vercel KV (Sprint G, not yet installed) · Vitest · pnpm 9 · Node 22.
+
+Removed (evaluated + unused): `@tanstack/react-query`, `react-hook-form`, `@hookform/resolvers`, `date-fns`, `date-fns-tz`, `@vercel/kv`.
 
 Boring tech. No swaps without `.docs/` update.
 
@@ -86,7 +88,7 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 - **Magic moment ready?** Yes (demo seed mode) — Pola Mingguan + Cuaca + Belanja Card render after onboarding. PWA installable; offline draft queue + skeletons + retry live on /catat + /dashboard.
 - **Next milestone path:** M5 First Real User → M6 Cohort of 10 → M3.5 Wow Layer dry-run → M4 Event Submission
 - **Deployment status:** **HELD** until Sprint I (Beta) gate + Sprint J dry-run passes
-- **Last updated:** 2026-05-20 (Phase 2 pulled forward, Submission Prep deferred to Sprint J)
+- **Last updated:** 2026-05-20 (codebase cleanup + docs update: dead code removed, 7 unused deps uninstalled, .docs/ updated to reflect post-integration state)
 
 ### Research findings (baked into rules)
 
@@ -101,7 +103,7 @@ From 5 interviews (`.docs/research/`). Key signals for Sprint A:
 
 ### Now (in-flight this session)
 
-_(kosong — Sprint C complete, ready for PR + Vercel deploy)_
+_(kosong — cleanup + docs update complete; Sprint F next)_
 
 ### Sprint A — Backbone (DONE)
 
@@ -208,6 +210,8 @@ Catatan teknis:
 
 ### Done log (append-only, newest first)
 
+- **2026-05-20** — Codebase cleanup + docs update. Removed dead abstraction `src/lib/config/feature-flags.ts` (nothing imported it; all code uses `flags` from `env.ts`). Uninstalled 7 unused deps: `@tanstack/react-query`, `@tanstack/react-query-devtools`, `react-hook-form`, `@hookform/resolvers`, `date-fns`, `date-fns-tz`, `@vercel/kv`. Updated `.docs/`: FOUNDATION_BLUEPRINT (folder structure updated to as-built, tech stack table corrected), DESIGN_SYSTEM (typography + new §15 UI Kit Namespace), SYSTEM_ARCHITECTURE (stack table corrected), ENGINEERING_STANDARDS (feature-flags reference fixed, new §17 UI Kit Standards). CLAUDE.md stack line updated. 104/104 tests still pass.
+- **2026-05-20** — UI Kit integration foundation landed. `stockast-UI/` walkthrough assets ported into prod codebase under `src/components/ui-kit/*` (additive — existing prod components untouched). Namespace covers icons (63), item glyphs + motifs + branding + empty-state illustrations, 6 weather scenes, 14 primitives (SkButton/Card/Pill/Input/Label/Topbar/BottomNav/Sheet/Thinking/CountUp/Steps/Typography/WeatherChip), 8 charts (Sparkline/BarSeries/CandleSeries/DeltaWidget/DonutMini/ProgressMeter/TallyCounter/HeatStrip), 5 notifications (Toast/Banner/InlineAlert/PushPreview/ActivityDot), 3 onboarding decor, 4 Belanja Card variants (Editorial/Warm/Compact/Pasar). Token alias layer in `src/styles/ui-kit-tokens.css` maps `--sk-*` → prod `--color-*` (single SoT); Subuh deep-sea palette diverges intentionally under `.subuh-mode`. UI Kit utilities + keyframes in `src/styles/ui-kit-utilities.css`. Newsreader + JetBrains Mono added via `next/font/google` (self-hosted, no CDN). Subuh bridge: `useSubuhMode` + bootstrap script now set both `.subuh-mode` class AND `data-subuh="on"` attribute. Internal preview at `/ui-kit` (gated by `FEATURE_UI_KIT_PREVIEW`, returns 404 in prod without flag). 104/104 tests still pass, build green (dashboard 113 kB First Load JS, new ui-kit route 7.12 kB / 110 kB).
 - **2026-05-20** — Strategy pivot: Phase 2 hardening pulled forward into pre-submission target. Old Phase 2 Sprint D-G renumbered to Sprint F-I (Auth, Real Integrations, Observability, Beta). Old Phase 1.5 Sprint F (Submission Prep) becomes Sprint J, deferred until Sprint I Beta gate clears. Rationale: 5 pedagang nyata onboarded > demo on seed data. ~4-5 weeks added before submission. Docs updated: CLAUDE.md, EXECUTION_BLUEPRINT.md, FEATURE_PRIORITY_MATRIX.md, FUTURE_ROADMAP.md, LAUNCH_CHECKLIST.md.
 - **2026-05-20** — Sprint E Reliability Layer landed on branch `sprint-d-wowlayer`. PWA (manifest + SVG icons + custom SW with shell precache, cache-first static, network-first HTML), IndexedDB offline draft queue + `useOnlineStatus` hook + offline banner on /catat, skeleton primitive + BelanjaCardSkeleton + ParseLoadingCard (no layout shift, respects prefers-reduced-motion), retry button on ErrorCard + auto-retry once on AI_PARSE_FAILED, voice input behind `FEATURE_VOICE_INPUT` flag (default OFF) with `Permissions-Policy` relaxed only when on. 104/104 tests pass, build green (6 static routes, dashboard 6.78 kB / 113 kB First Load JS), all routes 200 + PWA assets served on `pnpm dev`.
 - **2026-05-20** — Sprint D audit pipeline landed (`30e3fe1`). Onboarding-to-DB persistence (`applyOnboardingProfile` Server Action + `syncOutletMenu` query + locations config with adm4 codes), `MissingTableError` graceful degrade with `UnavailableCard`, SubuhModeProvider + `beforeInteractive` bootstrap script (FOUC fix), `FEATURE_DEMO_AUTOSEED` flag gate, onboarding-profile normalization service. +22 tests (db-errors, subuh-mode, onboarding-profile, app-gate). 104/104 pass.

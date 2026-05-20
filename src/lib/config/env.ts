@@ -46,6 +46,7 @@ const EnvSchema = z.object({
   FEATURE_PROMO_GENERATION: z.enum(['true', 'false']).default('true'),
   FEATURE_DEMO_AUTOSEED: z.enum(['true', 'false']).default('true'),
   FEATURE_VOICE_INPUT: z.enum(['true', 'false']).default('false'),
+  FEATURE_UI_KIT_PREVIEW: z.enum(['true', 'false']).default('false'),
 
   // Ops
   CRON_SECRET: optionalString.pipe(z.string().min(16).optional()),
@@ -73,4 +74,5 @@ export const flags = {
   promoGeneration: env.FEATURE_PROMO_GENERATION === 'true',
   demoAutoseed: env.FEATURE_DEMO_AUTOSEED === 'true',
   voiceInput: env.FEATURE_VOICE_INPUT === 'true',
+  uiKitPreview: env.FEATURE_UI_KIT_PREVIEW === 'true',
 } as const;

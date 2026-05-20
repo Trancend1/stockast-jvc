@@ -32,9 +32,9 @@
 | **Language** | TypeScript (strict mode) | Type safety is non-negotiable for AI output handling |
 | **Styling** | Tailwind CSS v4 | Fast iteration, no design debt from custom CSS |
 | **UI Primitives** | shadcn/ui (selective) | Accessible defaults, copy-paste ownership, no lock-in |
-| **State (server)** | TanStack Query | Best-in-class for async data; works with Server Actions |
+| **State (server)** | React `useState` + Server Actions | TanStack Query evaluated and removed — Server Actions + `revalidatePath` cover all mutation needs in Phase 1 without the added bundle weight. Re-evaluate if client-side caching + background refetch become necessary. |
 | **State (client)** | React Context + useState (sparingly) | Avoid Zustand/Redux until needed |
-| **Forms** | React Hook Form + Zod | Validation aligned with API schemas |
+| **Forms** | Manual `useState` + Zod | React Hook Form evaluated and removed — current forms (onboarding, stock input) are simple enough that manual state is less overhead. Zod used for AI response validation and env schema. |
 | **Database** | Supabase Postgres | Managed Postgres with auth + RLS bundled |
 | **Auth** | Supabase Auth (phone OTP) | Standard for Indonesian users (no email) |
 | **AI** | Gemini API (direct SDK) | `@google/genai`; no Genkit wrapper for MVP. **Default model:** `gemini-2.0-flash` untuk parse + explanation, `gemini-2.0-flash-lite` (atau equivalent latest) untuk high-volume tugas non-kritis. Model name *wajib di-verify* via `https://ai.google.dev/gemini-api/docs/models` di Hari 1 sebelum kode di-write — Gemini model name berubah cepat. |
