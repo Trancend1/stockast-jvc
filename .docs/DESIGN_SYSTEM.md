@@ -49,9 +49,12 @@ Hangat, lokal, mudah didekati. Bukan Silicon Valley, bukan banking app, bukan ge
 
 ### Font Stack
 - **Primary (UI & body):** `Plus Jakarta Sans` — Indonesian-designed, neutral, friendly
-- **Display (Belanja Card, hero):** `Plus Jakarta Sans` (heavier weights 700-800), or trial `Manrope`
+- **Serif (editorial accent):** `Newsreader` — italic only, used in Belanja Card editorial header and signature moments
+- **Display (Belanja Card, hero):** `Plus Jakarta Sans` (heavier weights 700-800)
 - **Monospace (numbers, codes):** `JetBrains Mono` — only where numeric precision matters
 - **Fallback stack:** `Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
+
+All three font families are loaded via `next/font/google` (self-hosted, no Google CDN request). CSS variables: `--font-sans`, `--font-serif`, `--font-mono`.
 
 ### Why Plus Jakarta Sans (not Inter, not Geist)
 - Designed for Indonesian language pairing
@@ -471,7 +474,62 @@ Pattern → Why it's slop → What to do instead
 
 ---
 
-## 15. Design QA Checklist
+## 15. UI Kit Namespace (`src/components/ui-kit/`)
+
+### Overview
+
+The `ui-kit/` namespace is an **additive, parallel component library** that coexists with the prod `ui/` primitives. It provides the full visual system (design tokens, primitives, illustrations, charts, weather scenes, Belanja variants) as production-quality TypeScript components. Existing prod feature components (`BelanjaCard`, `OnboardingForm`, `CuacaCard`, etc.) are **not replaced** — migration is gradual, per sprint.
+
+### Namespace map
+
+| Sub-namespace | What lives here |
+|---|---|
+| `icons/` | 63 named `Icon*` exports (24×24 SVG, `currentColor`, 1.5px stroke) |
+| `glyphs/` | `GlyphLele/Ayam/Tahu/Tempe/Cabai` + `glyphFor(name)` + `categoryFor(name)` helpers |
+| `illustrations/motifs.tsx` | `DawnRibbon`, `SignatureSeal`, `TallyStamp`, `NotebookFold`, `CapturedStamp`, `SavedSeal`, `LedgerStripe`, `WarungMark`, `MiniWeather`, `SectionLabel`, `CategoryBar` |
+| `illustrations/branding.tsx` | `WelcomeHero`, `TickerBanner`, `ForecastIllust`, `SuccessIllust`, `MarketMascot`, `WordLogo` |
+| `illustrations/empty-states.tsx` | `IllustNoData`, `IllustNoHistory`, `IllustOffline`, `IllustError`, `IllustSearch`, `IllustDone`, `EmptyPanel` |
+| `weather/` | `SceneCerah/Berawan/Hujan/Petir/Subuh/Berkabut`, `VillageBand`, `WeatherScene` dispatcher, `WEATHER_SCENES` map |
+| `charts/` | `Sparkline`, `BarSeries`, `CandleSeries`, `DeltaWidget`, `DonutMini`, `ProgressMeter`, `TallyCounter`, `HeatStrip` |
+| `primitives/` | `SkButton`, `SkCard`, `SkPill`, `SkInput`, `SkLabel`, `SkTopBar`, `SkBottomNav`, `SkSheet`, `SkThinking`, `SkCountUp`, `SkSteps`, `SkOverline`, `SkDivider`, `SkWeatherChip` |
+| `notifications/` | `Toast`, `Banner`, `InlineAlert`, `PushPreview`, `ActivityDot` |
+| `onboarding/` | `OnbDecorNama`, `OnbDecorLokasi`, `OnbDecorMenu` |
+| `belanja-variants/` | `BelanjaCardEditorial`, `BelanjaCardWarm`, `BelanjaCardCompact`, `BelanjaCardPasar` |
+
+### Token alias layer (`src/styles/ui-kit-tokens.css`)
+
+UI Kit components use `--sk-*` CSS variables. These are **aliased to prod `--color-*` tokens** — single source of truth stays in `globals.css @theme`. Prod tokens change → UI Kit follows automatically.
+
+```css
+:root {
+  --sk-bg: var(--color-neutral-50);
+  --sk-surface: var(--color-neutral-0);
+  --sk-brand: var(--color-brand-500);
+  /* ... full alias map in src/styles/ui-kit-tokens.css */
+}
+
+html.subuh-mode {
+  --sk-bg: #001f54;  /* deep-sea Subuh palette — intentionally different from prod warm-dark */
+  /* ... */
+}
+```
+
+### Subuh bridge
+
+Prod Subuh Mode uses `.subuh-mode` class on `<html>`. UI Kit source uses `[data-subuh="on"]` attribute. Bridge: `useSubuhMode` hook and the `subuh-mode.ts` bootstrap script set **both** the class and the `data-subuh` attribute in parallel. All ported CSS uses `.subuh-mode` selector (not the attribute) for alignment with prod.
+
+### Server vs client components
+
+- **Server components** (no `'use client'`): all pure-SVG exports — icons, glyphs, all illustrations, weather scenes. Zero JS added to bundle.
+- **Client components** (`'use client'` required): primitives with hooks or event handlers — `SkButton`, `SkInput`, `SkTopBar`, `SkBottomNav`, `SkSheet`, `SkCountUp`, `Toast`, `Banner`, `InlineAlert`, `PushPreview`.
+
+### Internal preview route
+
+`/ui-kit` showcases all exports in a live grid. Gated: only accessible when `FEATURE_UI_KIT_PREVIEW=true` or in non-production. No nav link from `SkBottomNav` — URL-only.
+
+---
+
+## 16. Design QA Checklist
 
 Before shipping any screen, check:
 

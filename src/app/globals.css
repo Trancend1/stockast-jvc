@@ -9,6 +9,7 @@
 @theme {
   /* Typography */
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: 'Newsreader', 'Source Serif Pro', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Brand — Warm Brick Orange (kayu manis, kulit ayam goreng, matahari subuh) */

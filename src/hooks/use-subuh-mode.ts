@@ -4,6 +4,7 @@ import * as React from 'react';
 import {
   resolveSubuhMode,
   SUBUH_CLASS_NAME,
+  SUBUH_DATA_ATTR,
   SUBUH_STORAGE_KEY,
   type SubuhOverride,
 } from '@/lib/subuh-mode';
@@ -50,6 +51,7 @@ function applyState(override: SubuhOverride, now: Date, setActive: (v: boolean) 
   setActive(next);
   if (typeof document === 'undefined') return;
   document.documentElement.classList.toggle(SUBUH_CLASS_NAME, next);
+  document.documentElement.setAttribute(SUBUH_DATA_ATTR, next ? 'on' : 'off');
 }
 
 function readOverride(): SubuhOverride {

@@ -85,185 +85,140 @@ When you don't know where to put something, ask: "if I needed to test this witho
 
 ---
 
-## 2. Production-ready Folder Structure
+## 2. Folder Structure (as-built, Sprint E+UI Kit complete)
 
-Derived from `SYSTEM_ARCHITECTURE.md §3` + `ENGINEERING_STANDARDS.md §3`. Annotated with **what each folder is allowed to contain**.
+> **Note:** This reflects the actual current state of the codebase (Sprint E + UI Kit integration done). Items marked `[Sprint F+]` are planned but not yet built. Items marked `[Phase 3]` are deferred.
 
 ```
 stockast/
-├── .docs/                              # All product/strategy docs (source of truth)
-│   └── *.md
-├── .github/
-│   └── workflows/
-│       └── ci.yml                      # tsc + lint + test + build + audit
-├── .vscode/
-│   └── settings.json                   # Prettier on save, Tailwind IntelliSense
+├── .docs/                              # All product/strategy/engineering docs
 ├── public/
-│   ├── icons/                          # PWA icons (Phase 2)
-│   ├── manifest.webmanifest            # PWA manifest (Phase 2)
-│   └── og/                             # Open Graph images
+│   ├── icons/                          # PWA app icons (SVG, any + maskable)
+│   ├── manifest.webmanifest            # PWA manifest (brand colors, standalone)
+│   └── sw.js                           # Custom service worker (shell precache + offline fallback)
 ├── supabase/
-│   ├── migrations/                     # Forward-only SQL migrations
-│   │   └── 0001_init.sql               # Tables + indexes + RLS policies
+│   ├── migrations/                     # Forward-only SQL migrations (5 files)
 │   ├── seed.sql                        # Bu Yati Pecel Lele Salatiga sample data
-│   └── config.toml                     # supabase CLI local config
+│   └── config.toml
 ├── src/
-│   ├── app/                            # Next.js App Router
-│   │   ├── (marketing)/                # Public landing (Phase 3)
-│   │   │   └── page.tsx
-│   │   ├── (auth)/                     # Phone OTP flows (Phase 2)
-│   │   │   ├── login/
-│   │   │   │   └── page.tsx
-│   │   │   └── layout.tsx
-│   │   ├── (app)/                      # Authenticated app shell
-│   │   │   ├── layout.tsx              # Bottom nav + top bar + Subuh Mode wrapper
-│   │   │   ├── dashboard/
-│   │   │   │   ├── page.tsx            # Today's Belanja Card
-│   │   │   │   └── loading.tsx
-│   │   │   ├── stock/
-│   │   │   │   ├── new/
-│   │   │   │   │   └── page.tsx        # Natural-language input
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx        # View/edit confirmed log
-│   │   │   ├── recommendations/
-│   │   │   │   └── [date]/
-│   │   │   │       └── page.tsx        # Belanja Card (shareable)
-│   │   │   ├── promos/
-│   │   │   │   └── page.tsx
-│   │   │   ├── history/
-│   │   │   │   └── page.tsx            # 7-day list
-│   │   │   └── settings/
-│   │   │       └── page.tsx
-│   │   ├── actions/                    # Server Actions (mutations)
-│   │   │   ├── stock.ts
-│   │   │   ├── recommendation.ts
-│   │   │   ├── promo.ts
-│   │   │   └── onboarding.ts
-│   │   ├── api/                        # Route Handlers (webhooks, cron, streaming)
-│   │   │   ├── ai/
-│   │   │   │   └── stock/
-│   │   │   │       └── parse/
-│   │   │   │           └── route.ts    # POST AI parse proxy (streaming, idempotent)
-│   │   │   ├── cron/
-│   │   │   │   └── recompute-recommendations/
-│   │   │   │       └── route.ts        # Vercel Cron (Phase 2)
-│   │   │   └── webhooks/
-│   │   │       └── whatsapp/
-│   │   │           └── route.ts        # Phase 3
-│   │   ├── error.tsx                   # Root error boundary
-│   │   ├── not-found.tsx
-│   │   ├── globals.css                 # Tailwind directives + CSS vars
-│   │   ├── layout.tsx                  # <html><body>, font, providers
-│   │   └── page.tsx                    # Landing → redirect to /dashboard
+│   ├── app/                            # Next.js App Router (flat routes, no route groups yet)
+│   │   ├── actions/                    # Server Actions (all mutations live here)
+│   │   │   ├── stock.ts                # parseAndSaveStockDraft, confirmStockDraft
+│   │   │   ├── recommendation.ts       # getBelanjaCard, ensureDemoSeed
+│   │   │   ├── promo.ts                # getPromosForToday, markPromoCopied
+│   │   │   ├── pola-mingguan.ts        # getPolaMingguanData
+│   │   │   ├── riwayat.ts              # getRiwayat7d
+│   │   │   └── onboarding.ts           # applyOnboardingProfile
+│   │   ├── dashboard/page.tsx          # Today's Belanja Card + Pola Mingguan + Cuaca
+│   │   ├── catat/page.tsx              # Stock input flow
+│   │   ├── riwayat/page.tsx            # 7-day history
+│   │   ├── onboarding/page.tsx         # 3-step onboarding scroll
+│   │   ├── ui-kit/page.tsx             # Internal UI preview (FEATURE_UI_KIT_PREVIEW gate)
+│   │   ├── globals.css                 # Tailwind @theme + all --color-* tokens
+│   │   ├── layout.tsx                  # Root: fonts (PJS + Newsreader + JetBrains Mono), SubuhModeProvider, css imports
+│   │   └── page.tsx                    # Redirect to /dashboard or /onboarding
 │   ├── components/
-│   │   ├── ui/                         # shadcn primitives ONLY (Button, Input, Card, Sheet, Dialog, Skeleton, Toast)
-│   │   ├── features/
-│   │   │   ├── belanja-card/           # Signature: number count-up + stagger + weather morph
-│   │   │   ├── stock-input-form/       # Textarea + AI parse + confirm card
-│   │   │   ├── promo-draft-card/       # Copy-to-WhatsApp button
-│   │   │   ├── history-list/
-│   │   │   └── onboarding/
-│   │   ├── layout/
-│   │   │   ├── app-shell.tsx
-│   │   │   ├── bottom-nav.tsx
-│   │   │   └── top-bar.tsx
-│   │   └── shared/
-│   │       ├── empty-state.tsx
-│   │       ├── loading-skeleton.tsx
-│   │       └── error-state.tsx
+│   │   ├── ui/                         # shadcn-style prod primitives (button, card, input, label, select, textarea, skeleton, illustration)
+│   │   ├── features/                   # Prod feature components — NOT modified during UI Kit integration
+│   │   │   ├── app-gate/AppGate.tsx    # Redirect guard (onboarding vs dashboard)
+│   │   │   ├── belanja/                # BelanjaCard, BelanjaCardSkeleton, PromoCardList
+│   │   │   ├── cuaca/CuacaCard.tsx     # Weather card (mock via FEATURE_MOCK_WEATHER)
+│   │   │   ├── dashboard/DashboardShell.tsx
+│   │   │   ├── onboarding/OnboardingForm.tsx
+│   │   │   ├── pola-mingguan/PolaMingguanCard.tsx
+│   │   │   ├── riwayat/RiwayatList.tsx
+│   │   │   ├── stock/StockFlow.tsx, VoiceInputButton.tsx
+│   │   │   └── subuh/SubuhModeProvider.tsx, SubuhToggle.tsx
+│   │   ├── pwa/RegisterServiceWorker.tsx  # SW registration (prod-only)
+│   │   └── ui-kit/                     # UI Kit namespace — additive, no prod components modified
+│   │       ├── index.ts                # Top-level barrel (export * from all sub-domains)
+│   │       ├── icons/                  # 63 named Icon* exports (server component, zero JS)
+│   │       ├── glyphs/                 # GlyphLele/Ayam/Tahu/Tempe/Cabai + glyphFor/categoryFor
+│   │       ├── illustrations/          # motifs.tsx, branding.tsx, empty-states.tsx
+│   │       ├── weather/                # 6 WeatherScene components + WEATHER_SCENES map
+│   │       ├── charts/                 # Sparkline, BarSeries, CandleSeries, DeltaWidget, DonutMini, ProgressMeter, TallyCounter, HeatStrip
+│   │       ├── primitives/             # SkButton, SkCard, SkPill, SkInput, SkLabel, SkTopBar, SkBottomNav, SkSheet, SkThinking, SkCountUp, SkSteps, SkTypography, SkWeatherChip
+│   │       ├── notifications/          # Toast, Banner, InlineAlert, PushPreview, ActivityDot
+│   │       ├── onboarding/             # OnbDecorNama, OnbDecorLokasi, OnbDecorMenu
+│   │       └── belanja-variants/       # BelanjaCardEditorial, Warm, Compact, Pasar + shared data
+│   ├── styles/                         # UI Kit CSS (imported in layout.tsx after globals.css)
+│   │   ├── ui-kit-tokens.css           # --sk-* alias layer mapping to prod --color-* tokens
+│   │   └── ui-kit-utilities.css        # .sk-screen, .sk-btn, .sk-card, keyframes (sk-rise/fade/pulse/thinking)
+│   ├── hooks/
+│   │   ├── use-subuh-mode.ts           # Auto dark 02:00-05:30 Jakarta + manual override; sets .subuh-mode class AND data-subuh attribute
+│   │   └── use-online-status.ts        # Online/offline detection for draft queue
 │   ├── lib/
 │   │   ├── ai/
 │   │   │   ├── client.ts               # Gemini client singleton (server-only)
-│   │   │   ├── prompts/
-│   │   │   │   ├── stock-parse.v1.ts
-│   │   │   │   ├── recommendation-explain.v1.ts
-│   │   │   │   └── promo-draft.v1.ts
-│   │   │   ├── schemas/
-│   │   │   │   ├── stock-parse.ts      # Zod schema for parsed stock
-│   │   │   │   └── promo-draft.ts
-│   │   │   └── validators/
-│   │   │       └── stock-business.ts   # Menu dictionary + bounds check
+│   │   │   ├── generate.ts             # Typed generate wrapper with retry
+│   │   │   ├── schemas.ts              # Zod schemas for all AI responses
+│   │   │   └── prompts/                # parse-stock-v1, explain-recommendation-v1, promo-draft-v1
 │   │   ├── db/
-│   │   │   ├── server-client.ts        # Supabase server client (cookies)
-│   │   │   ├── browser-client.ts       # Supabase browser client
-│   │   │   ├── admin-client.ts         # Service role (server-only, used sparingly)
-│   │   │   ├── types.ts                # Generated by `supabase gen types`
-│   │   │   └── queries/
-│   │   │       ├── stock.ts
-│   │   │       ├── outlet.ts
-│   │   │       └── recommendation.ts
+│   │   │   ├── admin.ts                # Service role client (Phase 1 only; Sprint F replaces with session auth)
+│   │   │   ├── errors.ts               # MissingTableError + typed error classes
+│   │   │   ├── types.ts                # Hand-rolled until `pnpm db:types` in Sprint F
+│   │   │   └── queries/                # stock-logs, recommendations, promos, menu-items, outlets, demo-seed, ai-audit
 │   │   ├── services/                   # Pure-function domain layer
-│   │   │   ├── stock-service.ts
-│   │   │   ├── recommendation-service.ts
-│   │   │   ├── promo-service.ts
-│   │   │   ├── ai-service.ts           # Gemini wrapper: retry + audit + cache
-│   │   │   └── weather-service.ts      # BMKG client + cache
+│   │   │   ├── StockService.ts
+│   │   │   ├── RecommendationService.ts
+│   │   │   ├── PromoService.ts
+│   │   │   ├── demo-seed.ts            # buildDemoSeedDays + ensureDemoSeed (idempotent)
+│   │   │   ├── onboarding-profile.ts   # normalizeOnboardingInput + applyOnboardingProfile
+│   │   │   ├── pola-mingguan.ts        # computePolaMingguan (pure function, no I/O)
+│   │   │   ├── promo-detection.ts      # promoRatioCheck pure rule
+│   │   │   ├── stock-mapping.ts        # mapParsedToStockLog
+│   │   │   └── recommendation-mapping.ts
 │   │   ├── rules/                      # Pure business logic, no I/O
-│   │   │   ├── recommendation.ts       # base * weather * weekday formula
-│   │   │   ├── promo.ts                # discount cap + frequency cap
-│   │   │   └── stock.ts                # rolling avg, outlier exclusion
+│   │   │   ├── recommendation.ts
+│   │   │   ├── promo.ts
+│   │   │   └── stock.ts
 │   │   ├── auth/
-│   │   │   ├── require-auth.ts         # Server-only auth gate
-│   │   │   └── require-outlet.ts
-│   │   ├── kv/
-│   │   │   ├── client.ts               # Vercel KV client
-│   │   │   ├── rate-limit.ts           # Sliding window counter
-│   │   │   └── idempotency.ts          # 24h idempotency key store
-│   │   ├── logger/
-│   │   │   └── index.ts                # Structured logger (PII-safe)
+│   │   │   └── demo-context.ts         # getDemoContext (Phase 1 single-tenant; Sprint F replaces)
+│   │   ├── offline/
+│   │   │   └── draft-queue.ts          # Raw IDB draft queue (no deps) + useOnlineStatus
 │   │   ├── copy/                       # Centralized Indonesian copy strings
-│   │   │   ├── onboarding.ts
-│   │   │   ├── errors.ts
-│   │   │   ├── empty-states.ts
-│   │   │   └── promo-templates.ts
+│   │   │   ├── belanja.ts, common.ts, cuaca.ts, onboarding.ts, pola-mingguan.ts, riwayat.ts, stock.ts
 │   │   ├── config/
-│   │   │   ├── thresholds.ts           # Magic numbers live here only
-│   │   │   ├── feature-flags.ts        # Runtime feature toggles
-│   │   │   └── env.ts                  # Zod-validated env at boot
-│   │   └── utils/
-│   │       ├── format-rupiah.ts
-│   │       ├── format-date.ts          # "Senin, 15 Mei 2026"
-│   │       └── cn.ts                   # Tailwind class merge
-│   ├── hooks/
-│   │   ├── use-subuh-mode.ts           # Auto dark at 02:00-05:30
-│   │   ├── use-online-status.ts
-│   │   └── use-idempotent-action.ts
-│   ├── providers/
-│   │   ├── query-provider.tsx          # TanStack Query
-│   │   └── theme-provider.tsx          # Subuh Mode
+│   │   │   ├── env.ts                  # Zod-validated env at boot; exports `env` + `flags`
+│   │   │   ├── thresholds.ts           # All magic numbers live here (THRESHOLDS.*)
+│   │   │   └── locations.ts            # Indonesian location config (adm4 codes)
+│   │   ├── subuh.ts                    # SUBUH_DATA_ATTR constant + bootstrap inline script
+│   │   ├── subuh-mode.ts               # Pure time-gate logic (isSubuhTime, getSubuhWindow)
+│   │   ├── cuaca-mock.ts               # getMockWeather() — FNV-1a hash cycling 3 states
+│   │   ├── onboarding-state.ts         # localStorage helpers for onboarding progress
+│   │   └── utils.ts                    # cn(), WEEKDAY_LABELS_ID, todayIsoUtc/tomorrowIsoUtc/weekdayFromServiceDate
 │   └── types/
-│       ├── domain.ts                   # StockLog, Recommendation, Promo, etc.
-│       └── action-result.ts            # Unified ActionResult<T> type
+│       ├── domain.ts                   # StockLog, Recommendation, Promo, WeatherCategory, etc.
+│       └── action-result.ts            # ActionResult<T>, ok(), fail()
 ├── tests/
-│   ├── unit/
-│   │   ├── rules/
-│   │   │   ├── recommendation.test.ts
-│   │   │   └── promo.test.ts
-│   │   └── services/
-│   │       └── stock-service.test.ts
-│   ├── integration/                    # Phase 2: RLS multi-tenant tests
-│   └── e2e/                            # Phase 2: Playwright magic-moment flow
+│   └── unit/
+│       ├── ai/                         # prompt-builders, schemas
+│       ├── lib/                        # cuaca-mock, db-errors, subuh-mode, subuh
+│       ├── rules/                      # promo, recommendation
+│       └── services/                   # demo-seed, onboarding-profile, pola-mingguan, promo-detection, recommendation-mapping, stock-mapping
 ├── scripts/
-│   ├── verify-gemini-model.ts          # Day-1 script: hit Gemini list-models, write to .docs/models.json
-│   └── seed-sample.ts
+│   └── verify-gemini-model.ts          # Gemini model name check + .docs/models.json write
+├── stockast-UI/                        # Source design reference (standalone Babel-inline JSX) — untracked
 ├── .env.example                        # Documented env contract
-├── .env.local                          # Gitignored
-├── .eslintrc.cjs
-├── .gitignore
-├── .nvmrc                              # node 22 (LTS)
-├── .prettierrc
 ├── eslint.config.mjs
-├── next.config.ts
+├── next.config.ts                      # typedRoutes, Permissions-Policy (microphone conditional)
 ├── package.json
-├── pnpm-lock.yaml                      # Or package-lock.json — pick one
+├── pnpm-lock.yaml
 ├── postcss.config.mjs
-├── README.md                           # Setup + deploy + demo runbook
-├── tailwind.config.ts                  # CSS vars from DESIGN_SYSTEM.md §4
 ├── tsconfig.json                       # strict + noUncheckedIndexedAccess
 └── vitest.config.ts
 ```
 
-### What is intentionally absent (per FEATURE_PRIORITY_MATRIX kill list)
+### Planned but not yet built
+
+- `src/lib/kv/` — Vercel KV rate-limit + idempotency (Sprint G)
+- `src/lib/logger/` — structured PII-safe logger (Sprint H)
+- `(auth)/` route group — Supabase phone OTP (Sprint F)
+- `src/middleware.ts` — session check + redirect (Sprint F)
+- `tests/integration/` — RLS multi-tenant tests (Sprint F)
+- `tests/e2e/` — Playwright magic-moment flow (Sprint J)
+
+### What is intentionally absent
 
 - No `src/components/AIModelRouter/`
 - No `apps/` or `packages/` monorepo split
@@ -287,12 +242,12 @@ Locked per `SYSTEM_ARCHITECTURE.md §2`. Below is the **exact version range** to
 | Language | TypeScript | 5.x | bundled with create-next-app | `strict: true`, `noUncheckedIndexedAccess: true`. |
 | Styling | Tailwind | v4 | bundled | CSS-first config; use `@theme` directive for tokens. |
 | UI primitives | shadcn/ui | latest | `pnpm dlx shadcn@latest init` then add `button card input textarea sheet dialog skeleton toast` | Copy-paste; no runtime dep. |
-| Server state | TanStack Query | 5.x | `pnpm add @tanstack/react-query @tanstack/react-query-devtools` | Devtools dev-only. |
-| Forms | React Hook Form + Zod | latest | `pnpm add react-hook-form zod @hookform/resolvers` | Zod doubles as DB/AI schema validator. |
+| Server state | React `useState` + Server Actions | — | built-in | TanStack Query evaluated and removed — Server Actions cover all mutations; no client caching layer needed in Phase 1. |
+| Forms | Manual `useState` + Zod | — | built-in | React Hook Form + `@hookform/resolvers` evaluated and removed — onboarding form is simple enough that manual state is cleaner. Zod used for AI response validation. |
 | DB / Auth | Supabase | latest | `pnpm add @supabase/supabase-js @supabase/ssr` | `@supabase/ssr` for App Router cookie handling. |
 | AI | Google GenAI SDK | latest | `pnpm add @google/genai` | **Verify model name first** via `scripts/verify-gemini-model.ts`. |
-| KV | Vercel KV | latest | `pnpm add @vercel/kv` | Rate limit + idempotency + AI cache. |
-| Date utils | date-fns + date-fns-tz | latest | `pnpm add date-fns date-fns-tz` | Indonesian locale + `Asia/Jakarta` TZ. |
+| KV | — (Sprint G) | — | `pnpm add @vercel/kv` when Sprint G lands | Rate limit + idempotency deferred to Sprint G. |
+| Date utils | built-in | — | — | date-fns + date-fns-tz evaluated and removed — only UTC helpers needed; `utils.ts` covers all cases with vanilla JS. |
 | Test | Vitest + Testing Library | latest | `pnpm add -D vitest @testing-library/react @testing-library/jest-dom jsdom` | Co-locate `*.test.ts`. |
 | Lint | ESLint flat + typescript-eslint | latest | bundled with create-next-app + `pnpm add -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-tailwindcss` | Custom rules in §8. |
 | Format | Prettier + plugin-tailwindcss | latest | `pnpm add -D prettier prettier-plugin-tailwindcss` | Format on save. |

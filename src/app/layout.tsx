@@ -1,20 +1,38 @@
 import type { Metadata, Viewport } from 'next';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { JetBrains_Mono, Newsreader, Plus_Jakarta_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { SubuhModeProvider } from '@/components/features/subuh/SubuhModeProvider';
 import { RegisterServiceWorker } from '@/components/pwa/RegisterServiceWorker';
 import {
   SUBUH_CLASS_NAME,
+  SUBUH_DATA_ATTR,
   SUBUH_END_MINUTES,
   SUBUH_START_MINUTES,
   SUBUH_STORAGE_KEY,
 } from '@/lib/subuh-mode';
 import './globals.css';
+import '@/styles/ui-kit-tokens.css';
+import '@/styles/ui-kit-utilities.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-sans',
+});
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-serif',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-mono',
 });
 
 export const metadata: Metadata = {
@@ -46,8 +64,11 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const fontVariables = [plusJakartaSans.variable, newsreader.variable, jetbrainsMono.variable].join(
+    ' ',
+  );
   return (
-    <html lang="id" className={plusJakartaSans.variable} suppressHydrationWarning>
+    <html lang="id" className={fontVariables} suppressHydrationWarning>
       <body>
         <SubuhBootstrapScript />
         <SubuhModeProvider />
@@ -74,6 +95,7 @@ function SubuhBootstrapScript() {
     var minutes = hour * 60 + minute;
     var active = raw === 'on' || (raw !== 'off' && minutes >= ${SUBUH_START_MINUTES} && minutes < ${SUBUH_END_MINUTES});
     document.documentElement.classList.toggle(${JSON.stringify(SUBUH_CLASS_NAME)}, active);
+    document.documentElement.setAttribute(${JSON.stringify(SUBUH_DATA_ATTR)}, active ? 'on' : 'off');
   } catch (error) {}
 })();`;
 

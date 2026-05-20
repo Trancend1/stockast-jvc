@@ -545,7 +545,7 @@ CI must pass before merge. No exceptions.
 
 ### Feature Flags
 - Use environment variables for kill switches
-- Use `lib/config/feature-flags.ts` for runtime checks
+- Import `flags` from `lib/config/env.ts` for runtime checks (e.g., `flags.voiceInput`)
 - New features default OFF in production
 - Gradual rollout: 10% → 50% → 100%
 
@@ -650,7 +650,41 @@ A piece of code is production-ready when:
 
 ---
 
-## 17. Standards Maintenance
+## 17. UI Kit Component Standards
+
+The `src/components/ui-kit/` namespace contains the full design-system implementation. Rules for working in this namespace:
+
+### Server vs client directive
+- Pure SVG exports (icons, glyphs, illustrations, weather scenes) → **no `'use client'`** — they're server components; no JS added to bundle.
+- Anything with `useState`, `useEffect`, `onClick`, `onChange`, `requestAnimationFrame` → **`'use client'` required**.
+
+### Props design
+- Every component prop = explicit `interface`. No `any`. Variant unions = string literal union (`'primary' | 'secondary' | 'ghost'`).
+- Wrap SVGProps<SVGSVGElement> imports as `Omit<SVGProps<SVGSVGElement>, 'viewBox' | 'fill' | 'stroke' | 'strokeWidth'>` to avoid type conflicts.
+
+### CSS tokens
+- UI Kit components use `--sk-*` CSS variables only. Never reference prod `--color-*` directly inside UI Kit components.
+- Token alias mapping lives in `src/styles/ui-kit-tokens.css` — edit there to adjust, not in component files.
+
+### Subuh adapter
+- Do NOT add `[data-subuh="on"]` selectors to new code. All Subuh adaptation happens via `html.subuh-mode` CSS class only (consistent with prod pattern).
+
+### Barrel exports
+- Every sub-namespace (`icons/`, `glyphs/`, etc.) has an `index.ts` barrel.
+- Top-level `src/components/ui-kit/index.ts` re-exports via `export * from './sub-namespace'`.
+- Name collisions across sub-namespaces must be resolved with explicit re-export aliases.
+
+### Feature flag gate
+- UI Kit preview route is gated by `flags.uiKitPreview` (from `lib/config/env.ts`). Components themselves are not flag-gated — they're available in the namespace as soon as imported.
+
+### Relationship to `src/components/ui/`
+- `ui/` = prod shadcn-style primitives used by existing feature components. Do not migrate these in place.
+- `ui-kit/` = new design-system namespace. Adoption is gradual per sprint.
+- Duplication between the two namespaces is intentional during the transition period.
+
+---
+
+## 18. Standards Maintenance
 
 These standards are not law. They are scaffolding.
 
