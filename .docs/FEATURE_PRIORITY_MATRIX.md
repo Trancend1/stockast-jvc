@@ -156,11 +156,13 @@
 
 ---
 
-## 3. Important But Later (Private Beta — Phase 2)
+## 3. Important But Later (Private Beta — Phase 2 → PULLED FORWARD as Sprint F-I)
 
-**Note (2026-05-16):** Offline PWA dipindah ke Phase 1.5 (lihat §2.5). Sisanya tetap di Phase 2.
+**Note (2026-05-20):** Strategy pivot — Phase 2 hardening pulled into pre-submission target. Old Phase 2 sprints become Sprint F (Auth), G (Real Integrations), H (Observability), I (Beta Onboarding). Submission Prep (was Phase 1.5 Sprint F) renamed Sprint J, deferred. Lihat `EXECUTION_BLUEPRINT.md §2 Phase 1.5+2`. Items below remain valid feature specs — only the phase label changed.
 
-**Definition:** Required for real users (10-50 beta cohort). Not for demo, but blocks scaling.
+**Note (2026-05-16, historical):** Offline PWA dipindah ke Phase 1.5 (lihat §2.5). Sisanya tetap di Phase 2 (now pulled forward per 2026-05-20).
+
+**Definition:** Required for real users (5-50 beta cohort). Now BLOCKING for submission per 2026-05-20 pivot.
 
 ### Phone OTP Auth (Supabase)
 - **Priority:** P1
