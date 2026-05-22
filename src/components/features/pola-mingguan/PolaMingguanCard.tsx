@@ -1,11 +1,11 @@
 'use client';
 
-import * as React from 'react';
-import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { BarSeries, type BarPoint } from '@/components/ui-kit/charts/sk-charts';
 import { EmptyPanel, IllustNoHistory } from '@/components/ui-kit/illustrations/empty-states';
+import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { polaMingguan } from '@/lib/copy/pola-mingguan';
 import type { PolaMingguanData, PolaMingguanItem } from '@/lib/services/pola-mingguan';
+import * as React from 'react';
 
 // getUTCDay(): 0 = Sunday
 const WEEKDAY_LABELS = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'] as const;
@@ -59,9 +59,11 @@ function PolaItemRow({ item, today }: { item: PolaMingguanItem; today: number | 
 
   return (
     <li className="flex flex-col gap-1.5">
-      <div className="flex items-baseline justify-between">
-        <span className="font-semibold text-neutral-900">{item.menuName}</span>
-        <span className="text-xs text-neutral-500">{item.unit}</span>
+      <div className="flex items-center justify-between gap-3">
+        <span className="min-w-0 flex-1 leading-tight font-semibold text-neutral-900">
+          {item.menuName}
+        </span>
+        <span className="shrink-0 text-xs text-neutral-500">{item.unit}</span>
       </div>
       <BarSeries data={safeData} width={280} height={72} showLabels />
     </li>

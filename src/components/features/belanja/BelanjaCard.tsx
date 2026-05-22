@@ -1,13 +1,13 @@
 'use client';
 
-import * as React from 'react';
+import type { BelanjaCardData } from '@/app/actions/recommendation';
+import { Toast } from '@/components/ui-kit/notifications';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
-import { Toast } from '@/components/ui-kit/notifications';
 import { belanja } from '@/lib/copy/belanja';
 import { weekdayFromServiceDate } from '@/lib/utils';
-import type { BelanjaCardData } from '@/app/actions/recommendation';
+import * as React from 'react';
 
 export function BelanjaCard({ data }: { data: BelanjaCardData }) {
   const [copied, setCopied] = React.useState(false);
@@ -59,7 +59,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
                 <span className="flex-1 leading-tight font-semibold text-neutral-900">
                   {it.menuName}
                 </span>
-                <span className="flex flex-shrink-0 items-baseline gap-1">
+                <span className="flex shrink-0 items-baseline gap-1">
                   <span className="text-brand-700 text-2xl font-extrabold tabular-nums">
                     {it.suggested}
                   </span>

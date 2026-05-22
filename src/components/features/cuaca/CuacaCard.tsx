@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
 import {
@@ -8,9 +7,10 @@ import {
   type SkWeatherChipKind,
 } from '@/components/ui-kit/primitives/sk-weather-chip';
 import { WeatherScene, type WeatherKind } from '@/components/ui-kit/weather/scenes';
-import { getMockWeather } from '@/lib/cuaca-mock';
 import { cuaca } from '@/lib/copy/cuaca';
+import { getMockWeather } from '@/lib/cuaca-mock';
 import { tomorrowIsoUtc } from '@/lib/utils';
+import * as React from 'react';
 
 /**
  * Mock cuaca card visible on /dashboard. Phase 1.5 only — Phase 2 swaps for
@@ -31,16 +31,22 @@ export function CuacaCard({ serviceDate }: { serviceDate?: string }) {
       <WeatherScene kind={kind} width="100%" height={96} style={{ borderRadius: 0 }} />
       <div className="flex flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3">
-            <SkWeatherChip kind={chipKind} time="Besok" />
-            <div className="flex flex-col">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <div className="shrink-0">
+              <SkWeatherChip kind={chipKind} time="Besok" />
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col">
               <span className="text-info text-xs font-semibold tracking-wider uppercase">
                 {cuaca.heading}
               </span>
-              <span className="text-lg font-bold text-neutral-900">{weather.label}</span>
+              <span className="text-lg leading-tight font-bold text-neutral-900">
+                {weather.label}
+              </span>
             </div>
           </div>
-          <SkPill tone="brand">{cuaca.mock_badge}</SkPill>
+          <div className="shrink-0">
+            <SkPill tone="brand">{cuaca.mock_badge}</SkPill>
+          </div>
         </div>
         <p className="text-sm leading-relaxed text-neutral-700">
           <span className="font-semibold text-neutral-800">{cuaca.hint_prefix}</span> {weather.hint}
