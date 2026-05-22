@@ -1,20 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
+import { SkCard } from '@/components/ui-kit/primitives/sk-card';
+import { SkInput } from '@/components/ui-kit/primitives/sk-input';
+import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
+import { SkSkeleton } from '@/components/ui-kit/primitives/sk-skeleton';
+import { SkTextarea } from '@/components/ui-kit/primitives/sk-textarea';
+import { Banner, InlineAlert } from '@/components/ui-kit/notifications';
 import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { VoiceInputButton } from '@/components/features/stock/VoiceInputButton';
 import { stock as t } from '@/lib/copy/stock';
@@ -27,12 +22,7 @@ import {
 } from '@/app/actions/stock';
 import type { ParsedStockPayload } from '@/types/domain';
 import { useOnlineStatus } from '@/hooks/use-online-status';
-import {
-  listDrafts,
-  pushDraft,
-  removeDraft,
-  type OfflineDraft,
-} from '@/lib/offline/draft-queue';
+import { listDrafts, pushDraft, removeDraft, type OfflineDraft } from '@/lib/offline/draft-queue';
 
 type Phase = 'input' | 'parsing' | 'confirm' | 'saving' | 'error' | 'offline-queued';
 
@@ -189,77 +179,71 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
     });
   }
 
-  if (phase === 'confirm') {
-    return (
-      <ConfirmCard
-        items={items}
-        weather={weather}
-        onChange={setItems}
-        onConfirm={handleConfirm}
-        onEdit={handleBackToInput}
-      />
-    );
-  }
-
-  if (phase === 'parsing') {
-    return <ParseLoadingCard />;
-  }
-
-  if (phase === 'saving') {
-    return <StatusBlock title={common.state.saving} />;
-  }
-
-  if (phase === 'offline-queued') {
-    return <OfflineQueuedCard onAgain={() => setPhase('input')} />;
-  }
-
   return (
-    <InputBlock
-      value={rawInput}
-      online={online}
-      drafts={drafts}
-      onChange={setRawInput}
-      onSubmit={handleParse}
-      onRestoreDraft={handleRestoreDraft}
-      onDiscardDraft={handleDiscardDraft}
-      loading={false}
-      errorMessage={phase === 'error' ? errorMessage : null}
-      voiceEnabled={voiceEnabled}
-      onVoiceTranscript={appendVoiceTranscript}
-    />
+    <AppLayout topbarMode="task" title="Catat Stok" trailing={<SubuhToggle />}>
+      <div className="flex flex-col gap-4 px-4 pt-4">
+        {phase === 'confirm' ? (
+          <ConfirmCard
+            items={items}
+            weather={weather}
+            onChange={setItems}
+            onConfirm={handleConfirm}
+            onEdit={handleBackToInput}
+          />
+        ) : phase === 'parsing' ? (
+          <ParseLoadingCard />
+        ) : phase === 'saving' ? (
+          <StatusBlock title={common.state.saving} />
+        ) : phase === 'offline-queued' ? (
+          <OfflineQueuedCard onAgain={() => setPhase('input')} />
+        ) : (
+          <InputBlock
+            value={rawInput}
+            online={online}
+            drafts={drafts}
+            onChange={setRawInput}
+            onSubmit={handleParse}
+            onRestoreDraft={handleRestoreDraft}
+            onDiscardDraft={handleDiscardDraft}
+            loading={false}
+            errorMessage={phase === 'error' ? errorMessage : null}
+            voiceEnabled={voiceEnabled}
+            onVoiceTranscript={appendVoiceTranscript}
+          />
+        )}
+      </div>
+    </AppLayout>
   );
 }
 
 function ParseLoadingCard() {
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-          {t.parsing.heading}
-        </h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{t.parsing.heading}</h1>
         <p className="text-base text-neutral-600">{t.parsing.subheading}</p>
-      </header>
-      <Card aria-busy aria-live="polite">
-        <CardContent>
+      </div>
+      <SkCard>
+        <div style={{ padding: '1rem' }} aria-busy aria-live="polite">
           <div className="flex flex-col gap-3">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="flex flex-col gap-2 rounded-button border border-neutral-200 bg-neutral-100 p-3"
+                className="rounded-button flex flex-col gap-2 border border-neutral-200 bg-neutral-100 p-3"
               >
                 <div className="flex items-center justify-between">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-16" />
+                  <SkSkeleton style={{ height: 16, width: 128 }} />
+                  <SkSkeleton style={{ height: 12, width: 64 }} />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <Skeleton className="h-10" />
-                  <Skeleton className="h-10" />
+                  <SkSkeleton style={{ height: 40 }} />
+                  <SkSkeleton style={{ height: 40 }} />
                 </div>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </SkCard>
     </div>
   );
 }
@@ -281,20 +265,12 @@ function InputBlock(props: {
   const submitLabel = props.online ? t.input.submit : t.input.offline_submit;
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{t.input.heading}</h1>
-          <p className="text-base text-neutral-600">{t.input.subheading}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <CancelCatatLink />
-          <SubuhToggle />
-        </div>
-      </header>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{t.input.heading}</h1>
+        <p className="text-base text-neutral-600">{t.input.subheading}</p>
+      </div>
       {!props.online ? (
-        <p className="rounded-button border border-warning/40 bg-warning/10 px-3 py-2 text-xs font-semibold text-warning">
-          {t.offline.offline_indicator}
-        </p>
+        <Banner kind="warn" title="Mode offline" message={t.offline.offline_indicator} />
       ) : null}
       {props.drafts.length > 0 ? (
         <OfflineDraftsBanner
@@ -308,12 +284,12 @@ function InputBlock(props: {
           <VoiceInputButton onTranscript={props.onVoiceTranscript} />
         </div>
       ) : null}
-      <Textarea
+      <SkTextarea
         rows={6}
         autoFocus
         placeholder={t.input.placeholder}
         value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
+        onChange={props.onChange}
         maxLength={THRESHOLDS.STOCK_NOTE_MAX_CHARS}
         invalid={Boolean(props.errorMessage)}
       />
@@ -324,19 +300,19 @@ function InputBlock(props: {
         </span>
       </div>
       {props.errorMessage ? (
-        <p role="alert" className="text-danger text-sm">
-          {props.errorMessage}
-        </p>
+        <InlineAlert kind="danger" title="Belum bisa diproses">
+          <span role="alert">{props.errorMessage}</span>
+        </InlineAlert>
       ) : null}
-      <Button
-        type="button"
+      <SkButton
+        variant="brand"
         size="lg"
-        loading={props.loading}
+        full
         disabled={props.loading || props.value.trim().length === 0}
         onClick={props.onSubmit}
       >
         {props.loading ? t.input.parsing : submitLabel}
-      </Button>
+      </SkButton>
     </div>
   );
 }
@@ -349,37 +325,36 @@ function OfflineDraftsBanner(props: {
   const latest = props.drafts[props.drafts.length - 1];
   if (!latest) return null;
   return (
-    <Card className="border-brand-200 bg-brand-50">
-      <CardContent>
-        <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+    <SkCard style={{ borderColor: 'var(--sk-brand)', background: 'var(--sk-brand-soft)' }}>
+      <div style={{ padding: '0.75rem' }}>
+        <p className="text-brand-700 text-xs font-semibold tracking-wider uppercase">
           {t.offline.banner_draft_available} · {props.drafts.length}
         </p>
         <p className="mt-1 line-clamp-2 text-sm text-neutral-700">{latest.rawInput}</p>
         <div className="mt-3 flex items-center gap-2">
-          <Button size="sm" onClick={() => props.onRestore(latest)}>
+          <SkButton size="sm" onClick={() => props.onRestore(latest)}>
             {t.offline.banner_restore}
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => props.onDiscard(latest)}>
+          </SkButton>
+          <SkButton size="sm" variant="ghost" onClick={() => props.onDiscard(latest)}>
             {t.offline.banner_discard}
-          </Button>
+          </SkButton>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </SkCard>
   );
 }
 
 function OfflineQueuedCard({ onAgain }: { onAgain: () => void }) {
   return (
-    <Card aria-live="polite">
-      <CardHeader>
-        <CardTitle>{t.offline.queued_title}</CardTitle>
-        <CardDescription>{t.offline.queued_description}</CardDescription>
-      </CardHeader>
-      <CardFooter className="justify-between">
-        <CancelCatatLink />
-        <Button onClick={onAgain}>{t.offline.queued_again}</Button>
-      </CardFooter>
-    </Card>
+    <SkCard>
+      <div style={{ padding: '1rem' }} aria-live="polite">
+        <p className="text-base font-semibold text-neutral-900">{t.offline.queued_title}</p>
+        <p className="mt-1 text-sm text-neutral-600">{t.offline.queued_description}</p>
+        <div className="mt-4">
+          <SkButton onClick={onAgain}>{t.offline.queued_again}</SkButton>
+        </div>
+      </div>
+    </SkCard>
   );
 }
 
@@ -395,39 +370,28 @@ function ConfirmCard(props: {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t.confirm.heading}</CardTitle>
-        <CardDescription>{t.confirm.subheading}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {props.items.map((it, idx) => (
-          <ItemRow key={idx} item={it} onChange={(patch) => update(idx, patch)} />
-        ))}
+    <SkCard>
+      <div style={{ padding: '1rem' }}>
+        <p className="text-base font-semibold text-neutral-900">{t.confirm.heading}</p>
+        <p className="mt-0.5 text-sm text-neutral-600">{t.confirm.subheading}</p>
+        <div className="mt-3 flex flex-col gap-3">
+          {props.items.map((it, idx) => (
+            <ItemRow key={idx} item={it} onChange={(patch) => update(idx, patch)} />
+          ))}
+        </div>
         {props.weather ? (
           <p className="mt-2 text-sm text-neutral-600">🌤 {t.confirm.weather[props.weather]}</p>
         ) : null}
-      </CardContent>
-      <CardFooter className="justify-between">
-        <CancelCatatLink />
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={props.onEdit}>
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <SkButton variant="ghost" size="sm" onClick={props.onEdit}>
             {t.confirm.edit}
-          </Button>
-          <Button onClick={props.onConfirm}>{t.confirm.save}</Button>
+          </SkButton>
+          <SkButton variant="brand" onClick={props.onConfirm}>
+            {t.confirm.save}
+          </SkButton>
         </div>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function CancelCatatLink() {
-  return (
-    <Link href="/dashboard">
-      <Button variant="ghost" size="sm">
-        {t.cancel}
-      </Button>
-    </Link>
+      </div>
+    </SkCard>
   );
 }
 
@@ -439,18 +403,14 @@ function ItemRow(props: { item: EditableItem; onChange: (patch: Partial<Editable
       : item.confidence === 'medium'
         ? t.confirm.item.medium_confidence
         : t.confirm.item.low_confidence;
-  const confidenceTone =
-    item.confidence === 'high'
-      ? 'text-success'
-      : item.confidence === 'medium'
-        ? 'text-warning'
-        : 'text-danger';
+  const pillTone =
+    item.confidence === 'high' ? 'success' : item.confidence === 'medium' ? 'warn' : 'danger';
 
   return (
     <div className="flex flex-col gap-2 rounded-[12px] border border-neutral-200 bg-neutral-100 p-3">
       <div className="flex items-center justify-between">
         <span className="font-semibold text-neutral-900">{item.candidateName}</span>
-        <span className={`text-xs font-semibold ${confidenceTone}`}>{confidenceLabel}</span>
+        <SkPill tone={pillTone}>{confidenceLabel}</SkPill>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <NumberField
@@ -481,15 +441,14 @@ function NumberField(props: {
   return (
     <label className="flex flex-col gap-1">
       <span className="text-xs font-semibold text-neutral-600">{props.label}</span>
-      <Input
+      <SkInput
         type="number"
         inputMode="numeric"
         min={0}
         max={10000}
-        value={props.value ?? ''}
-        onChange={(e) => {
-          const next = e.target.value;
-          props.onChange(next === '' ? null : Math.max(0, Number(next)));
+        value={String(props.value ?? '')}
+        onChange={(v) => {
+          props.onChange(v === '' ? null : Math.max(0, Number(v)));
         }}
       />
     </label>
@@ -498,10 +457,10 @@ function NumberField(props: {
 
 function StatusBlock(props: { title: string }) {
   return (
-    <Card>
-      <CardContent>
+    <SkCard>
+      <div style={{ padding: '1rem' }}>
         <p className="text-base text-neutral-700">{props.title}</p>
-      </CardContent>
-    </Card>
+      </div>
+    </SkCard>
   );
 }

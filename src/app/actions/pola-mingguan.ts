@@ -1,6 +1,6 @@
 'use server';
 
-import { getDemoContext } from '@/lib/auth/demo-context';
+import { requireOutletAccess } from '@/lib/auth/session';
 import { listMenuItems } from '@/lib/db/queries/menu-items';
 import { listRecentStockLogs } from '@/lib/db/queries/stock-logs';
 import { computePolaMingguan, type PolaMingguanData } from '@/lib/services/pola-mingguan';
@@ -8,11 +8,11 @@ import type { StockLogShape } from '@/lib/services/recommendation-mapping';
 import { type ActionResult, fail, ok } from '@/types/action-result';
 
 export async function getPolaMingguan(): Promise<ActionResult<PolaMingguanData>> {
-  const { outletId } = getDemoContext();
+  const ctx = await requireOutletAccess();
   try {
     const [menu, logs] = await Promise.all([
-      listMenuItems(outletId),
-      listRecentStockLogs(outletId, 28), // four-week lookback for better weekday samples
+      listMenuItems(ctx.db, ctx.outletId),
+      listRecentStockLogs(ctx.db, ctx.outletId, 28),
     ]);
 
     const shaped: StockLogShape[] = logs.map((log) => ({

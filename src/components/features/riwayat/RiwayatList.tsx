@@ -1,16 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
+import { SkCard } from '@/components/ui-kit/primitives/sk-card';
+import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
 import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import {
-  CloudMark,
-  EmptyState,
-  NotebookMark,
-  SproutMark,
-} from '@/components/ui/illustration';
+  EmptyPanel,
+  IllustError,
+  IllustNoData,
+  IllustNoHistory,
+} from '@/components/ui-kit/illustrations/empty-states';
 import { riwayat } from '@/lib/copy/riwayat';
 import { common } from '@/lib/copy/common';
 import { getRiwayat7d, type RiwayatDay } from '@/app/actions/riwayat';
@@ -18,6 +20,7 @@ import { getRiwayat7d, type RiwayatDay } from '@/app/actions/riwayat';
 type Phase = 'loading' | 'ready' | 'empty' | 'error';
 
 export function RiwayatList() {
+  const router = useRouter();
   const [phase, setPhase] = React.useState<Phase>('loading');
   const [days, setDays] = React.useState<RiwayatDay[]>([]);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -42,102 +45,83 @@ export function RiwayatList() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <header className="flex items-start justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{riwayat.heading}</h1>
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm">
-              {riwayat.back}
-            </Button>
-          </Link>
-          <SubuhToggle />
-        </div>
-      </header>
+    <AppLayout topbarMode="task" title="Riwayat 7 Hari" trailing={<SubuhToggle />}>
+      <div className="flex flex-col gap-4 px-4 pt-4">
+        {phase === 'loading' ? (
+          <EmptyPanel
+            illust={IllustNoHistory}
+            title={common.state.loading}
+            body="Lagi ambil 7 hari terakhir."
+          />
+        ) : null}
 
-      {phase === 'loading' ? (
-        <Card>
-          <CardContent>
-            <EmptyState
-              icon={<CloudMark />}
-              title={common.state.loading}
-              description="Lagi ambil 7 hari terakhir."
-            />
-          </CardContent>
-        </Card>
-      ) : null}
+        {phase === 'empty' ? (
+          <EmptyPanel
+            illust={IllustNoData}
+            title="Belum ada catatan"
+            body={riwayat.empty}
+            cta={
+              <SkButton variant="brand" size="md" full onClick={() => router.push('/catat')}>
+                Catat hari ini
+              </SkButton>
+            }
+          />
+        ) : null}
 
-      {phase === 'empty' ? (
-        <Card>
-          <CardContent>
-            <EmptyState
-              icon={<SproutMark />}
-              title="Belum ada catatan"
-              description={riwayat.empty}
-              action={
-                <Link href="/catat">
-                  <Button size="md" className="w-full">
-                    Catat hari ini
-                  </Button>
-                </Link>
-              }
-            />
-          </CardContent>
-        </Card>
-      ) : null}
+        {phase === 'error' ? (
+          <EmptyPanel
+            illust={IllustError}
+            title="Gagal ambil riwayat"
+            body={errorMsg ?? common.state.error_generic}
+          />
+        ) : null}
 
-      {phase === 'error' ? (
-        <Card>
-          <CardContent>
-            <EmptyState
-              icon={<NotebookMark />}
-              title="Gagal ambil riwayat"
-              description={errorMsg ?? common.state.error_generic}
-            />
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {phase === 'ready'
-        ? days.map((day) => <DayCard key={day.serviceDate} day={day} />)
-        : null}
-    </div>
+        {phase === 'ready' ? days.map((day) => <DayCard key={day.serviceDate} day={day} />) : null}
+      </div>
+    </AppLayout>
   );
 }
 
 function DayCard({ day }: { day: RiwayatDay }) {
   return (
-    <Card>
-      <CardContent>
+    <SkCard>
+      <div style={{ padding: '0.75rem 1rem' }}>
         <div className="flex items-baseline justify-between">
           <span className="font-semibold text-neutral-900">{formatDate(day.serviceDate)}</span>
-          <span className="text-xs text-neutral-500">
-            {riwayat.total_sold} {day.totalSold} · {riwayat.total_leftover} {day.totalLeftover}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <SkPill tone="success">
+              {riwayat.total_sold} {day.totalSold}
+            </SkPill>
+            {day.totalLeftover > 0 ? (
+              <SkPill tone="warn">
+                {riwayat.total_leftover} {day.totalLeftover}
+              </SkPill>
+            ) : null}
+          </div>
         </div>
         <ul className="mt-2 flex flex-col gap-1.5">
           {day.items.map((it) => (
             <li
               key={it.menuItemId}
-              className="flex items-baseline justify-between text-sm"
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3 text-sm"
             >
-              <span className="text-neutral-700">{it.menuName}</span>
-              <span className="text-neutral-900">
+              <span className="min-w-0 truncate text-neutral-700">{it.menuName}</span>
+              <span className="inline-flex items-baseline gap-1 whitespace-nowrap text-neutral-900">
                 <span className="font-semibold">{it.sold}</span>
-                <span className="text-neutral-500"> {riwayat.total_sold}</span>
+                <span className="text-neutral-500">{riwayat.total_sold}</span>
                 {it.leftover > 0 ? (
                   <>
                     <span className="text-neutral-400"> · </span>
-                    <span className="font-semibold text-warning">{it.leftover}</span>
-                    <span className="text-neutral-500"> {riwayat.total_leftover}</span>
+                    <span className="text-warning font-semibold">{it.leftover}</span>
+                    <span className="text-neutral-500">{riwayat.total_leftover}</span>
                   </>
                 ) : null}
               </span>
             </li>
           ))}
         </ul>
-      </CardContent>
-    </Card>
+      </div>
+    </SkCard>
   );
 }
 

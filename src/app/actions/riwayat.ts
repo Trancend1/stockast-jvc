@@ -1,6 +1,6 @@
 'use server';
 
-import { getDemoContext } from '@/lib/auth/demo-context';
+import { requireOutletAccess } from '@/lib/auth/session';
 import { listMenuItems } from '@/lib/db/queries/menu-items';
 import { listRecentStockLogs } from '@/lib/db/queries/stock-logs';
 import { type ActionResult, fail, ok } from '@/types/action-result';
@@ -23,11 +23,11 @@ export type RiwayatDay = {
 export type RiwayatData = { days: RiwayatDay[] };
 
 export async function getRiwayat7d(): Promise<ActionResult<RiwayatData>> {
-  const { outletId } = getDemoContext();
+  const ctx = await requireOutletAccess();
   try {
     const [menu, logs] = await Promise.all([
-      listMenuItems(outletId),
-      listRecentStockLogs(outletId, 7),
+      listMenuItems(ctx.db, ctx.outletId),
+      listRecentStockLogs(ctx.db, ctx.outletId, 7),
     ]);
     const days: RiwayatDay[] = logs.map((log) => {
       const rawItems = log.items as unknown as Array<{

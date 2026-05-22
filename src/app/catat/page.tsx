@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function CatatPage() {
-  return (
-    <main className="app-container flex min-h-dvh flex-col py-8">
-      <StockFlow voiceEnabled={flags.voiceInput} />
-    </main>
-  );
+  return <StockFlow voiceEnabled={flags.voiceInput} />;
 }

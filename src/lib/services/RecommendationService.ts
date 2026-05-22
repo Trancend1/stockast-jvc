@@ -1,12 +1,10 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { explainRecommendation } from '@/lib/ai/generate';
 import { insertAIAuditLog } from '@/lib/db/queries/ai-audit';
 import { listMenuItems } from '@/lib/db/queries/menu-items';
-import {
-  findRecommendation,
-  upsertRecommendation,
-} from '@/lib/db/queries/recommendations';
+import { findRecommendation, upsertRecommendation } from '@/lib/db/queries/recommendations';
 import { listRecentStockLogs } from '@/lib/db/queries/stock-logs';
 import type { Json, MenuItemRow, StockLogItemRow } from '@/lib/db/types';
 import type { Recommendation, RecommendationItem } from '@/types/domain';
@@ -18,17 +16,10 @@ import {
   type StockLogShape,
 } from './recommendation-mapping';
 
-/**
- * Orchestrate Belanja Card build:
- *   stock_logs (7d) → rules.recommend per menu → AI explain → persist + return
- *
- * Source: .docs/SYSTEM_ARCHITECTURE.md §6 (RecommendationService).
- */
-
 export type GetTomorrowRecommendationInput = {
   outletId: string;
-  serviceDate: string; // YYYY-MM-DD — the date the Belanja Card is FOR
-  weather?: WeatherCategory; // Phase 1 mock: defaults to 'unknown'
+  serviceDate: string;
+  weather?: WeatherCategory;
   forceRefresh?: boolean;
 };
 
@@ -58,13 +49,14 @@ export type BelanjaCardResult =
   | { ok: false; reason: 'NO_MENU' | 'NO_HISTORY' | 'INTERNAL'; message: string };
 
 export async function getTomorrowRecommendation(
+  db: SupabaseClient,
   input: GetTomorrowRecommendationInput,
 ): Promise<BelanjaCardResult> {
   if (!input.forceRefresh) {
     try {
       const [existing, menuItemsForCache] = await Promise.all([
-        findRecommendation(input.outletId, input.serviceDate),
-        safeListMenuItems(input.outletId),
+        findRecommendation(db, input.outletId, input.serviceDate),
+        safeListMenuItems(db, input.outletId),
       ]);
       if (existing) {
         return toCachedResult(existing, menuItemsForCache);
@@ -76,7 +68,7 @@ export async function getTomorrowRecommendation(
 
   let menuItems: MenuItemRow[];
   try {
-    menuItems = await listMenuItems(input.outletId);
+    menuItems = await listMenuItems(db, input.outletId);
   } catch (err) {
     return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
   }
@@ -86,12 +78,16 @@ export async function getTomorrowRecommendation(
 
   let logs: StockLogShape[];
   try {
-    logs = await fetchHistory(input.outletId);
+    logs = await fetchHistory(db, input.outletId);
   } catch (err) {
     return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
   }
   if (logs.length === 0) {
-    return { ok: false, reason: 'NO_HISTORY', message: 'Catat stok dulu beberapa hari, baru rekomendasi muncul.' };
+    return {
+      ok: false,
+      reason: 'NO_HISTORY',
+      message: 'Catat stok dulu beberapa hari, baru rekomendasi muncul.',
+    };
   }
 
   const weekday = new Date(input.serviceDate + 'T00:00:00').getDay();
@@ -145,8 +141,9 @@ export async function getTomorrowRecommendation(
     explainSucceeded: reasoningByName.succeeded,
   } as const;
 
+  let recommendationRow: { id: string };
   try {
-    await upsertRecommendation({
+    recommendationRow = await upsertRecommendation(db, {
       outletId: input.outletId,
       serviceDate: input.serviceDate,
       items: cards as unknown as Json,
@@ -157,6 +154,14 @@ export async function getTomorrowRecommendation(
   } catch (err) {
     return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
   }
+
+  void writeAudit({
+    outletId: input.outletId,
+    entityId: recommendationRow.id,
+    rawSource: reasoningByName.rawSource,
+    meta: reasoningByName.auditMeta,
+    rawResponse: reasoningByName.rawResponse,
+  });
 
   return {
     ok: true,
@@ -171,8 +176,8 @@ export async function getTomorrowRecommendation(
   };
 }
 
-async function fetchHistory(outletId: string): Promise<StockLogShape[]> {
-  const rows = await listRecentStockLogs(outletId, THRESHOLDS.HISTORY_WINDOW_DAYS);
+async function fetchHistory(db: SupabaseClient, outletId: string): Promise<StockLogShape[]> {
+  const rows = await listRecentStockLogs(db, outletId, THRESHOLDS.HISTORY_WINDOW_DAYS);
   return rows.map((r) => ({
     service_date: r.service_date,
     items: r.items as unknown as Array<{
@@ -189,6 +194,9 @@ type ExplainOutcome = {
   summary: string | null;
   promptVersion: string | null;
   succeeded: boolean;
+  auditMeta: { promptVersion: string; model: string; latencyMs: number };
+  rawResponse: Json | null;
+  rawSource: string;
 };
 
 async function runExplain(args: {
@@ -210,12 +218,7 @@ async function runExplain(args: {
     items: args.items,
   });
 
-  void writeAudit({
-    outletId: args.outletId,
-    rawSource: JSON.stringify(args.items),
-    meta: result.meta,
-    rawResponse: result.ok ? (result.data as unknown as Json) : null,
-  });
+  const rawSource = JSON.stringify(args.items);
 
   if (!result.ok) {
     return {
@@ -223,6 +226,9 @@ async function runExplain(args: {
       summary: null,
       promptVersion: result.meta.promptVersion,
       succeeded: false,
+      auditMeta: result.meta,
+      rawResponse: null,
+      rawSource,
     };
   }
 
@@ -235,11 +241,20 @@ async function runExplain(args: {
     summary: result.data.summary,
     promptVersion: result.meta.promptVersion,
     succeeded: true,
+    auditMeta: result.meta,
+    rawResponse: result.data as unknown as Json,
+    rawSource,
   };
 }
 
 function toCachedResult(
-  existing: { items: Json; reasoning: string; confidence_label: Recommendation['confidenceLabel']; outlet_id: string; service_date: string },
+  existing: {
+    items: Json;
+    reasoning: string;
+    confidence_label: Recommendation['confidenceLabel'];
+    outlet_id: string;
+    service_date: string;
+  },
   menuItems: MenuItemRow[],
 ): BelanjaCardResult {
   const items = existing.items as unknown as BelanjaCardItem[];
@@ -275,9 +290,9 @@ function defaultSummary(count: number): string {
   return 'Belanja besok sesuai pola minggu ini, aman aja.';
 }
 
-async function safeListMenuItems(outletId: string): Promise<MenuItemRow[]> {
+async function safeListMenuItems(db: SupabaseClient, outletId: string): Promise<MenuItemRow[]> {
   try {
-    return await listMenuItems(outletId);
+    return await listMenuItems(db, outletId);
   } catch {
     return [];
   }
@@ -289,6 +304,7 @@ function errorMessage(err: unknown): string {
 
 function writeAudit(args: {
   outletId: string;
+  entityId: string;
   rawSource: string;
   meta: { promptVersion: string; model: string; latencyMs: number };
   rawResponse: Json | null;
@@ -296,8 +312,8 @@ function writeAudit(args: {
   const hash = createHash('sha256').update(args.rawSource).digest('hex');
   insertAIAuditLog({
     outlet_id: args.outletId,
-    entity_type: 'recommendation',
-    entity_id: null,
+    entity_type: 'recommendation_generated',
+    entity_id: args.entityId,
     prompt_version: args.meta.promptVersion,
     model: args.meta.model,
     raw_input_hash: hash,
@@ -309,5 +325,4 @@ function writeAudit(args: {
   });
 }
 
-// Re-export shape for UI components.
 export type { StockLogItemRow };

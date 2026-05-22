@@ -1,11 +1,13 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { getDemoContext } from '@/lib/auth/demo-context';
+import { adminDb } from '@/lib/db/admin';
+import { createServerClient } from '@/lib/db/supabase-client';
+import { provisionNewUser } from '@/lib/auth/provisioning';
+import { getUserOutlet } from '@/lib/db/queries/users';
 import { listMenuItems, syncOutletMenu } from '@/lib/db/queries/menu-items';
-import {
-  countRecentStockLogDays,
-  upsertStockLogBatch,
-} from '@/lib/db/queries/demo-seed';
+import { countRecentStockLogDays, upsertStockLogBatch } from '@/lib/db/queries/demo-seed';
 import { updateOutletProfile } from '@/lib/db/queries/outlets';
 import { buildDemoSeedDays } from '@/lib/services/demo-seed';
 import {
@@ -30,10 +32,14 @@ export type ApplyOnboardingProfileData = {
 };
 
 /**
- * Persist the user's onboarding inputs (warung name, location, menu) to the
- * demo outlet. Single-tenant Phase 1: we update the seeded DEMO_OUTLET_ID
- * in place rather than creating a new outlet, so subsequent reads of the
- * dashboard reflect THIS merchant's typed data instead of the Bu Yati seed.
+ * Persist onboarding inputs to the database.
+ *
+ * FEATURE_AUTH_REQUIRED=true (Sprint F+):
+ *   New user  → provision org + membership + outlet (adminDb), then sync menu.
+ *   Returning → update existing outlet + resync menu (session client + RLS).
+ *
+ * FEATURE_AUTH_REQUIRED=false (Phase 1 demo):
+ *   Updates the seeded DEMO_OUTLET_ID outlet in place.
  */
 export async function applyOnboardingProfile(
   input: OnboardingProfilePayload,
@@ -43,53 +49,88 @@ export async function applyOnboardingProfile(
     return fail('INPUT_INVALID', normalizationMessage(normalized.error));
   }
 
-  const { outletId } = getDemoContext();
   const location = findLocation(normalized.locationValue);
+  const locationLabel = location?.label ?? normalized.locationValue;
+  const adm4Code = location?.adm4Code ?? null;
+
+  if (!flags.authRequired) {
+    const { outletId } = getDemoContext();
+    try {
+      await updateOutletProfile(adminDb(), {
+        outletId,
+        name: normalized.warungName,
+        locationLabel,
+        adm4Code,
+      });
+      const synced = await syncOutletMenu(adminDb(), outletId, normalized.menuItems);
+      return ok({ outletId, menuCount: synced.length });
+    } catch (err) {
+      if (err instanceof MissingTableError) return fail('SERVICE_UNAVAILABLE', err.message);
+      return fail('INTERNAL', err instanceof Error ? err.message : 'gagal');
+    }
+  }
+
+  // Sprint F+ authenticated path
+  const sessionDb = await createServerClient();
+  const {
+    data: { user },
+  } = await sessionDb.auth.getUser();
+  if (!user) redirect('/login');
+
+  const existingOutletId = await getUserOutlet(sessionDb, user.id);
 
   try {
-    await updateOutletProfile({
+    let outletId: string;
+
+    if (!existingOutletId) {
+      // New user: provision using admin (no RLS for memberships/outlet yet)
+      const provisioned = await provisionNewUser({
+        userId: user.id,
+        phone: user.phone ?? '',
+        warungName: normalized.warungName,
+        locationLabel,
+        adm4Code,
+      });
+      outletId = provisioned.outletId;
+      // Use adminDb for initial menu sync — JWT may not yet reflect new membership
+      const synced = await syncOutletMenu(adminDb(), outletId, normalized.menuItems);
+      return ok({ outletId, menuCount: synced.length });
+    }
+
+    // Returning user: session client enforces RLS ownership
+    outletId = existingOutletId;
+    await updateOutletProfile(sessionDb, {
       outletId,
       name: normalized.warungName,
-      locationLabel: location?.label ?? normalized.locationValue,
-      adm4Code: location?.adm4Code ?? null,
+      locationLabel,
+      adm4Code,
     });
-
-    const synced = await syncOutletMenu(outletId, normalized.menuItems);
+    const synced = await syncOutletMenu(sessionDb, outletId, normalized.menuItems);
     return ok({ outletId, menuCount: synced.length });
   } catch (err) {
-    if (err instanceof MissingTableError) {
-      return fail('SERVICE_UNAVAILABLE', err.message);
-    }
+    if (err instanceof MissingTableError) return fail('SERVICE_UNAVAILABLE', err.message);
     return fail('INTERNAL', err instanceof Error ? err.message : 'gagal');
   }
 }
 
 /**
- * Idempotent demo data backfill. Called after onboarding so the Dashboard
- * Belanja Card has at least HISTORY_WINDOW_DAYS of data to compute against
- * the merchant's actual menu (set via `applyOnboardingProfile`).
- *
- * Gated by `FEATURE_DEMO_AUTOSEED` — disable in production once real merchants
- * onboard.
+ * Idempotent demo data backfill for the given outlet.
+ * Pass outletId from applyOnboardingProfile result.
  */
-export async function ensureDemoSeed(): Promise<ActionResult<EnsureDemoSeedData>> {
+export async function ensureDemoSeed(outletId: string): Promise<ActionResult<EnsureDemoSeedData>> {
   if (!flags.demoAutoseed) {
     return ok({ inserted: 0, skipped: true, reason: 'flag_off' });
   }
-
-  const { outletId } = getDemoContext();
-
+  const db = adminDb(); // seed is admin-only
   try {
     const existing = await countRecentStockLogDays(outletId, THRESHOLDS.HISTORY_WINDOW_DAYS);
     if (existing >= THRESHOLDS.HISTORY_WINDOW_DAYS) {
       return ok({ inserted: 0, skipped: true, reason: 'has_history' });
     }
-
-    const menu = await listMenuItems(outletId);
+    const menu = await listMenuItems(db, outletId);
     if (menu.length === 0) {
       return ok({ inserted: 0, skipped: true, reason: 'no_menu' });
     }
-
     const anchor = new Date().toISOString().slice(0, 10);
     const days = buildDemoSeedDays(menu, anchor, THRESHOLDS.HISTORY_WINDOW_DAYS);
     const inserted = await upsertStockLogBatch(outletId, days);

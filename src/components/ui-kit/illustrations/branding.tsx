@@ -5,8 +5,8 @@ const H_CREAM = '#F4ECD9';
 const H_GOLD = '#E8C074';
 
 export interface SizedSvgProps {
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
 }
 
 export function WelcomeHero({ width = 320, height = 220 }: SizedSvgProps) {
@@ -17,7 +17,7 @@ export function WelcomeHero({ width = 320, height = 220 }: SizedSvgProps) {
       height={height}
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      style={{ display: 'block' }}
+      style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
     >
       <defs>
         <linearGradient id="wh-sky" x1="0" y1="0" x2="0" y2="1">
@@ -37,17 +37,37 @@ export function WelcomeHero({ width = 320, height = 220 }: SizedSvgProps) {
       <circle cx="58" cy="50" r="14" fill={H_BRICK} />
 
       <g transform="translate(180 24)">
-        <path d="M 0 0 L 130 0 L 122 12 L 130 24 L 0 24 Z" fill={H_CREAM} stroke={H_INK} strokeWidth="1.4" strokeLinejoin="round" />
+        <path
+          d="M 0 0 L 130 0 L 122 12 L 130 24 L 0 24 Z"
+          fill={H_CREAM}
+          stroke={H_INK}
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
         <g fontFamily="monospace" fontSize="10" fill={H_INK} fontWeight="600">
-          <text x="8" y="16">LELE</text>
-          <text x="42" y="16" fill={H_MINT}>+8%</text>
-          <text x="70" y="16">TAHU</text>
-          <text x="102" y="16" fill={H_BRICK}>−6</text>
+          <text x="8" y="16">
+            LELE
+          </text>
+          <text x="42" y="16" fill={H_MINT}>
+            +8%
+          </text>
+          <text x="70" y="16">
+            TAHU
+          </text>
+          <text x="102" y="16" fill={H_BRICK}>
+            −6
+          </text>
         </g>
       </g>
 
       <g transform="translate(40 76)">
-        <path d="M 0 0 L 240 0 L 230 22 L 10 22 Z" fill={H_BRICK} stroke={H_INK} strokeWidth="1.6" strokeLinejoin="round" />
+        <path
+          d="M 0 0 L 240 0 L 230 22 L 10 22 Z"
+          fill={H_BRICK}
+          stroke={H_INK}
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
         <g stroke={H_CREAM} strokeWidth="3" opacity="0.6">
           <line x1="30" y1="2" x2="22" y2="20" />
           <line x1="70" y1="2" x2="62" y2="20" />
@@ -58,18 +78,67 @@ export function WelcomeHero({ width = 320, height = 220 }: SizedSvgProps) {
         <g fill={H_BRICK} stroke={H_INK} strokeWidth="1.4" strokeLinejoin="round">
           <path d="M 10 22 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 q 8 8 16 0 L 230 22 Z" />
         </g>
-        <rect x="100" y="-12" width="40" height="14" rx="2" fill={H_CREAM} stroke={H_INK} strokeWidth="1.2" />
-        <text x="120" y="-2" textAnchor="middle" fontFamily="serif" fontStyle="italic" fontSize="9" fontWeight="700" fill={H_INK}>
+        <rect
+          x="100"
+          y="-12"
+          width="40"
+          height="14"
+          rx="2"
+          fill={H_CREAM}
+          stroke={H_INK}
+          strokeWidth="1.2"
+        />
+        <text
+          x="120"
+          y="-2"
+          textAnchor="middle"
+          fontFamily="serif"
+          fontStyle="italic"
+          fontSize="9"
+          fontWeight="700"
+          fill={H_INK}
+        >
           WARUNG
         </text>
       </g>
 
       <g transform="translate(48 156)">
-        <ellipse cx="100" cy="14" rx="100" ry="10" fill={H_CREAM} stroke={H_INK} strokeWidth="1.5" />
-        <ellipse cx="100" cy="14" rx="86" ry="6" fill="none" stroke={H_INK} strokeWidth="1" opacity="0.35" />
+        <ellipse
+          cx="100"
+          cy="14"
+          rx="100"
+          ry="10"
+          fill={H_CREAM}
+          stroke={H_INK}
+          strokeWidth="1.5"
+        />
+        <ellipse
+          cx="100"
+          cy="14"
+          rx="86"
+          ry="6"
+          fill="none"
+          stroke={H_INK}
+          strokeWidth="1"
+          opacity="0.35"
+        />
         <ellipse cx="30" cy="12" rx="10" ry="5" fill={H_GOLD} stroke={H_INK} strokeWidth="1.3" />
-        <rect x="64" y="6" width="14" height="10" rx="2" fill={H_CREAM} stroke={H_INK} strokeWidth="1.3" />
-        <path d="M 156 14 q -4 -8 6 -8 q 10 0 6 8 q -6 4 -12 0 z" fill={H_BRICK} stroke={H_INK} strokeWidth="1.3" />
+        <rect
+          x="64"
+          y="6"
+          width="14"
+          height="10"
+          rx="2"
+          fill={H_CREAM}
+          stroke={H_INK}
+          strokeWidth="1.3"
+        />
+        <path
+          d="M 156 14 q -4 -8 6 -8 q 10 0 6 8 q -6 4 -12 0 z"
+          fill={H_BRICK}
+          stroke={H_INK}
+          strokeWidth="1.3"
+        />
       </g>
 
       <g transform="translate(140 110)">
@@ -99,7 +168,13 @@ export function WelcomeHero({ width = 320, height = 220 }: SizedSvgProps) {
 
       <g transform="translate(20 138)">
         <circle cx="6" cy="6" r="6" fill={H_INK} />
-        <path d="M 0 14 q 0 -2 6 -2 q 6 0 6 2 L 12 38 L 0 38 Z" fill={H_BRICK} stroke={H_INK} strokeWidth="1.3" strokeLinejoin="round" />
+        <path
+          d="M 0 14 q 0 -2 6 -2 q 6 0 6 2 L 12 38 L 0 38 Z"
+          fill={H_BRICK}
+          stroke={H_INK}
+          strokeWidth="1.3"
+          strokeLinejoin="round"
+        />
         <path d="M -2 30 L 14 30" stroke={H_INK} strokeWidth="1.4" strokeLinecap="round" />
       </g>
 
@@ -125,7 +200,7 @@ export function TickerBanner({ width = 600, height = 38 }: SizedSvgProps) {
       height={height}
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      style={{ display: 'block' }}
+      style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
     >
       <rect width="600" height="38" fill={H_INK} rx="6" />
       <path
@@ -165,7 +240,16 @@ export function ForecastIllust({ width = 220, height = 160 }: SizedSvgProps) {
       aria-hidden="true"
       style={{ display: 'block' }}
     >
-      <line x1="14" y1="130" x2="206" y2="130" stroke={H_INK} strokeWidth="1.4" strokeLinecap="round" opacity="0.55" />
+      <line
+        x1="14"
+        y1="130"
+        x2="206"
+        y2="130"
+        stroke={H_INK}
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        opacity="0.55"
+      />
       <g stroke={H_INK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 36 60 v 60" />
         <rect x="28" y="76" width="16" height="28" fill={H_MINT} />
@@ -174,7 +258,15 @@ export function ForecastIllust({ width = 220, height = 160 }: SizedSvgProps) {
         <path d="M 116 50 v 70" />
         <rect x="108" y="64" width="16" height="36" fill={H_MINT} />
         <path d="M 156 32 v 90" />
-        <rect x="148" y="42" width="16" height="58" fill="none" stroke={H_INK} strokeDasharray="3 3" />
+        <rect
+          x="148"
+          y="42"
+          width="16"
+          height="58"
+          fill="none"
+          stroke={H_INK}
+          strokeDasharray="3 3"
+        />
       </g>
       <path
         d="M 36 76 L 76 58 L 116 64 L 156 42"
@@ -194,7 +286,16 @@ export function ForecastIllust({ width = 220, height = 160 }: SizedSvgProps) {
         <circle cx="0" cy="0" r="14" fill={H_CREAM} stroke={H_INK} strokeWidth="1.6" />
         <circle cx="0" cy="0" r="14" fill={H_BRICK} opacity="0.18" />
         <path d="M 10 10 l 8 8" stroke={H_INK} strokeWidth="2.4" strokeLinecap="round" />
-        <text x="0" y="4" textAnchor="middle" fontFamily="serif" fontStyle="italic" fontSize="14" fontWeight="700" fill={H_INK}>
+        <text
+          x="0"
+          y="4"
+          textAnchor="middle"
+          fontFamily="serif"
+          fontStyle="italic"
+          fontSize="14"
+          fontWeight="700"
+          fill={H_INK}
+        >
           ?
         </text>
       </g>
@@ -254,9 +355,27 @@ export function MarketMascot({ size = 80 }: MarketMascotProps) {
       style={{ display: 'block' }}
     >
       <ellipse cx="40" cy="58" rx="32" ry="6" fill={H_CREAM} stroke={H_INK} strokeWidth="1.6" />
-      <ellipse cx="40" cy="58" rx="26" ry="3" fill="none" stroke={H_INK} strokeWidth="1" opacity="0.4" />
+      <ellipse
+        cx="40"
+        cy="58"
+        rx="26"
+        ry="3"
+        fill="none"
+        stroke={H_INK}
+        strokeWidth="1"
+        opacity="0.4"
+      />
       <circle cx="22" cy="56" r="3" fill={H_GOLD} />
-      <rect x="34" y="52" width="6" height="6" rx="1" fill={H_CREAM} stroke={H_INK} strokeWidth="1" />
+      <rect
+        x="34"
+        y="52"
+        width="6"
+        height="6"
+        rx="1"
+        fill={H_CREAM}
+        stroke={H_INK}
+        strokeWidth="1"
+      />
       <path d="M 50 58 q -3 -5 4 -5 q 7 0 4 5 z" fill={H_BRICK} stroke={H_INK} strokeWidth="1" />
       <path
         d="M 16 50 L 26 40 L 36 44 L 48 26 L 58 30 L 66 14"

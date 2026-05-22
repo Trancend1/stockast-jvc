@@ -2,11 +2,17 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
+import { SkInput } from '@/components/ui-kit/primitives/sk-input';
+import { SkLabel } from '@/components/ui-kit/primitives/sk-label';
+import { SkSelect } from '@/components/ui-kit/primitives/sk-select';
+import { SkSteps } from '@/components/ui-kit/primitives/sk-steps';
+import { SkTextarea } from '@/components/ui-kit/primitives/sk-textarea';
+import {
+  OnbDecorNama,
+  OnbDecorLokasi,
+  OnbDecorMenu,
+} from '@/components/ui-kit/onboarding/onb-decor';
 import { onboarding as t } from '@/lib/copy/onboarding';
 import { common } from '@/lib/copy/common';
 import { LOCATION_OPTIONS } from '@/lib/config/locations';
@@ -29,6 +35,8 @@ export function OnboardingForm() {
     location.length === 0 ||
     menu.trim().length === 0 ||
     submitting;
+
+  const currentStep = !warungName.trim() ? 0 : !location ? 1 : 2;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,38 +69,44 @@ export function OnboardingForm() {
 
     // Best-effort pre-seed against the merchant's actual menu_items.
     // Failure here is silent — the dashboard's no-history empty state handles it.
-    void ensureDemoSeed().catch(() => undefined);
+    void ensureDemoSeed(result.data.outletId).catch(() => undefined);
     router.push('/dashboard');
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{t.heading}</h1>
+        <SkSteps count={3} current={currentStep} />
+        <h1 className="mt-3 text-2xl font-bold tracking-tight text-neutral-900">{t.heading}</h1>
         <p className="text-base text-neutral-600">{t.subheading}</p>
       </header>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="warung-name">{t.fields.warung_name.label}</Label>
-        <Input
+        <div style={{ height: 80 }} aria-hidden="true">
+          <OnbDecorNama />
+        </div>
+        <SkLabel htmlFor="warung-name" hint={t.fields.warung_name.help}>
+          {t.fields.warung_name.label}
+        </SkLabel>
+        <SkInput
           id="warung-name"
           autoComplete="off"
           autoFocus
           placeholder={t.fields.warung_name.placeholder}
           value={warungName}
-          onChange={(e) => setWarungName(e.target.value)}
+          onChange={setWarungName}
           maxLength={FIELD_LIMITS.WARUNG_NAME_MAX}
         />
-        <p className="text-xs text-neutral-500">{t.fields.warung_name.help}</p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="location">{t.fields.location.label}</Label>
-        <Select
-          id="location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        >
+        <div style={{ height: 80 }} aria-hidden="true">
+          <OnbDecorLokasi />
+        </div>
+        <SkLabel htmlFor="location" hint={t.fields.location.help}>
+          {t.fields.location.label}
+        </SkLabel>
+        <SkSelect id="location" value={location} onChange={setLocation}>
           <option value="" disabled>
             {t.fields.location.placeholder}
           </option>
@@ -101,21 +115,24 @@ export function OnboardingForm() {
               {opt.label}
             </option>
           ))}
-        </Select>
-        <p className="text-xs text-neutral-500">{t.fields.location.help}</p>
+        </SkSelect>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="menu">{t.fields.menu.label}</Label>
-        <Textarea
+        <div style={{ height: 80 }} aria-hidden="true">
+          <OnbDecorMenu />
+        </div>
+        <SkLabel htmlFor="menu" hint={t.fields.menu.help}>
+          {t.fields.menu.label}
+        </SkLabel>
+        <SkTextarea
           id="menu"
           rows={FIELD_LIMITS.MENU_TEXTAREA_ROWS}
           placeholder={t.fields.menu.placeholder}
           value={menu}
-          onChange={(e) => setMenu(e.target.value)}
+          onChange={setMenu}
           maxLength={FIELD_LIMITS.MENU_LIST_MAX_CHARS}
         />
-        <p className="text-xs text-neutral-500">{t.fields.menu.help}</p>
       </div>
 
       {errorMsg ? (
@@ -124,9 +141,9 @@ export function OnboardingForm() {
         </p>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={disabled} loading={submitting}>
+      <SkButton type="submit" variant="brand" size="lg" full disabled={disabled}>
         {submitting ? t.finishing : t.submit}
-      </Button>
+      </SkButton>
 
       <p className="text-center text-xs text-neutral-500">{common.tagline}</p>
     </form>

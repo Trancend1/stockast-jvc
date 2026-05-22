@@ -1,5 +1,5 @@
 import 'server-only';
-import { adminDb } from '../admin';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type PromoDraftRow = {
   id: string;
@@ -18,8 +18,11 @@ export type InsertPromoDraftInput = {
   discountPercent: number;
 };
 
-export async function insertPromoDraft(input: InsertPromoDraftInput): Promise<PromoDraftRow> {
-  const { data, error } = await adminDb()
+export async function insertPromoDraft(
+  db: SupabaseClient,
+  input: InsertPromoDraftInput,
+): Promise<PromoDraftRow> {
+  const { data, error } = await db
     .from('promo_drafts')
     .insert({
       outlet_id: input.outletId,
@@ -37,10 +40,11 @@ export async function insertPromoDraft(input: InsertPromoDraftInput): Promise<Pr
 }
 
 export async function countPromosToday(
+  db: SupabaseClient,
   outletId: string,
   serviceDate: string,
 ): Promise<number> {
-  const { count, error } = await adminDb()
+  const { count, error } = await db
     .from('promo_drafts')
     .select('id', { count: 'exact', head: true })
     .eq('outlet_id', outletId)
@@ -51,11 +55,8 @@ export async function countPromosToday(
   return count ?? 0;
 }
 
-export async function markPromoCopied(promoId: string): Promise<void> {
-  const { error } = await adminDb()
-    .from('promo_drafts')
-    .update({ status: 'copied' })
-    .eq('id', promoId);
+export async function markPromoCopied(db: SupabaseClient, promoId: string): Promise<void> {
+  const { error } = await db.from('promo_drafts').update({ status: 'copied' }).eq('id', promoId);
   if (error) {
     throw new Error(`markPromoCopied failed: ${error.message}`);
   }

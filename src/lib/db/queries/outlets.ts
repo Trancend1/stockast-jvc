@@ -1,5 +1,5 @@
 import 'server-only';
-import { adminDb } from '../admin';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { throwIfMissingTable } from '../errors';
 import type { OutletRow } from '../types';
 
@@ -11,9 +11,10 @@ export type UpdateOutletProfileInput = {
 };
 
 export async function updateOutletProfile(
+  db: SupabaseClient,
   input: UpdateOutletProfileInput,
 ): Promise<OutletRow> {
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('outlets')
     .update({
       name: input.name,

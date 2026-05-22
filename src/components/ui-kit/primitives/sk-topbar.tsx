@@ -27,7 +27,16 @@ export function SkTopBar({
 }: SkTopBarProps) {
   if (mode === 'task') {
     return (
-      <div className="sk-topbar" style={{ paddingTop: 8, paddingBottom: 8 }}>
+      <div
+        className="sk-topbar"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '44px minmax(0, 1fr) auto',
+          gap: 8,
+          paddingTop: 8,
+          paddingBottom: 8,
+        }}
+      >
         <button
           type="button"
           onClick={onBack}
@@ -35,12 +44,25 @@ export function SkTopBar({
           data-variant="ghost"
           data-size="sm"
           aria-label="Kembali"
-          style={{ width: 36, height: 36, padding: 0, marginLeft: -8 }}
+          style={{ width: 36, height: 36, padding: 0 }}
         >
           <IconArrowL size={18} />
         </button>
-        <div style={{ flex: 1, textAlign: 'center', fontSize: 15, fontWeight: 600 }}>{title}</div>
-        <div style={{ width: 36 }}>{trailing}</div>
+        <div
+          style={{
+            minWidth: 0,
+            textAlign: 'center',
+            fontSize: 15,
+            fontWeight: 600,
+            alignSelf: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {title}
+        </div>
+        <div style={{ justifySelf: 'end', minWidth: 36 }}>{trailing}</div>
       </div>
     );
   }

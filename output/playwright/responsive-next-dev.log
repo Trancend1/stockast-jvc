@@ -1,0 +1,179 @@
+
+> stockast@0.1.0 dev D:\DevSpace\Projects\stockast
+> next dev --turbo
+
+   ▲ Next.js 15.5.18 (Turbopack)
+   - Local:        http://localhost:3011
+   - Network:      http://192.168.1.12:3011
+   - Environments: .env.local
+
+ ✓ Starting...
+Creating turbopack project { dir: 'D:\\DevSpace\\Projects\\stockast', testMode: true }
+ ✓ Compiled middleware in 297ms
+ ✓ Ready in 1520ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 3.2s
+ GET /login 200 in 3613ms
+ GET /login 200 in 230ms
+ ✓ Compiled /onboarding in 440ms
+ GET /onboarding 200 in 668ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 746ms
+ GET /dashboard 200 in 1038ms
+ POST /dashboard 200 in 994ms
+ POST /dashboard 200 in 517ms
+ POST /dashboard 200 in 221ms
+ POST /dashboard 200 in 238ms
+ POST /dashboard 200 in 323ms
+ POST /dashboard 200 in 227ms
+ ✓ Compiled /catat in 470ms
+ GET /catat 200 in 688ms
+ ✓ Compiled /riwayat in 299ms
+ GET /riwayat 200 in 441ms
+ POST /riwayat 200 in 227ms
+ POST /riwayat 200 in 218ms
+ ✓ Compiled /ui-kit in 416ms
+ GET /ui-kit 200 in 5612ms
+ GET /login 200 in 190ms
+ GET /onboarding 200 in 317ms
+ GET /dashboard 200 in 161ms
+ POST /dashboard 200 in 457ms
+ POST /dashboard 200 in 313ms
+ POST /dashboard 200 in 326ms
+ POST /dashboard 200 in 216ms
+ POST /dashboard 200 in 317ms
+ POST /dashboard 200 in 215ms
+ GET /catat 200 in 182ms
+ GET /riwayat 200 in 170ms
+ POST /riwayat 200 in 206ms
+ POST /riwayat 200 in 202ms
+ GET /ui-kit 200 in 980ms
+ ✓ Compiled in 108ms
+ ✓ Compiled /ui-kit in 86ms
+ ✓ Compiled in 0ms
+ GET /ui-kit 200 in 991ms
+ ✓ Compiled /ui-kit in 48ms
+ GET /ui-kit 200 in 505ms
+ GET /login 200 in 508ms
+ GET /onboarding 200 in 217ms
+ GET /dashboard 200 in 761ms
+ POST /dashboard 200 in 534ms
+ POST /dashboard 200 in 343ms
+ POST /dashboard 200 in 282ms
+ POST /dashboard 200 in 261ms
+ POST /dashboard 200 in 322ms
+ POST /dashboard 200 in 209ms
+ GET /catat 200 in 501ms
+ GET /riwayat 200 in 414ms
+ POST /riwayat 200 in 200ms
+ POST /riwayat 200 in 210ms
+ GET /ui-kit 200 in 4021ms
+ GET /login 200 in 155ms
+ GET /onboarding 200 in 216ms
+ GET /dashboard 200 in 159ms
+ POST /dashboard 200 in 500ms
+ POST /dashboard 200 in 348ms
+ POST /dashboard 200 in 222ms
+ POST /dashboard 200 in 242ms
+ POST /dashboard 200 in 705ms
+ POST /dashboard 200 in 208ms
+ GET /catat 200 in 157ms
+ GET /riwayat 200 in 151ms
+ POST /riwayat 200 in 222ms
+ POST /riwayat 200 in 214ms
+ GET /ui-kit 200 in 801ms
+ ✓ Compiled in 110ms
+ ✓ Compiled /ui-kit in 55ms
+ GET /ui-kit 200 in 583ms
+ GET /login 200 in 379ms
+ GET /onboarding 200 in 167ms
+ GET /dashboard 200 in 136ms
+ POST /dashboard 200 in 659ms
+ POST /dashboard 200 in 306ms
+ POST /dashboard 200 in 220ms
+ POST /dashboard 200 in 211ms
+ POST /dashboard 200 in 334ms
+ POST /dashboard 200 in 215ms
+ GET /catat 200 in 179ms
+ GET /riwayat 200 in 135ms
+ POST /riwayat 200 in 181ms
+ POST /riwayat 200 in 208ms
+ GET /ui-kit 200 in 4828ms
+ GET /login 200 in 151ms
+ GET /onboarding 200 in 182ms
+ GET /dashboard 200 in 160ms
+ POST /dashboard 200 in 458ms
+ POST /dashboard 200 in 291ms
+ POST /dashboard 200 in 236ms
+ POST /dashboard 200 in 226ms
+ POST /dashboard 200 in 375ms
+ POST /dashboard 200 in 238ms
+ GET /catat 200 in 150ms
+ GET /riwayat 200 in 140ms
+ POST /riwayat 200 in 218ms
+ POST /riwayat 200 in 210ms
+ GET /ui-kit 200 in 810ms
+ ✓ Compiled in 256ms
+ GET /login 200 in 172ms
+ GET /onboarding 200 in 155ms
+ GET /dashboard 200 in 143ms
+ POST /dashboard 200 in 686ms
+ POST /dashboard 200 in 326ms
+ POST /dashboard 200 in 217ms
+ POST /dashboard 200 in 244ms
+ POST /dashboard 200 in 387ms
+ POST /dashboard 200 in 207ms
+ GET /catat 200 in 228ms
+ GET /riwayat 200 in 373ms
+ POST /riwayat 200 in 219ms
+ POST /riwayat 200 in 213ms
+ GET /ui-kit 200 in 804ms
+ GET /login 200 in 148ms
+ GET /onboarding 200 in 147ms
+ GET /dashboard 200 in 174ms
+ POST /dashboard 200 in 489ms
+ POST /dashboard 200 in 442ms
+ POST /dashboard 200 in 236ms
+ POST /dashboard 200 in 230ms
+ POST /dashboard 200 in 374ms
+ POST /dashboard 200 in 215ms
+ GET /catat 200 in 203ms
+ GET /riwayat 200 in 138ms
+ POST /riwayat 200 in 213ms
+ POST /riwayat 200 in 237ms
+ GET /ui-kit 200 in 794ms
+ ✓ Compiled in 110ms
+ ✓ Compiled /ui-kit in 69ms
+ ✓ Compiled in 122ms
+ GET /ui-kit 200 in 720ms
+ ✓ Compiled /ui-kit in 54ms
+ GET /ui-kit 200 in 407ms
+ GET /login 200 in 378ms
+ GET /onboarding 200 in 180ms
+ GET /dashboard 200 in 446ms
+ POST /dashboard 200 in 339ms
+ POST /dashboard 200 in 299ms
+ POST /dashboard 200 in 212ms
+ POST /dashboard 200 in 226ms
+ POST /dashboard 200 in 325ms
+ POST /dashboard 200 in 238ms
+ GET /catat 200 in 279ms
+ GET /riwayat 200 in 377ms
+ POST /riwayat 200 in 213ms
+ POST /riwayat 200 in 209ms
+ GET /ui-kit 200 in 865ms
+ GET /login 200 in 167ms
+ GET /onboarding 200 in 175ms
+ GET /dashboard 200 in 142ms
+ POST /dashboard 200 in 305ms
+ POST /dashboard 200 in 328ms
+ POST /dashboard 200 in 204ms
+ POST /dashboard 200 in 216ms
+ POST /dashboard 200 in 329ms
+ POST /dashboard 200 in 255ms
+ GET /catat 200 in 184ms
+ GET /riwayat 200 in 133ms
+ POST /riwayat 200 in 215ms
+ POST /riwayat 200 in 217ms
+ GET /ui-kit 200 in 774ms
+ ELIFECYCLE  Command failed with exit code 4294967295.

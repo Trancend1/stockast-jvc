@@ -17,6 +17,7 @@ export interface SkButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonEleme
 
 export function SkButton({
   children,
+  className,
   variant = 'secondary',
   size = 'md',
   full,
@@ -27,7 +28,7 @@ export function SkButton({
   return (
     <button
       type="button"
-      className="sk-btn"
+      className={className ? `sk-btn ${className}` : 'sk-btn'}
       data-variant={variant}
       data-size={size}
       data-full={full ? 'true' : undefined}

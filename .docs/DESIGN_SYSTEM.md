@@ -128,10 +128,12 @@ Bukan pure gray. Lebih hangat, less clinical.
 
 ### Subuh Mode (Dark Variant)
 Dipakai otomatis between 02.00-05.30, or manual toggle. **Bukan pure dark mode** — ini desain untuk mata adaptasi gelap.
-- Background: `#1A1611` (warm dark, not black)
-- Surface: `#2B241B`
-- Primary action: `#FF8E3C` (warmer in dark mode)
-- Text primary: `#F5F0E8` (cream, not white)
+- Background: `#242019` (serene warm charcoal, not black)
+- Surface: `#2B261F`
+- Surface soft: `#3A3228`
+- Primary action: `#E99A5D` (soft dawn amber, not blue)
+- Text primary: `#FFF8EB` (warm cream, not white)
+- Text secondary: `#D4C6AC`
 - Reduce blue light: filter to warmer tones
 - **No harsh white anywhere**
 
@@ -509,7 +511,7 @@ UI Kit components use `--sk-*` CSS variables. These are **aliased to prod `--col
 }
 
 html.subuh-mode {
-  --sk-bg: #001f54;  /* deep-sea Subuh palette — intentionally different from prod warm-dark */
+  --sk-bg: #242019;  /* serene warm-charcoal Subuh palette, aligned with prod foundation */
   /* ... */
 }
 ```

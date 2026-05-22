@@ -1,6 +1,6 @@
 'use server';
 
-import { getDemoContext } from '@/lib/auth/demo-context';
+import { requireOutletAccess } from '@/lib/auth/session';
 import {
   generatePromosForLatestStock,
   recordPromoCopied,
@@ -8,6 +8,8 @@ import {
 } from '@/lib/services/PromoService';
 import { type ActionResult, fail, ok } from '@/types/action-result';
 import { todayIsoUtc } from '@/lib/utils';
+import { THRESHOLDS } from '@/lib/config/thresholds';
+import { checkRateLimit } from '@/lib/kv';
 
 export type GetPromosData = { promos: PromoSuggestion[] };
 
@@ -15,12 +17,26 @@ export async function getPromosForToday(input?: {
   warungName?: string;
   serviceDate?: string;
 }): Promise<ActionResult<GetPromosData>> {
-  const { outletId } = getDemoContext();
+  const ctx = await requireOutletAccess();
   const serviceDate = input?.serviceDate ?? todayIsoUtc();
   const warungName = input?.warungName ?? 'Warung';
 
-  const result = await generatePromosForLatestStock({
-    outletId,
+  const quota = await checkRateLimit({
+    scope: 'ai',
+    identity: ctx.userId,
+    limit: THRESHOLDS.RATE_LIMIT.AI_PER_USER_PER_DAY,
+    windowSec: 24 * 60 * 60,
+  });
+  if (!quota.allowed) {
+    return fail('QUOTA_EXCEEDED', 'Batas AI harian habis. Coba lagi besok ya.', {
+      retryAfterSec: quota.retryAfterSec,
+      resetAt: quota.resetAt,
+      store: quota.store,
+    });
+  }
+
+  const result = await generatePromosForLatestStock(ctx.db, {
+    outletId: ctx.outletId,
     warungName,
     serviceDate,
   });
@@ -34,11 +50,11 @@ export async function getPromosForToday(input?: {
 
 export async function markPromoCopiedAction(promoId: string): Promise<ActionResult<null>> {
   if (!promoId) return fail('INPUT_INVALID', 'Promo ID kosong.');
+  const ctx = await requireOutletAccess();
   try {
-    await recordPromoCopied(promoId);
+    await recordPromoCopied(ctx.db, promoId);
     return ok(null);
   } catch (err) {
     return fail('INTERNAL', err instanceof Error ? err.message : 'gagal');
   }
 }
-

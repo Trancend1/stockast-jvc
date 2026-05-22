@@ -1,0 +1,11 @@
+
+> stockast@0.1.0 start D:\DevSpace\Projects\stockast
+> next start
+
+   ▲ Next.js 15.5.18
+   - Local:        http://localhost:3011
+   - Network:      http://192.168.1.12:3011
+
+ ✓ Starting...
+ ✓ Ready in 720ms
+ ELIFECYCLE  Command failed with exit code 4294967295.

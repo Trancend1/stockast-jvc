@@ -8,10 +8,8 @@ export const metadata: Metadata = {
 
 export default function RiwayatPage() {
   return (
-    <main className="app-container flex min-h-dvh flex-col py-8">
-      <AppGate fallback={<p className="text-sm text-neutral-500">Sebentar ya...</p>}>
-        <RiwayatList />
-      </AppGate>
-    </main>
+    <AppGate fallback={<p className="text-sm text-neutral-500">Sebentar ya...</p>}>
+      <RiwayatList />
+    </AppGate>
   );
 }

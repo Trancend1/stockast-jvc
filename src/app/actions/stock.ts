@@ -1,19 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getDemoContext } from '@/lib/auth/demo-context';
+import { requireOutletAccess } from '@/lib/auth/session';
 import { confirmDraft, parseAndStore } from '@/lib/services/StockService';
 import type { StockLogItemRow } from '@/lib/db/types';
 import type { ParsedStockPayload } from '@/types/domain';
 import { type ActionResult, fail, ok } from '@/types/action-result';
 import { THRESHOLDS } from '@/lib/config/thresholds';
-
-/**
- * Server Action surface for stock flow. Never throws to the client.
- * Each function maps service-level results to ActionResult<T>.
- *
- * Source: CLAUDE.md core rule #5.
- */
+import { checkRateLimit } from '@/lib/kv';
 
 export type ParseAndSaveStockInput = {
   rawInput: string;
@@ -28,7 +22,7 @@ export type ParseAndSaveStockData = {
 export async function parseAndSaveStockDraft(
   input: ParseAndSaveStockInput,
 ): Promise<ActionResult<ParseAndSaveStockData>> {
-  const { outletId } = getDemoContext();
+  const ctx = await requireOutletAccess();
 
   const trimmed = input.rawInput?.trim() ?? '';
   if (trimmed.length === 0) {
@@ -38,8 +32,22 @@ export async function parseAndSaveStockDraft(
     return fail('INPUT_INVALID', 'Kepanjangan. Ringkas sedikit.');
   }
 
-  const result = await parseAndStore({
-    outletId,
+  const quota = await checkRateLimit({
+    scope: 'ai',
+    identity: ctx.userId,
+    limit: THRESHOLDS.RATE_LIMIT.AI_PER_USER_PER_DAY,
+    windowSec: 24 * 60 * 60,
+  });
+  if (!quota.allowed) {
+    return fail('QUOTA_EXCEEDED', 'Batas AI harian habis. Coba lagi besok ya.', {
+      retryAfterSec: quota.retryAfterSec,
+      resetAt: quota.resetAt,
+      store: quota.store,
+    });
+  }
+
+  const result = await parseAndStore(ctx.db, {
+    outletId: ctx.outletId,
     rawInput: trimmed,
     serviceDate: input.serviceDate,
   });
@@ -62,15 +70,15 @@ export type ConfirmStockData = {
 export async function confirmStockLog(
   input: ConfirmStockInput,
 ): Promise<ActionResult<ConfirmStockData>> {
-  const { outletId } = getDemoContext();
+  const ctx = await requireOutletAccess();
 
   if (!input.draftId || input.items.length === 0) {
     return fail('INPUT_INVALID', 'Catatan kosong.');
   }
 
-  const result = await confirmDraft({
+  const result = await confirmDraft(ctx.db, {
     draftId: input.draftId,
-    outletId,
+    outletId: ctx.outletId,
     items: input.items,
   });
 
