@@ -28,25 +28,16 @@ export function CuacaCard({ serviceDate }: { serviceDate?: string }) {
 
   return (
     <SkCard tone="ghost" style={{ padding: 0, overflow: 'hidden' }}>
-      <WeatherScene kind={kind} width="100%" height={96} style={{ borderRadius: 0 }} />
-      <div className="flex flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-start gap-3">
-            <div className="shrink-0">
-              <SkWeatherChip kind={chipKind} time="Besok" />
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-info text-xs font-semibold tracking-wider uppercase">
-                {cuaca.heading}
-              </span>
-              <span className="text-lg leading-tight font-bold text-neutral-900">
-                {weather.label}
-              </span>
-            </div>
-          </div>
-          <div className="shrink-0">
-            <SkPill tone="brand">{cuaca.mock_badge}</SkPill>
-          </div>
+      <div className="relative">
+        <WeatherScene kind={kind} width="100%" height={120} style={{ borderRadius: 0 }} />
+        <div className="absolute top-3 right-3">
+          <SkPill tone="brand">{cuaca.mock_badge}</SkPill>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 p-4">
+        <div className="flex items-center gap-2">
+          <SkWeatherChip kind={chipKind} time="Besok" />
+          <h3 className="text-xl font-bold text-neutral-900">{weather.label}</h3>
         </div>
         <p className="text-sm leading-relaxed text-neutral-700">
           <span className="font-semibold text-neutral-800">{cuaca.hint_prefix}</span> {weather.hint}
