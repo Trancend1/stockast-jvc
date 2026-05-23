@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import type { ReactNode } from 'react';
 import { IconArrowL } from '@/components/ui-kit/icons';
 
@@ -19,7 +20,7 @@ export interface SkTopBarProps {
 export function SkTopBar({
   mode = 'default',
   title,
-  warungName = 'Bu Yati',
+  warungName,
   date,
   status,
   onBack,
@@ -27,7 +28,16 @@ export function SkTopBar({
 }: SkTopBarProps) {
   if (mode === 'task') {
     return (
-      <div className="sk-topbar" style={{ paddingTop: 8, paddingBottom: 8 }}>
+      <div
+        className="sk-topbar"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '44px minmax(0, 1fr) auto',
+          gap: 8,
+          paddingTop: 8,
+          paddingBottom: 8,
+        }}
+      >
         <button
           type="button"
           onClick={onBack}
@@ -35,12 +45,25 @@ export function SkTopBar({
           data-variant="ghost"
           data-size="sm"
           aria-label="Kembali"
-          style={{ width: 36, height: 36, padding: 0, marginLeft: -8 }}
+          style={{ width: 36, height: 36, padding: 0 }}
         >
           <IconArrowL size={18} />
         </button>
-        <div style={{ flex: 1, textAlign: 'center', fontSize: 15, fontWeight: 600 }}>{title}</div>
-        <div style={{ width: 36 }}>{trailing}</div>
+        <div
+          style={{
+            minWidth: 0,
+            textAlign: 'center',
+            fontSize: 15,
+            fontWeight: 600,
+            alignSelf: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {title}
+        </div>
+        <div style={{ justifySelf: 'end', minWidth: 36 }}>{trailing}</div>
       </div>
     );
   }
@@ -49,7 +72,7 @@ export function SkTopBar({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.012em' }}>
-            Warung {warungName}
+            {formatWarungName(warungName)}
           </span>
           {status && (
             <span
@@ -70,4 +93,10 @@ export function SkTopBar({
       <div style={{ display: 'flex', gap: 6 }}>{trailing}</div>
     </div>
   );
+}
+
+function formatWarungName(name?: string): string {
+  const trimmed = name?.trim();
+  if (!trimmed) return 'Warung kamu';
+  return /^warung\b/i.test(trimmed) ? trimmed : `Warung ${trimmed}`;
 }

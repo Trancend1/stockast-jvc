@@ -1,18 +1,7 @@
 import 'server-only';
-import { adminDb } from '../admin';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { isMissingTableError, throwIfMissingTable } from '../errors';
 import type { Json, StockLogDraftRow, StockLogItemRow, StockLogRow } from '../types';
-
-/**
- * Stock draft + confirmed log persistence. Single-tenant demo: outletId is
- * the seeded DEMO_OUTLET_ID; no RLS check here because adminDb() bypasses it.
- *
- * Error policy:
- * - Reads degrade to empty/null when tables are missing (schema cache miss)
- *   so the dashboard shows the empty state instead of crashing.
- * - Writes surface `MissingTableError` so the Server Action can return a
- *   SERVICE_UNAVAILABLE result and prompt `pnpm db:reset`.
- */
 
 export type InsertStockDraftInput = {
   outletId: string;
@@ -22,9 +11,10 @@ export type InsertStockDraftInput = {
 };
 
 export async function insertStockDraft(
+  db: SupabaseClient,
   input: InsertStockDraftInput,
 ): Promise<StockLogDraftRow> {
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('stock_log_drafts')
     .insert({
       outlet_id: input.outletId,
@@ -33,7 +23,9 @@ export async function insertStockDraft(
       status: 'pending',
       idempotency_key: input.idempotencyKey ?? null,
     })
-    .select('id, outlet_id, raw_input, service_date, status, parsed_payload, idempotency_key, created_at')
+    .select(
+      'id, outlet_id, raw_input, service_date, status, parsed_payload, idempotency_key, created_at',
+    )
     .single();
 
   if (error || !data) {
@@ -50,9 +42,10 @@ export type UpdateStockDraftParsedInput = {
 };
 
 export async function updateStockDraftParsed(
+  db: SupabaseClient,
   input: UpdateStockDraftParsedInput,
 ): Promise<StockLogDraftRow> {
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('stock_log_drafts')
     .update({
       parsed_payload: input.parsedPayload,
@@ -60,7 +53,9 @@ export async function updateStockDraftParsed(
       updated_at: new Date().toISOString(),
     })
     .eq('id', input.draftId)
-    .select('id, outlet_id, raw_input, service_date, status, parsed_payload, idempotency_key, created_at')
+    .select(
+      'id, outlet_id, raw_input, service_date, status, parsed_payload, idempotency_key, created_at',
+    )
     .single();
 
   if (error || !data) {
@@ -78,10 +73,11 @@ export type ConfirmStockLogInput = {
 };
 
 export async function upsertConfirmedStockLog(
+  db: SupabaseClient,
   input: ConfirmStockLogInput,
 ): Promise<StockLogRow> {
   const now = new Date().toISOString();
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('stock_logs')
     .upsert(
       {
@@ -93,7 +89,9 @@ export async function upsertConfirmedStockLog(
       },
       { onConflict: 'outlet_id,service_date' },
     )
-    .select('id, outlet_id, service_date, items, source_draft_id, confirmed_at, created_at, deleted_at')
+    .select(
+      'id, outlet_id, service_date, items, source_draft_id, confirmed_at, created_at, deleted_at',
+    )
     .single();
 
   if (error || !data) {
@@ -101,8 +99,7 @@ export async function upsertConfirmedStockLog(
     throw new Error(`upsertConfirmedStockLog failed: ${error?.message ?? 'no row returned'}`);
   }
 
-  // Also mark the draft as confirmed.
-  const draftUpdate = await adminDb()
+  const draftUpdate = await db
     .from('stock_log_drafts')
     .update({ status: 'confirmed', updated_at: now })
     .eq('id', input.sourceDraftId);
@@ -115,10 +112,15 @@ export async function upsertConfirmedStockLog(
   return data as StockLogRow;
 }
 
-export async function findStockDraft(draftId: string): Promise<StockLogDraftRow | null> {
-  const { data, error } = await adminDb()
+export async function findStockDraft(
+  db: SupabaseClient,
+  draftId: string,
+): Promise<StockLogDraftRow | null> {
+  const { data, error } = await db
     .from('stock_log_drafts')
-    .select('id, outlet_id, raw_input, service_date, status, parsed_payload, idempotency_key, created_at')
+    .select(
+      'id, outlet_id, raw_input, service_date, status, parsed_payload, idempotency_key, created_at',
+    )
     .eq('id', draftId)
     .maybeSingle();
 
@@ -130,6 +132,7 @@ export async function findStockDraft(draftId: string): Promise<StockLogDraftRow 
 }
 
 export async function listRecentStockLogs(
+  db: SupabaseClient,
   outletId: string,
   days: number,
 ): Promise<StockLogRow[]> {
@@ -137,9 +140,11 @@ export async function listRecentStockLogs(
   since.setDate(since.getDate() - days);
   const sinceDate = since.toISOString().slice(0, 10);
 
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('stock_logs')
-    .select('id, outlet_id, service_date, items, source_draft_id, confirmed_at, created_at, deleted_at')
+    .select(
+      'id, outlet_id, service_date, items, source_draft_id, confirmed_at, created_at, deleted_at',
+    )
     .eq('outlet_id', outletId)
     .is('deleted_at', null)
     .gte('service_date', sinceDate)

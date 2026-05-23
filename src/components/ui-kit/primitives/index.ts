@@ -10,6 +10,15 @@ export type { SkPillProps, SkPillTone } from './sk-pill';
 export { SkInput } from './sk-input';
 export type { SkInputProps } from './sk-input';
 
+export { SkTextarea } from './sk-textarea';
+export type { SkTextareaProps } from './sk-textarea';
+
+export { SkSelect } from './sk-select';
+export type { SkSelectProps } from './sk-select';
+
+export { SkSkeleton } from './sk-skeleton';
+export type { SkSkeletonProps } from './sk-skeleton';
+
 export { SkLabel } from './sk-label';
 export type { SkLabelProps } from './sk-label';
 

@@ -3,6 +3,7 @@ import { JetBrains_Mono, Newsreader, Plus_Jakarta_Sans } from 'next/font/google'
 import Script from 'next/script';
 import { SubuhModeProvider } from '@/components/features/subuh/SubuhModeProvider';
 import { RegisterServiceWorker } from '@/components/pwa/RegisterServiceWorker';
+import { ONBOARDING_STORAGE_KEY } from '@/lib/onboarding-state';
 import {
   SUBUH_CLASS_NAME,
   SUBUH_DATA_ATTR,
@@ -64,9 +65,11 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const fontVariables = [plusJakartaSans.variable, newsreader.variable, jetbrainsMono.variable].join(
-    ' ',
-  );
+  const fontVariables = [
+    plusJakartaSans.variable,
+    newsreader.variable,
+    jetbrainsMono.variable,
+  ].join(' ');
   return (
     <html lang="id" className={fontVariables} suppressHydrationWarning>
       <body>
@@ -83,6 +86,9 @@ function SubuhBootstrapScript() {
   const code = `
 (function () {
   try {
+    var onb = window.localStorage.getItem(${JSON.stringify(ONBOARDING_STORAGE_KEY)});
+    var hasUser = onb ? !!JSON.parse(onb).completedAt : false;
+    if (!hasUser) return;
     var raw = window.localStorage.getItem(${JSON.stringify(SUBUH_STORAGE_KEY)});
     var parts = new Intl.DateTimeFormat('en-US', {
       timeZone: 'Asia/Jakarta',

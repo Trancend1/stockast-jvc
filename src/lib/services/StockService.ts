@@ -1,5 +1,6 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseStockNote } from '@/lib/ai/generate';
 import { insertAIAuditLog } from '@/lib/db/queries/ai-audit';
 import { listMenuItems } from '@/lib/db/queries/menu-items';
@@ -14,13 +15,6 @@ import type { Json, StockLogDraftRow, StockLogItemRow, StockLogRow } from '@/lib
 import type { ParsedStockPayload } from '@/types/domain';
 import { THRESHOLDS } from '@/lib/config/thresholds';
 import { mapToDomainPayload } from './stock-mapping';
-
-/**
- * Orchestrate: validate raw input → call AI → map AI items to menu IDs →
- * persist draft. Pure-function-friendly (no React, no Server Action mechanics).
- *
- * Source: .docs/SYSTEM_ARCHITECTURE.md §6 (StockService responsibilities).
- */
 
 export type StockServiceFailure =
   | 'INPUT_INVALID'
@@ -39,7 +33,10 @@ export type ParseAndStoreResult =
   | { ok: true; draft: StockLogDraftRow; parsed: ParsedStockPayload }
   | { ok: false; reason: StockServiceFailure; message: string };
 
-export async function parseAndStore(input: ParseAndStoreInput): Promise<ParseAndStoreResult> {
+export async function parseAndStore(
+  db: SupabaseClient,
+  input: ParseAndStoreInput,
+): Promise<ParseAndStoreResult> {
   const trimmed = input.rawInput.trim();
   if (trimmed.length === 0) {
     return { ok: false, reason: 'INPUT_INVALID', message: 'Catatan kosong.' };
@@ -50,7 +47,7 @@ export async function parseAndStore(input: ParseAndStoreInput): Promise<ParseAnd
 
   let draft: StockLogDraftRow;
   try {
-    draft = await insertStockDraft({
+    draft = await insertStockDraft(db, {
       outletId: input.outletId,
       rawInput: trimmed,
       serviceDate: input.serviceDate,
@@ -59,7 +56,7 @@ export async function parseAndStore(input: ParseAndStoreInput): Promise<ParseAnd
     return failureFromError(err);
   }
 
-  const menuItems = await safeListMenuItems(input.outletId);
+  const menuItems = await safeListMenuItems(db, input.outletId);
   const aiResult = await parseStockNote({
     rawInput: trimmed,
     knownMenu: menuItems.map((m) => m.name),
@@ -74,18 +71,16 @@ export async function parseAndStore(input: ParseAndStoreInput): Promise<ParseAnd
   });
 
   if (!aiResult.ok) {
-    await safeMarkDraftRejected(draft.id);
+    await safeMarkDraftRejected(db, draft.id);
     const reason: StockServiceFailure =
-      aiResult.reason === 'SCHEMA_VALIDATION_FAILED'
-        ? 'AI_VALIDATION_FAILED'
-        : 'AI_PARSE_FAILED';
+      aiResult.reason === 'SCHEMA_VALIDATION_FAILED' ? 'AI_VALIDATION_FAILED' : 'AI_PARSE_FAILED';
     return { ok: false, reason, message: aiFailureMessage(aiResult.reason) };
   }
 
   const mapped = mapToDomainPayload(aiResult.data, menuItems);
   let updated: StockLogDraftRow;
   try {
-    updated = await updateStockDraftParsed({
+    updated = await updateStockDraftParsed(db, {
       draftId: draft.id,
       parsedPayload: mapped as unknown as Json,
       status: 'parsed',
@@ -111,10 +106,13 @@ export type ConfirmDraftResult =
       message: string;
     };
 
-export async function confirmDraft(input: ConfirmDraftInput): Promise<ConfirmDraftResult> {
+export async function confirmDraft(
+  db: SupabaseClient,
+  input: ConfirmDraftInput,
+): Promise<ConfirmDraftResult> {
   let draft: StockLogDraftRow | null;
   try {
-    draft = await findStockDraft(input.draftId);
+    draft = await findStockDraft(db, input.draftId);
   } catch (err) {
     return confirmFailureFromError(err);
   }
@@ -129,7 +127,7 @@ export async function confirmDraft(input: ConfirmDraftInput): Promise<ConfirmDra
   }
 
   try {
-    const log = await upsertConfirmedStockLog({
+    const log = await upsertConfirmedStockLog(db, {
       outletId: input.outletId,
       serviceDate: draft.service_date,
       items: input.items,
@@ -141,18 +139,22 @@ export async function confirmDraft(input: ConfirmDraftInput): Promise<ConfirmDra
   }
 }
 
-function failureFromError(
-  err: unknown,
-): { ok: false; reason: StockServiceFailure; message: string } {
+function failureFromError(err: unknown): {
+  ok: false;
+  reason: StockServiceFailure;
+  message: string;
+} {
   if (err instanceof MissingTableError) {
     return { ok: false, reason: 'SERVICE_UNAVAILABLE', message: err.message };
   }
   return { ok: false, reason: 'INTERNAL', message: errorMessage(err) };
 }
 
-function confirmFailureFromError(
-  err: unknown,
-): { ok: false; reason: 'NOT_FOUND' | 'CONFLICT_STATE' | 'SERVICE_UNAVAILABLE' | 'INTERNAL'; message: string } {
+function confirmFailureFromError(err: unknown): {
+  ok: false;
+  reason: 'NOT_FOUND' | 'CONFLICT_STATE' | 'SERVICE_UNAVAILABLE' | 'INTERNAL';
+  message: string;
+} {
   if (err instanceof MissingTableError) {
     return { ok: false, reason: 'SERVICE_UNAVAILABLE', message: err.message };
   }
@@ -175,17 +177,17 @@ function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : 'Terjadi kesalahan.';
 }
 
-async function safeListMenuItems(outletId: string) {
+async function safeListMenuItems(db: SupabaseClient, outletId: string) {
   try {
-    return await listMenuItems(outletId);
+    return await listMenuItems(db, outletId);
   } catch {
     return [];
   }
 }
 
-async function safeMarkDraftRejected(draftId: string): Promise<void> {
+async function safeMarkDraftRejected(db: SupabaseClient, draftId: string): Promise<void> {
   try {
-    await updateStockDraftParsed({
+    await updateStockDraftParsed(db, {
       draftId,
       parsedPayload: null as unknown as Json,
       status: 'rejected',
@@ -218,3 +220,5 @@ function writeAudit(args: {
   });
 }
 
+// Re-export shape for other consumers.
+export type { StockLogItemRow };

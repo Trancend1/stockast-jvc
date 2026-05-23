@@ -1,8 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { IconPercent, IconWhatsapp } from '@/components/ui-kit/icons';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
+import { SkCard } from '@/components/ui-kit/primitives/sk-card';
+import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
 import { promoCopy } from '@/lib/copy/belanja';
 import { markPromoCopiedAction } from '@/app/actions/promo';
 import type { PromoSuggestion } from '@/lib/services/PromoService';
@@ -34,25 +36,32 @@ function PromoCard({ promo }: { promo: PromoSuggestion }) {
   }
 
   return (
-    <Card className="border-warning/40 bg-warning/5">
-      <CardContent>
+    <SkCard
+      tone="ghost"
+      style={{ borderColor: 'var(--sk-warn)', background: 'var(--sk-warn-soft)' }}
+    >
+      <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-neutral-900">{promo.menuName}</span>
           {promo.discountPercent > 0 ? (
-            <span className="inline-flex items-center rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
+            <SkPill tone="warn" dot>
+              <IconPercent size={12} />
               {promo.discountPercent}% {promoCopy.badge_diskon}
-            </span>
+            </SkPill>
           ) : null}
         </div>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-neutral-800">
+        <p className="text-sm leading-relaxed whitespace-pre-line text-neutral-800">
           {promo.message}
         </p>
-      </CardContent>
-      <CardFooter className="justify-stretch">
-        <Button variant="secondary" onClick={handleCopy} className="w-full">
+        <SkButton
+          variant="secondary"
+          onClick={handleCopy}
+          full
+          leading={<IconWhatsapp size={16} />}
+        >
           {copied ? promoCopy.copied : promoCopy.copy}
-        </Button>
-      </CardFooter>
-    </Card>
+        </SkButton>
+      </div>
+    </SkCard>
   );
 }

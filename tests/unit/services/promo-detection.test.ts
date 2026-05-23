@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { THRESHOLDS } from '@/lib/config/thresholds';
 import {
   detectOverstock,
   OVERSTOCK_LEFTOVER_RATIO,
   OVERSTOCK_MIN_UNITS,
 } from '@/lib/services/promo-detection';
-import { THRESHOLDS } from '@/lib/config/thresholds';
+import { describe, expect, it } from 'vitest';
 
 const MENU = [
   { id: 'm-lele', name: 'Pecel Lele', normalized_name: 'pecel lele', unit: 'porsi' },
@@ -31,7 +31,9 @@ describe('detectOverstock', () => {
   it('ignores leftover below MIN_UNITS', () => {
     const result = detectOverstock(MENU, {
       service_date: '2026-05-14',
-      items: [{ menu_item_id: 'm-lele', sold: 10, leftover: OVERSTOCK_MIN_UNITS - 1, unit: 'porsi' }],
+      items: [
+        { menu_item_id: 'm-lele', sold: 10, leftover: OVERSTOCK_MIN_UNITS - 1, unit: 'porsi' },
+      ],
     });
     expect(result).toEqual([]);
   });

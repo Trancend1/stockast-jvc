@@ -1,13 +1,10 @@
 import 'server-only';
-import { adminDb } from '../admin';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { isMissingTableError, throwIfMissingTable } from '../errors';
 import type { MenuItemRow } from '../types';
 
-/**
- * Read menu items for an outlet. Excludes soft-deleted rows.
- */
-export async function listMenuItems(outletId: string): Promise<MenuItemRow[]> {
-  const { data, error } = await adminDb()
+export async function listMenuItems(db: SupabaseClient, outletId: string): Promise<MenuItemRow[]> {
+  const { data, error } = await db
     .from('menu_items')
     .select('id, outlet_id, name, normalized_name, unit, deleted_at')
     .eq('outlet_id', outletId)
@@ -35,6 +32,7 @@ export type MenuItemSpec = {
  * Uses unique (outlet_id, normalized_name) so re-onboarding is idempotent.
  */
 export async function syncOutletMenu(
+  db: SupabaseClient,
   outletId: string,
   items: ReadonlyArray<MenuItemSpec>,
 ): Promise<MenuItemRow[]> {
@@ -45,12 +43,16 @@ export async function syncOutletMenu(
   const normalizedKeep = items.map((it) => it.normalizedName);
   const now = new Date().toISOString();
 
-  const softDelete = await adminDb()
+  const softDelete = await db
     .from('menu_items')
     .update({ deleted_at: now, updated_at: now })
     .eq('outlet_id', outletId)
     .is('deleted_at', null)
-    .not('normalized_name', 'in', `(${normalizedKeep.map((n) => `"${escapeForIn(n)}"`).join(',')})`);
+    .not(
+      'normalized_name',
+      'in',
+      `(${normalizedKeep.map((n) => `"${escapeForIn(n)}"`).join(',')})`,
+    );
 
   if (softDelete.error) {
     throwIfMissingTable(softDelete.error, 'menu_items');
@@ -66,7 +68,7 @@ export async function syncOutletMenu(
     updated_at: now,
   }));
 
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('menu_items')
     .upsert(upsertRows, { onConflict: 'outlet_id,normalized_name' })
     .select('id, outlet_id, name, normalized_name, unit, deleted_at');

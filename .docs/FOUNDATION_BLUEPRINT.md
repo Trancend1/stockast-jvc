@@ -73,6 +73,7 @@ Why this shape (per `SYSTEM_ARCHITECTURE.md §1`):
 | Services → Services | Forbidden cross-service calls. Orchestrate at Server Action level. | Prevents hidden coupling, keeps services pure-function-testable. |
 | AI → Decision | Forbidden. AI explains, rule engine decides. | Trust foundation (`SYSTEM_ARCHITECTURE.md §4`). |
 | Client → Secrets | Forbidden. Server-only env vars never in `NEXT_PUBLIC_*`. | Security baseline. |
+| Feature → UI Kit | Feature shells consume `src/components/ui-kit/*` primitives and variants only. UI Kit never imports feature code, services, or Server Actions. | Keeps the kit reusable, makes layout iteration cheap and reversible. |
 
 ### 1.4 The four "kinds" of code (and where each lives)
 
@@ -211,12 +212,14 @@ stockast/
 
 ### Planned but not yet built
 
-- `src/lib/kv/` — Vercel KV rate-limit + idempotency (Sprint G)
-- `src/lib/logger/` — structured PII-safe logger (Sprint H)
-- `(auth)/` route group — Supabase phone OTP (Sprint F)
-- `src/middleware.ts` — session check + redirect (Sprint F)
-- `tests/integration/` — RLS multi-tenant tests (Sprint F)
-- `tests/e2e/` — Playwright magic-moment flow (Sprint J)
+- `src/lib/kv/` — Vercel KV REST-backed rate-limit + future idempotency (in place; cost guardrail only for submission MVP)
+- `(auth)/` route group — Supabase phone OTP (Sprint F, DONE)
+- `src/middleware.ts` — session check + redirect (Sprint F, DONE)
+- `tests/integration/` — RLS multi-tenant tests (Sprint F, DONE)
+
+Parked post-submission (see `.docs/FUTURE_ROADMAP.md`):
+- `src/lib/logger/` — structured PII-safe logger
+- `tests/e2e/` — Playwright magic-moment flow
 
 ### What is intentionally absent
 
@@ -246,7 +249,7 @@ Locked per `SYSTEM_ARCHITECTURE.md §2`. Below is the **exact version range** to
 | Forms | Manual `useState` + Zod | — | built-in | React Hook Form + `@hookform/resolvers` evaluated and removed — onboarding form is simple enough that manual state is cleaner. Zod used for AI response validation. |
 | DB / Auth | Supabase | latest | `pnpm add @supabase/supabase-js @supabase/ssr` | `@supabase/ssr` for App Router cookie handling. |
 | AI | Google GenAI SDK | latest | `pnpm add @google/genai` | **Verify model name first** via `scripts/verify-gemini-model.ts`. |
-| KV | — (Sprint G) | — | `pnpm add @vercel/kv` when Sprint G lands | Rate limit + idempotency deferred to Sprint G. |
+| KV | REST env contract (Sprint G) | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | No SDK dependency; use `src/lib/kv/*` adapter | Rate limit contract ready; cache/idempotency can reuse adapter. |
 | Date utils | built-in | — | — | date-fns + date-fns-tz evaluated and removed — only UTC helpers needed; `utils.ts` covers all cases with vanilla JS. |
 | Test | Vitest + Testing Library | latest | `pnpm add -D vitest @testing-library/react @testing-library/jest-dom jsdom` | Co-locate `*.test.ts`. |
 | Lint | ESLint flat + typescript-eslint | latest | bundled with create-next-app + `pnpm add -D @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-tailwindcss` | Custom rules in §8. |
@@ -254,7 +257,9 @@ Locked per `SYSTEM_ARCHITECTURE.md §2`. Below is the **exact version range** to
 | Git hooks | Lefthook | latest | `pnpm add -D lefthook && pnpm lefthook install` | Lighter than husky+lint-staged. |
 
 **Explicitly NOT installing** (per `SYSTEM_ARCHITECTURE.md §2` "stack not chosen"):
-- ❌ Prisma · ❌ tRPC · ❌ Genkit · ❌ Zustand · ❌ Redux · ❌ Express · ❌ Docker · ❌ Redis (use Vercel KV) · ❌ Inngest (defer to Phase 3) · ❌ Sentry (defer to Phase 2)
+- ❌ Prisma · ❌ tRPC · ❌ Genkit · ❌ Zustand · ❌ Redux · ❌ Express · ❌ Docker · ❌ Redis (use Vercel KV REST contract) · ❌ Inngest · ❌ Sentry · ❌ PostHog · ❌ Datadog · ❌ Trigger.dev
+
+Observability tooling and job queue infra are intentionally omitted from the MVP stack; `console.error` + Vercel runtime logs suffice for the 1–5 tester submission scope. Revisit only if a real-user phase begins (see `.docs/FUTURE_ROADMAP.md`).
 
 ### Day-0 gate: Gemini model name verification
 
@@ -661,7 +666,7 @@ Validation: `src/lib/config/env.ts` Zod-parses `process.env` at boot. Boot fails
 
 ### 5.4 Rate-limit + idempotency
 
-- Rate limit: sliding-window counter in Vercel KV per `(user_id|ip, endpoint)`. Limits in `THRESHOLDS.RATE_LIMIT`.
+- Rate limit: fixed-window counter in Vercel KV REST per `(scope, hashed identity, window bucket)`, with in-memory fallback for local/test. Limits in `THRESHOLDS.RATE_LIMIT`.
 - Idempotency: every Server Action that creates a row accepts a `idempotencyKey: string` (UUIDv4). KV stores `{ result }` keyed by the UUID for 24h.
 
 ### 5.5 PII discipline (per UU PDP §15 of SYSTEM_ARCHITECTURE)
@@ -959,10 +964,7 @@ pnpm create next-app@latest stockast \
 cd stockast
 pnpm dlx shadcn@latest init -d
 pnpm dlx shadcn@latest add button card input textarea sheet dialog skeleton toast
-pnpm add @supabase/supabase-js @supabase/ssr @google/genai @vercel/kv \
-        @tanstack/react-query @tanstack/react-query-devtools \
-        react-hook-form zod @hookform/resolvers \
-        date-fns date-fns-tz
+pnpm add @supabase/supabase-js @supabase/ssr @google/genai zod
 pnpm add -D vitest @testing-library/react @testing-library/jest-dom jsdom \
             prettier prettier-plugin-tailwindcss \
             eslint-plugin-tailwindcss lefthook \
@@ -1026,6 +1028,9 @@ Files to create (each is short — full contents will land in code, not this doc
   --color-warning: #E8A82E;
   --color-danger:  #D04A3E;
   --color-info:    #5A8FBF;
+  --color-subuh-page: #242019;
+  --color-subuh-surface: #2B261F;
+  --color-subuh-surface-soft: #3A3228;
 
   --radius-card: 16px;
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -1034,8 +1039,16 @@ Files to create (each is short — full contents will land in code, not this doc
 @media (prefers-color-scheme: dark), (max-width: 0) { /* subuh-mode applied via class */ }
 
 html.subuh-mode {
-  background: var(--color-neutral-900);
-  color: var(--color-neutral-100);
+  --color-neutral-50: #2B261F;
+  --color-neutral-100: #242019;
+  --color-neutral-200: #3A3228;
+  --color-neutral-700: #E8DCC4;
+  --color-neutral-900: #FFF8EB;
+  --color-brand-500: #E99A5D;
+  --color-brand-600: #D88245;
+
+  background: var(--color-subuh-page);
+  color: var(--color-neutral-900);
 }
 
 body {
@@ -1184,7 +1197,7 @@ A consolidated risk register cross-referencing PRD §12, ARCH §16, and EXEC §9
 - ❌ Custom CDN before standard CDN insufficient.
 - ❌ Event sourcing for CRUD app.
 - ❌ Microservices before the monolith strains.
-- ❌ Premature observability stack (Sentry/PostHog deferred to Phase 2).
+- ❌ Premature observability stack (Sentry/PostHog/Datadog parked post-submission; MVP uses `console.error` + Vercel runtime logs only).
 - ❌ Custom design system from scratch (shadcn + Tailwind extension is the design system).
 
 ### 11.4 Reversibility ladder (what to invest review time in)

@@ -2,11 +2,17 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
+import { SkInput } from '@/components/ui-kit/primitives/sk-input';
+import { SkLabel } from '@/components/ui-kit/primitives/sk-label';
+import { SkSelect } from '@/components/ui-kit/primitives/sk-select';
+import { SkSteps } from '@/components/ui-kit/primitives/sk-steps';
+import { SkTextarea } from '@/components/ui-kit/primitives/sk-textarea';
+import {
+  OnbDecorNama,
+  OnbDecorLokasi,
+  OnbDecorMenu,
+} from '@/components/ui-kit/onboarding/onb-decor';
 import { onboarding as t } from '@/lib/copy/onboarding';
 import { common } from '@/lib/copy/common';
 import { LOCATION_OPTIONS } from '@/lib/config/locations';
@@ -15,9 +21,12 @@ import { applyOnboardingProfile, ensureDemoSeed } from '@/app/actions/onboarding
 import { type OnboardingState, writeOnboardingState } from '@/lib/onboarding-state';
 
 const FIELD_LIMITS = THRESHOLDS.ONBOARDING;
+type StepIndex = 0 | 1 | 2;
+const TOTAL_STEPS = 3;
 
 export function OnboardingForm() {
   const router = useRouter();
+  const [step, setStep] = React.useState<StepIndex>(0);
   const [warungName, setWarungName] = React.useState('');
   const [location, setLocation] = React.useState('');
   const [menu, setMenu] = React.useState('');
@@ -29,6 +38,25 @@ export function OnboardingForm() {
     location.length === 0 ||
     menu.trim().length === 0 ||
     submitting;
+
+  const currentStep = step;
+  const stepIncomplete =
+    step === 0
+      ? warungName.trim().length === 0
+      : step === 1
+        ? location.length === 0
+        : menu.trim().length === 0;
+
+  function goNext() {
+    if (stepIncomplete) return;
+    setErrorMsg(null);
+    setStep((current) => (current < 2 ? ((current + 1) as StepIndex) : current));
+  }
+
+  function goPrevious() {
+    setErrorMsg(null);
+    setStep((current) => (current > 0 ? ((current - 1) as StepIndex) : current));
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,74 +89,144 @@ export function OnboardingForm() {
 
     // Best-effort pre-seed against the merchant's actual menu_items.
     // Failure here is silent — the dashboard's no-history empty state handles it.
-    void ensureDemoSeed().catch(() => undefined);
+    void ensureDemoSeed(result.data.outletId).catch(() => undefined);
     router.push('/dashboard');
   }
 
+  const copy = stepCopy(step);
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{t.heading}</h1>
-        <p className="text-base text-neutral-600">{t.subheading}</p>
+    <form
+      onSubmit={handleSubmit}
+      className="mx-auto flex min-h-[calc(100dvh-3rem)] w-full max-w-[560px] flex-col justify-between gap-5 py-3 sm:min-h-[720px] sm:gap-7 sm:py-6"
+    >
+      <header className="flex flex-col gap-2">
+        <SkSteps count={TOTAL_STEPS} current={currentStep} />
+        <p className="text-brand-700 mt-2 text-xs font-semibold tracking-wider uppercase">
+          {t.step_label(step + 1, TOTAL_STEPS)}
+        </p>
+        <h1 className="text-2xl leading-tight font-bold tracking-tight text-neutral-900 sm:text-3xl">
+          {copy.title}
+        </h1>
+        <p className="max-w-prose text-sm leading-relaxed text-neutral-600 sm:text-base">
+          {copy.description}
+        </p>
       </header>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="warung-name">{t.fields.warung_name.label}</Label>
-        <Input
-          id="warung-name"
-          autoComplete="off"
-          autoFocus
-          placeholder={t.fields.warung_name.placeholder}
-          value={warungName}
-          onChange={(e) => setWarungName(e.target.value)}
-          maxLength={FIELD_LIMITS.WARUNG_NAME_MAX}
-        />
-        <p className="text-xs text-neutral-500">{t.fields.warung_name.help}</p>
+      <div
+        className="flex flex-1 items-center justify-center py-3 sm:py-6 md:py-8"
+        aria-hidden="true"
+      >
+        <div className="h-36 w-full max-w-[300px] sm:h-44 sm:max-w-[340px] md:h-52">
+          {step === 0 ? <OnbDecorNama /> : null}
+          {step === 1 ? <OnbDecorLokasi /> : null}
+          {step === 2 ? <OnbDecorMenu /> : null}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="location">{t.fields.location.label}</Label>
-        <Select
-          id="location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        >
-          <option value="" disabled>
-            {t.fields.location.placeholder}
-          </option>
-          {LOCATION_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </Select>
-        <p className="text-xs text-neutral-500">{t.fields.location.help}</p>
+      <div className="flex flex-col gap-4">
+        {step === 0 ? (
+          <div className="flex flex-col gap-2">
+            <SkLabel htmlFor="warung-name" hint={t.fields.warung_name.help}>
+              {t.fields.warung_name.label}
+            </SkLabel>
+            <SkInput
+              id="warung-name"
+              autoComplete="off"
+              autoFocus
+              placeholder={t.fields.warung_name.placeholder}
+              value={warungName}
+              onChange={setWarungName}
+              maxLength={FIELD_LIMITS.WARUNG_NAME_MAX}
+            />
+          </div>
+        ) : null}
+
+        {step === 1 ? (
+          <div className="flex flex-col gap-2">
+            <SkLabel htmlFor="location" hint={t.fields.location.help}>
+              {t.fields.location.label}
+            </SkLabel>
+            <SkSelect id="location" value={location} onChange={setLocation}>
+              <option value="" disabled>
+                {t.fields.location.placeholder}
+              </option>
+              {LOCATION_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </SkSelect>
+          </div>
+        ) : null}
+
+        {step === 2 ? (
+          <div className="flex flex-col gap-2">
+            <SkLabel htmlFor="menu" hint={t.fields.menu.help}>
+              {t.fields.menu.label}
+            </SkLabel>
+            <SkTextarea
+              id="menu"
+              rows={FIELD_LIMITS.MENU_TEXTAREA_ROWS}
+              placeholder={t.fields.menu.placeholder}
+              value={menu}
+              onChange={setMenu}
+              maxLength={FIELD_LIMITS.MENU_LIST_MAX_CHARS}
+            />
+          </div>
+        ) : null}
+
+        {errorMsg ? (
+          <p role="alert" className="text-danger text-sm">
+            {errorMsg}
+          </p>
+        ) : null}
+
+        <div className={step === 0 ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-2'}>
+          {step > 0 ? (
+            <SkButton type="button" variant="secondary" size="lg" full onClick={goPrevious}>
+              {t.previous}
+            </SkButton>
+          ) : null}
+          {step < 2 ? (
+            <SkButton
+              type="button"
+              variant="brand"
+              size="lg"
+              full
+              disabled={stepIncomplete}
+              onClick={goNext}
+            >
+              {t.next}
+            </SkButton>
+          ) : (
+            <SkButton type="submit" variant="brand" size="lg" full disabled={disabled}>
+              {submitting ? t.finishing : t.submit}
+            </SkButton>
+          )}
+        </div>
+
+        <p className="text-center text-xs text-neutral-500">{common.tagline}</p>
       </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="menu">{t.fields.menu.label}</Label>
-        <Textarea
-          id="menu"
-          rows={FIELD_LIMITS.MENU_TEXTAREA_ROWS}
-          placeholder={t.fields.menu.placeholder}
-          value={menu}
-          onChange={(e) => setMenu(e.target.value)}
-          maxLength={FIELD_LIMITS.MENU_LIST_MAX_CHARS}
-        />
-        <p className="text-xs text-neutral-500">{t.fields.menu.help}</p>
-      </div>
-
-      {errorMsg ? (
-        <p role="alert" className="text-danger text-sm">
-          {errorMsg}
-        </p>
-      ) : null}
-
-      <Button type="submit" size="lg" disabled={disabled} loading={submitting}>
-        {submitting ? t.finishing : t.submit}
-      </Button>
-
-      <p className="text-center text-xs text-neutral-500">{common.tagline}</p>
     </form>
   );
+}
+
+function stepCopy(step: StepIndex): { title: string; description: string } {
+  if (step === 0) {
+    return {
+      title: t.fields.warung_name.title,
+      description: t.fields.warung_name.description,
+    };
+  }
+  if (step === 1) {
+    return {
+      title: t.fields.location.title,
+      description: t.fields.location.description,
+    };
+  }
+  return {
+    title: t.fields.menu.title,
+    description: t.fields.menu.description,
+  };
 }

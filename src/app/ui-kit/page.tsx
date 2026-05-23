@@ -245,8 +245,8 @@ export default function UiKitPreviewPage() {
             UI Kit reference
           </h1>
           <p style={{ fontSize: 13, color: 'var(--sk-text-3)', marginTop: 6, maxWidth: 520 }}>
-            Live preview of every UI Kit export. Toggle Subuh to spot-check both palettes.
-            Hidden from production unless `FEATURE_UI_KIT_PREVIEW=true`.
+            Live preview of every UI Kit export. Toggle Subuh to spot-check both palettes. Hidden
+            from production unless `FEATURE_UI_KIT_PREVIEW=true`.
           </p>
         </div>
         <SubuhToggle />
@@ -325,7 +325,13 @@ export default function UiKitPreviewPage() {
         </Section>
 
         <Section title="Weather scenes">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: 12,
+            }}
+          >
             <SceneCerah />
             <SceneBerawan />
             <SceneHujan />
@@ -336,7 +342,9 @@ export default function UiKitPreviewPage() {
         </Section>
 
         <Section title="Atmospheric motifs">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, color: 'var(--sk-text-2)' }}>
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: 12, color: 'var(--sk-text-2)' }}
+          >
             <DawnRibbon weather="rain" />
             <DawnRibbon weather="sun" />
             <DawnRibbon weather="cloud" subuh />
@@ -360,25 +368,79 @@ export default function UiKitPreviewPage() {
         </Section>
 
         <Section title="Empty states">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
-            <EmptyPanel illust={IllustNoData} title="Belum ada catatan" body="Catat satu hari, hari berikutnya jalan." />
-            <EmptyPanel illust={IllustNoHistory} title="Minggu pertama" body="Tunggu 7 hari, polanya akan terbaca." />
-            <EmptyPanel illust={IllustOffline} title="Lagi tidak online" body="Catatan disimpan di sini, sinkron saat sinyal kembali." />
-            <EmptyPanel illust={IllustError} title="Ada yang ngambek" body="Coba ulang sebentar lagi." />
-            <EmptyPanel illust={IllustSearch} title="Tidak ada yang cocok" body="Coba kata kunci lain." />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              gap: 16,
+            }}
+          >
+            <EmptyPanel
+              illust={IllustNoData}
+              title="Belum ada catatan"
+              body="Catat satu hari, hari berikutnya jalan."
+            />
+            <EmptyPanel
+              illust={IllustNoHistory}
+              title="Minggu pertama"
+              body="Tunggu 7 hari, polanya akan terbaca."
+            />
+            <EmptyPanel
+              illust={IllustOffline}
+              title="Lagi tidak online"
+              body="Catatan disimpan di sini, sinkron saat sinyal kembali."
+            />
+            <EmptyPanel
+              illust={IllustError}
+              title="Ada yang ngambek"
+              body="Coba ulang sebentar lagi."
+            />
+            <EmptyPanel
+              illust={IllustSearch}
+              title="Tidak ada yang cocok"
+              body="Coba kata kunci lain."
+            />
             <EmptyPanel illust={IllustDone} title="Beres" body="Semua sudah ditangani." />
           </div>
         </Section>
 
         <Section title="Onboarding decor">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
-            <div style={{ background: 'var(--sk-surface)', border: '1px solid var(--sk-line)', borderRadius: 12, padding: 12, color: 'var(--sk-text)' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: 16,
+            }}
+          >
+            <div
+              style={{
+                background: 'var(--sk-surface)',
+                border: '1px solid var(--sk-line)',
+                borderRadius: 12,
+                padding: 12,
+                color: 'var(--sk-text)',
+              }}
+            >
               <OnbDecorNama />
             </div>
-            <div style={{ background: 'var(--sk-surface)', border: '1px solid var(--sk-line)', borderRadius: 12, padding: 12 }}>
+            <div
+              style={{
+                background: 'var(--sk-surface)',
+                border: '1px solid var(--sk-line)',
+                borderRadius: 12,
+                padding: 12,
+              }}
+            >
               <OnbDecorLokasi />
             </div>
-            <div style={{ background: 'var(--sk-surface)', border: '1px solid var(--sk-line)', borderRadius: 12, padding: 12 }}>
+            <div
+              style={{
+                background: 'var(--sk-surface)',
+                border: '1px solid var(--sk-line)',
+                borderRadius: 12,
+                padding: 12,
+              }}
+            >
               <OnbDecorMenu />
             </div>
           </div>
@@ -420,15 +482,20 @@ export default function UiKitPreviewPage() {
         </Section>
 
         <Section title="Primitives — Form + chrome">
-          <SkCard tone="muted" style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 360 }}>
-            <SkLabel hint="Tulis nama warung biar Bu Yati ke-tag di catatan">Nama warung</SkLabel>
-            <SkInput placeholder="Warung Bu Yati" />
+          <SkCard
+            tone="muted"
+            style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 360 }}
+          >
+            <SkLabel hint="Tulis nama warung agar catatan harianmu tetap rapi">Nama warung</SkLabel>
+            <SkInput placeholder="Warung Maju Jaya" />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <SkSteps count={3} current={1} />
               <SkButton variant="primary">Lanjut</SkButton>
             </div>
             <SkOverline>Status</SkOverline>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center', color: 'var(--sk-text-2)' }}>
+            <div
+              style={{ display: 'flex', gap: 12, alignItems: 'center', color: 'var(--sk-text-2)' }}
+            >
               <SkThinking />
               <span style={{ fontSize: 13 }}>AI sedang membaca</span>
             </div>
@@ -437,13 +504,24 @@ export default function UiKitPreviewPage() {
         </Section>
 
         <Section title="Primitives — Chrome">
-          <SkTopBar mode="default" warungName="Bu Yati" date="Selasa, 20 Mei" status="synced" />
+          <SkTopBar
+            mode="default"
+            warungName="Warung Maju Jaya"
+            date="Selasa, 20 Mei"
+            status="synced"
+          />
           <SkTopBar mode="task" title="Catat stok hari ini" />
           <SkBottomNav active="catat" />
         </Section>
 
         <Section title="Charts">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: 16,
+            }}
+          >
             <SkCard>
               <SkOverline>Sparkline</SkOverline>
               <Sparkline trend="up" />
@@ -469,7 +547,10 @@ export default function UiKitPreviewPage() {
               <TallyCounter value={24} label="ekor lele" trend="down" delta="−6 vs kemarin" />
             </SkCard>
             <SkCard>
-              <HeatStrip data={Array.from({ length: 28 }, (_, i) => 6 + ((i * 7) % 38))} label="14 hari terakhir" />
+              <HeatStrip
+                data={Array.from({ length: 28 }, (_, i) => 6 + ((i * 7) % 38))}
+                label="14 hari terakhir"
+              />
             </SkCard>
           </div>
         </Section>
@@ -477,12 +558,28 @@ export default function UiKitPreviewPage() {
         <Section title="Notifications">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 360 }}>
             <Toast kind="success" title="Tersimpan" message="Catatan stok hari ini sudah masuk." />
-            <Banner kind="info" title="Cuaca sore hujan" message="Belanja besok mungkin ramai turun ~10%." />
+            <Banner
+              kind="info"
+              title="Cuaca sore hujan"
+              message="Belanja besok mungkin ramai turun ~10%."
+            />
             <InlineAlert kind="warn" title="Ayam habis 14:00">
               Pertimbangkan tambah +2 besok.
             </InlineAlert>
-            <PushPreview appName="Stockast" time="03:12" title="Belanja besok siap" message="Lele 24 · Ayam 12 · Tahu 14" />
-            <div style={{ display: 'inline-flex', position: 'relative', alignItems: 'center', gap: 12 }}>
+            <PushPreview
+              appName="Stockast"
+              time="03:12"
+              title="Belanja besok siap"
+              message="Lele 24 · Ayam 12 · Tahu 14"
+            />
+            <div
+              style={{
+                display: 'inline-flex',
+                position: 'relative',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
               <span style={{ position: 'relative' }}>
                 <IconBell size={22} />
                 <ActivityDot count={3} />
@@ -493,7 +590,13 @@ export default function UiKitPreviewPage() {
         </Section>
 
         <Section title="Belanja variants">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: 16,
+            }}
+          >
             <BelanjaCardEditorial animate={false} />
             <BelanjaCardWarm />
             <BelanjaCardCompact />

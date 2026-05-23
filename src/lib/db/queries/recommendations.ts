@@ -1,5 +1,5 @@
 import 'server-only';
-import { adminDb } from '../admin';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Json } from '../types';
 
 export type RecommendationRow = {
@@ -23,9 +23,10 @@ export type UpsertRecommendationInput = {
 };
 
 export async function upsertRecommendation(
+  db: SupabaseClient,
   input: UpsertRecommendationInput,
 ): Promise<RecommendationRow> {
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('recommendations')
     .upsert(
       {
@@ -48,10 +49,11 @@ export async function upsertRecommendation(
 }
 
 export async function findRecommendation(
+  db: SupabaseClient,
   outletId: string,
   serviceDate: string,
 ): Promise<RecommendationRow | null> {
-  const { data, error } = await adminDb()
+  const { data, error } = await db
     .from('recommendations')
     .select('id, outlet_id, service_date, items, reasoning, confidence_label, audit, created_at')
     .eq('outlet_id', outletId)

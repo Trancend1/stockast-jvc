@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { AppGate } from '@/components/features/app-gate/AppGate';
 import { StockFlow } from '@/components/features/stock/StockFlow';
 import { flags } from '@/lib/config/env';
 
@@ -8,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function CatatPage() {
   return (
-    <main className="app-container flex min-h-dvh flex-col py-8">
+    <AppGate fallback={<p className="text-sm text-neutral-500">Sebentar ya...</p>}>
       <StockFlow voiceEnabled={flags.voiceInput} />
-    </main>
+    </AppGate>
   );
 }

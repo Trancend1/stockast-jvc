@@ -8,8 +8,8 @@ const W_GOLD = '#E8C074';
 const W_BLUE = '#4A7EA0';
 
 export interface WeatherSceneProps {
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
 }
 
 interface SceneProps extends WeatherSceneProps {
@@ -18,7 +18,13 @@ interface SceneProps extends WeatherSceneProps {
   style?: CSSProperties;
 }
 
-function Scene({ width = 320, height = 100, viewBox = '0 0 320 100', children, style }: SceneProps) {
+function Scene({
+  width = 320,
+  height = 100,
+  viewBox = '0 0 320 100',
+  children,
+  style,
+}: SceneProps) {
   return (
     <svg
       viewBox={viewBox}
@@ -27,7 +33,7 @@ function Scene({ width = 320, height = 100, viewBox = '0 0 320 100', children, s
       preserveAspectRatio="xMidYMid slice"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      style={{ display: 'block', borderRadius: 10, ...style }}
+      style={{ display: 'block', maxWidth: '100%', borderRadius: 10, ...style }}
     >
       {children}
     </svg>
@@ -62,7 +68,11 @@ function VillageBand({ inkOpacity = 0.65 }: VillageBandProps) {
 
 export function SceneCerah({ width, height }: WeatherSceneProps) {
   return (
-    <Scene width={width} height={height} style={{ background: 'linear-gradient(180deg, #FFF1E4 0%, #FAF6EE 65%, #F4ECD9 100%)' }}>
+    <Scene
+      width={width}
+      height={height}
+      style={{ background: 'linear-gradient(180deg, #FFF1E4 0%, #FAF6EE 65%, #F4ECD9 100%)' }}
+    >
       <circle cx="240" cy="34" r="32" fill={W_BRICK} opacity="0.10" />
       <circle cx="240" cy="34" r="22" fill={W_BRICK} opacity="0.22" />
       <circle cx="240" cy="34" r="14" fill={W_BRICK} />
@@ -72,7 +82,10 @@ export function SceneCerah({ width, height }: WeatherSceneProps) {
       </g>
       <g fill={W_CREAM} stroke={W_INK} strokeWidth="1.3" strokeLinejoin="round" opacity="0.85">
         <path d="M 50 36 q -8 0 -8 -7 q 0 -9 12 -9 q 6 -5 14 0 q 10 0 10 8 q 0 8 -10 8 z" />
-        <path d="M 168 28 q -6 0 -6 -5 q 0 -7 10 -7 q 4 -4 10 0 q 8 0 8 6 q 0 6 -8 6 z" opacity="0.7" />
+        <path
+          d="M 168 28 q -6 0 -6 -5 q 0 -7 10 -7 q 4 -4 10 0 q 8 0 8 6 q 0 6 -8 6 z"
+          opacity="0.7"
+        />
       </g>
       <VillageBand inkOpacity={0.7} />
       <g fill={W_BRICK} opacity="0.6">
@@ -87,12 +100,25 @@ export function SceneCerah({ width, height }: WeatherSceneProps) {
 
 export function SceneBerawan({ width, height }: WeatherSceneProps) {
   return (
-    <Scene width={width} height={height} style={{ background: 'linear-gradient(180deg, #EFE9DC 0%, #F4ECD9 50%, #FAF6EE 100%)' }}>
+    <Scene
+      width={width}
+      height={height}
+      style={{ background: 'linear-gradient(180deg, #EFE9DC 0%, #F4ECD9 50%, #FAF6EE 100%)' }}
+    >
       <g fill={W_CREAM} stroke={W_INK} strokeWidth="1.3" strokeLinejoin="round">
         <path d="M 22 44 q -10 0 -10 -8 q 0 -10 14 -10 q 6 -6 16 0 q 12 0 12 9 q 0 9 -12 9 z" />
-        <path d="M 110 38 q -10 0 -10 -8 q 0 -11 16 -11 q 6 -7 18 0 q 14 0 14 10 q 0 9 -14 9 z" opacity="0.95" />
-        <path d="M 222 46 q -12 0 -12 -8 q 0 -10 14 -10 q 6 -6 18 0 q 14 0 14 9 q 0 9 -14 9 z" opacity="0.9" />
-        <path d="M 286 36 q -8 0 -8 -7 q 0 -9 12 -9 q 5 -5 14 0 q 10 0 10 8 q 0 8 -10 8 z" opacity="0.7" />
+        <path
+          d="M 110 38 q -10 0 -10 -8 q 0 -11 16 -11 q 6 -7 18 0 q 14 0 14 10 q 0 9 -14 9 z"
+          opacity="0.95"
+        />
+        <path
+          d="M 222 46 q -12 0 -12 -8 q 0 -10 14 -10 q 6 -6 18 0 q 14 0 14 9 q 0 9 -14 9 z"
+          opacity="0.9"
+        />
+        <path
+          d="M 286 36 q -8 0 -8 -7 q 0 -9 12 -9 q 5 -5 14 0 q 10 0 10 8 q 0 8 -10 8 z"
+          opacity="0.7"
+        />
       </g>
       <circle cx="160" cy="40" r="22" fill={W_BRICK} opacity="0.10" />
       <VillageBand inkOpacity={0.55} />
@@ -103,7 +129,11 @@ export function SceneBerawan({ width, height }: WeatherSceneProps) {
 
 export function SceneHujan({ width, height }: WeatherSceneProps) {
   return (
-    <Scene width={width} height={height} style={{ background: 'linear-gradient(180deg, #DDD3BD 0%, #ECE4D3 50%, #F4ECD9 100%)' }}>
+    <Scene
+      width={width}
+      height={height}
+      style={{ background: 'linear-gradient(180deg, #DDD3BD 0%, #ECE4D3 50%, #F4ECD9 100%)' }}
+    >
       <g fill={W_CREAM} stroke={W_INK} strokeWidth="1.4" strokeLinejoin="round">
         <path d="M 26 38 q -14 0 -14 -10 q 0 -12 18 -12 q 8 -8 22 0 q 16 0 16 11 q 0 11 -16 11 z" />
         <path d="M 130 32 q -14 0 -14 -10 q 0 -12 18 -12 q 8 -8 22 0 q 16 0 16 11 q 0 11 -16 11 z" />
@@ -125,7 +155,11 @@ export function SceneHujan({ width, height }: WeatherSceneProps) {
 
 export function ScenePetir({ width, height }: WeatherSceneProps) {
   return (
-    <Scene width={width} height={height} style={{ background: 'linear-gradient(180deg, #5D5447 0%, #8A8073 60%, #ECE4D3 100%)' }}>
+    <Scene
+      width={width}
+      height={height}
+      style={{ background: 'linear-gradient(180deg, #5D5447 0%, #8A8073 60%, #ECE4D3 100%)' }}
+    >
       <g fill="#3A3328" stroke={W_INK} strokeWidth="1.4" strokeLinejoin="round">
         <path d="M 10 42 q -10 0 -10 -8 q 0 -10 14 -10 q 6 -6 16 0 q 12 0 12 9 q 0 9 -12 9 z" />
         <path d="M 60 36 q -14 0 -14 -10 q 0 -12 20 -12 q 8 -8 24 0 q 16 0 16 11 q 0 11 -16 11 z" />
@@ -151,7 +185,13 @@ export function ScenePetir({ width, height }: WeatherSceneProps) {
 
 export function SceneSubuh({ width, height }: WeatherSceneProps) {
   return (
-    <Scene width={width} height={height} style={{ background: 'linear-gradient(180deg, #21295c 0%, #0e1d56 35%, #001f54 70%, #001235 100%)' }}>
+    <Scene
+      width={width}
+      height={height}
+      style={{
+        background: 'linear-gradient(180deg, #21295c 0%, #0e1d56 35%, #001f54 70%, #001235 100%)',
+      }}
+    >
       <g fill="#c8e2ec">
         <circle cx="38" cy="18" r="1.2" />
         <circle cx="74" cy="32" r="0.9" opacity="0.6" />
@@ -169,7 +209,14 @@ export function SceneSubuh({ width, height }: WeatherSceneProps) {
         <circle cx="240" cy="32" r="11" fill="#c8e2ec" />
         <circle cx="245" cy="29" r="9.5" fill="#001f54" />
       </g>
-      <g fill="none" stroke="#7eb4cc" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" opacity="0.7">
+      <g
+        fill="none"
+        stroke="#7eb4cc"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.7"
+      >
         <line x1="0" y1="86" x2="320" y2="86" />
         <path d="M 30 86 L 30 70 L 48 60 L 66 70 L 66 86" />
         <path d="M 80 86 L 80 78 L 96 70 L 112 78 L 112 86" />
@@ -189,7 +236,11 @@ export function SceneSubuh({ width, height }: WeatherSceneProps) {
 
 export function SceneBerkabut({ width, height }: WeatherSceneProps) {
   return (
-    <Scene width={width} height={height} style={{ background: 'linear-gradient(180deg, #E6DDC9 0%, #ECE4D3 45%, #F4ECD9 100%)' }}>
+    <Scene
+      width={width}
+      height={height}
+      style={{ background: 'linear-gradient(180deg, #E6DDC9 0%, #ECE4D3 45%, #F4ECD9 100%)' }}
+    >
       <g stroke={W_INK} strokeWidth="1.2" strokeLinecap="round" opacity="0.18">
         <path d="M 0 26 H 280" />
         <path d="M 40 38 H 320" />
@@ -200,7 +251,14 @@ export function SceneBerkabut({ width, height }: WeatherSceneProps) {
         <path d="M 50 50 q -10 0 -10 -7 q 0 -9 14 -9 q 6 -5 16 0 q 10 0 10 8 q 0 8 -10 8 z" />
         <path d="M 220 44 q -10 0 -10 -7 q 0 -9 14 -9 q 6 -5 16 0 q 10 0 10 8 q 0 8 -10 8 z" />
       </g>
-      <g fill="none" stroke={W_INK} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.35">
+      <g
+        fill="none"
+        stroke={W_INK}
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.35"
+      >
         <line x1="0" y1="86" x2="320" y2="86" />
         <path d="M 30 86 L 30 70 L 48 60 L 66 70 L 66 86" />
         <path d="M 130 86 L 130 64 L 150 52 L 170 64 L 170 86" />
@@ -255,7 +313,12 @@ export interface WeatherSceneViewProps extends WeatherSceneProps {
   style?: CSSProperties;
 }
 
-export function WeatherScene({ kind = 'cerah', width = 320, height = 100, style }: WeatherSceneViewProps) {
+export function WeatherScene({
+  kind = 'cerah',
+  width = 320,
+  height = 100,
+  style,
+}: WeatherSceneViewProps) {
   const Cmp = WEATHER_SCENES[kind] ?? SceneCerah;
   return <div style={style}>{Cmp({ width, height })}</div>;
 }

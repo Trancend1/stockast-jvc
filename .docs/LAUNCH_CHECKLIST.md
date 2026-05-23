@@ -12,16 +12,15 @@ Three sections, applied at different milestones:
 
 | Milestone | Apply Sections |
 |---|---|
-| **Sprint F (Auth + Multi-tenancy)** | Sections 3 (Auth/Multi-tenancy), 4 (perf), 11 (general checks) |
-| **Sprint G (Real Integrations)** | Sections 2 (QA additions), 3 (Rate Limit, Webhook), 4 (AI/DB perf) |
-| **Sprint H (Observability)** | Section 7 (analytics), 8 (monitoring), 9 (backup) |
-| **Sprint I (Beta Onboarding)** | Section 11 Private Beta Specific + 12 First Week monitoring |
-| **Sprint J — JVC Submission (DEFERRED until after Sprint I gate)** | Sections 2, 3, 4 (comprehensive) + Phase 1.5+2 additions |
-| **Production v1 (200+ users)** | All sections, comprehensive |
+| **Sprint F (DONE — Auth + Multi-tenancy + UI Kit)** | §3 (Auth), §11 (general) — already verified |
+| **Sprint G (ACTIVE — Demo Readiness)** | §2 (QA), §4 (perf), §5 (a11y), §11 (Demo MVP Specific), §13 (Launch Runbook) |
+| **Post-submission (parked)** | §3 (Rate Limit/Webhook), §7 (analytics), §8 (monitoring), §9 (backup), §11 (Private Beta / Prod v1) — revisit only when real-user phase begins |
 
-**Note (2026-05-20):** Strategy pivot — old Phase 2 hardening (auth + RLS + BMKG + observability + Beta onboarding) pulled forward into pre-submission target. Submission Prep (Sprint J) gated on Sprint I exit (5 pedagang D7 + retention/accuracy pass). Lihat `EXECUTION_BLUEPRINT.md §2 Phase 1.5+2`.
+**Note (2026-05-23):** Scope refocused to JVC submission MVP only. Old Sprint G/H/I/J collapsed into a single Sprint G — Demo Readiness. Phase 3/4 (private beta, production scale) parked in `.docs/FUTURE_ROADMAP.md`.
 
-**Note (2026-05-16, historical):** Demo MVP launch milestone digabung ke **Phase 1.5 — JVC Submission Sprint**. Now extends to Phase 1.5+2 per 2026-05-20 pivot.
+**Note (2026-05-20, historical):** Strategy pivot pulled Phase 2 hardening into pre-submission target; superseded by 2026-05-23 refocus.
+
+**Note (2026-05-16, historical):** Demo MVP launch milestone digabung ke **Phase 1.5 — JVC Submission Sprint**.
 
 Mark items `✅` (done), `🟡` (in progress), `⏸` (deferred with reason), `❌` (blocker).
 Items marked `⏸` require justification + revisit date.
@@ -54,36 +53,29 @@ Items marked `⏸` require justification + revisit date.
 - [x] Loading skeletons (BelanjaCardSkeleton + ParseLoadingCard) replace spinner
 - [x] Error recovery: retry button + auto-retry once on AI_PARSE_FAILED
 
-**Sprint F (Auth + Multi-tenancy) — NEXT:**
-- [ ] Phone OTP auth flow works end-to-end (Indonesia provider verified)
-- [ ] RLS policies enforced on all tables (cross-tenant attempt denied)
-- [ ] DEMO_OUTLET_ID removed from Server Actions; session-driven outlet resolution
-- [ ] Middleware session check + Server Action role guards
+**Sprint F (DONE — Auth + Multi-tenancy + UI Kit):**
+- [x] Phone OTP auth flow works end-to-end (Indonesia provider verified)
+- [x] RLS policies enforced on all tables (cross-tenant attempt denied)
+- [x] DEMO_OUTLET_ID removed from Server Actions; session-driven outlet resolution
+- [x] Middleware session check + Server Action role guards
 
-**Sprint G (Real Integrations):**
-- [ ] BMKG real API integrated + per-adm4 cache (6h TTL)
-- [ ] `FEATURE_MOCK_WEATHER=false` path tested live
-- [ ] Rate limiting active (AI per user/day, OTP per phone/15min, IP/min)
-- [ ] Audit log writes for recommendation + promo generation
+**Sprint G (ACTIVE — Demo Readiness):**
+- [ ] Onboarding flow polished (sub-60s on real low-end Android)
+- [ ] UI consistency sweep across all routes (`src/components/ui-kit/*` primitives only)
+- [ ] 5 consecutive dry-runs at <90s to magic moment, 0 visible bugs
+- [ ] 60s backup demo video recorded against production URL
+- [ ] Vercel production deploy live; optional custom domain
+- [ ] README polish (tagline + 30-sec flow + demo link + screenshots)
+- [ ] Voice flag decision (ON only if 5/5 dry-runs lurus, else stay OFF)
+- [ ] Real-device test: 1 iPhone + 1 low-end Android Chrome
 
-**Sprint H (Observability):**
-- [ ] Sentry capturing server + client errors
-- [ ] PostHog events firing for full analytics taxonomy
-- [ ] Recommendation accuracy spot-check tool runs against random log
-
-**Sprint I (Beta Onboarding):**
-- [ ] 5 pedagang nyata onboarded
-- [ ] Daily WhatsApp check-in completed week 1
-- [ ] 5/5 active D7
-- [ ] Retention week 1 > 60%
-- [ ] Spot-check pass on recommendation accuracy
-
-**Sprint J (Submission — DEFERRED):**
-- [ ] Demo dry-run < 90s to magic moment (5 consecutive runs zero-bug)
-- [ ] Backup demo video 60s recorded
-- [ ] Vercel production deploy live + custom domain (optional) responding
-- [ ] README polish with beta cohort testimonials
-- [ ] Voice flag decision (ON if dry-run lurus 5x)
+**Post-submission (parked — see `.docs/FUTURE_ROADMAP.md`):**
+- BMKG real API + per-adm4 cache
+- `FEATURE_MOCK_WEATHER=false` swap to real weather
+- Sentry / PostHog wiring
+- Recommendation accuracy spot-check tool
+- 5-merchant beta cohort + D7 retention gate
+- Beta testimonial collection
 
 ### Cross-Device Testing
 - [ ] iPhone SE (375px) — Safari iOS
@@ -309,6 +301,8 @@ Items marked `⏸` require justification + revisit date.
 
 ## 7. Analytics Setup
 
+**Deferred.** MVP submission has no analytics or third-party tracking. Section retained as future reference only — revisit when real-user phase begins (see `.docs/FUTURE_ROADMAP.md`).
+
 ### Tracking Plan
 - [ ] Event taxonomy documented (`docs/analytics-events.md`)
 - [ ] Events implemented:
@@ -343,6 +337,8 @@ Items marked `⏸` require justification + revisit date.
 ---
 
 ## 8. Monitoring Setup
+
+**Deferred.** MVP submission has no third-party monitoring stack. `console.error` + Vercel runtime logs are the only signal. Section retained as future reference only — revisit when real-user phase begins (see `.docs/FUTURE_ROADMAP.md`).
 
 ### Error Tracking
 - [ ] Sentry (or equivalent) configured for production (Phase 2+)

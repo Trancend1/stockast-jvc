@@ -1,20 +1,23 @@
 import 'server-only';
-import { env } from '@/lib/config/env';
+import { env, flags } from '@/lib/config/env';
 
 /**
  * Phase 1 demo: hardcoded single-tenant context.
- * Replaced by real auth + RLS in Phase 2 (requireOutletAccess from cookie session).
+ * Only valid when FEATURE_AUTH_REQUIRED=false.
  *
- * Reads .env.local DEMO_USER_ID / DEMO_OUTLET_ID, matches the seeded outlet
- * in supabase/seed.sql.
+ * Sprint F+: replaced by requireOutletAccess() from cookie session.
+ * Reads .env.local DEMO_USER_ID / DEMO_OUTLET_ID, matches seeded outlet.
  */
 export function getDemoContext(): { userId: string; outletId: string } {
+  if (flags.authRequired) {
+    throw new Error(
+      'getDemoContext() called with FEATURE_AUTH_REQUIRED=true. Use requireOutletAccess() instead.',
+    );
+  }
   const userId = env.DEMO_USER_ID;
   const outletId = env.DEMO_OUTLET_ID;
   if (!userId || !outletId) {
-    throw new Error(
-      'DEMO_USER_ID and DEMO_OUTLET_ID must be set in .env.local for Phase 1 demo.',
-    );
+    throw new Error('DEMO_USER_ID and DEMO_OUTLET_ID must be set in .env.local for demo mode.');
   }
   return { userId, outletId };
 }

@@ -43,6 +43,7 @@ Always check `.docs/` before inventing patterns. If `.docs/` and code disagree, 
 10. **No PII in logs:** phone numbers, raw stock notes, full prompts.
 11. **Conventional Commits** with scopes: `auth · stock · recommendation · promo · ai · ui · db · infra · docs`.
 12. **Forward-only migrations** in `supabase/migrations/`.
+13. **UI Kit is the only layout authority.** Page shells compose `src/components/ui-kit/*` primitives + variants. Feature components never inline raw Tailwind for new visual concepts — extend the kit instead. Tokens edited in `stockast-UI/ui-kit/tokens/tokens.css` + `src/styles/ui-kit-utilities.css` only.
 
 ## Anti-slop (do not ship)
 
@@ -56,7 +57,7 @@ Full list: `.docs/AI_SLOP_PREVENTION.md`.
 
 ## Stack (locked)
 
-Next.js 15 App Router · React 19 · TS strict · Tailwind v4 · shadcn primitives · Supabase (Postgres + Auth + RLS + Storage) · Gemini direct SDK (`@google/genai`) · Vercel KV (Sprint G, not yet installed) · Vitest · pnpm 9 · Node 22.
+Next.js 15 App Router · React 19 · TS strict · Tailwind v4 · shadcn primitives · Supabase (Postgres + Auth + RLS + Storage) · Gemini direct SDK (`@google/genai`) · Vercel KV REST env (rate-limit contract in `src/lib/kv`, no SDK dependency) · Vitest · pnpm 9 · Node 22.
 
 Removed (evaluated + unused): `@tanstack/react-query`, `react-hook-form`, `@hookform/resolvers`, `date-fns`, `date-fns-tz`, `@vercel/kv`.
 
@@ -77,183 +78,142 @@ pnpm db:types         # regen src/lib/db/types.ts
 
 Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm build`.
 
-## Phase tracking (current state)
+## Phase Tracking
 
-> **How to use:** Update the "Now" row each session you touch the project. Move finished items to "Done log". Don't rewrite history — append. Keep entries one line.
+> Update this section only when phase, sprint, blocker, or verification status changes. Keep it scannable; put long strategy in `.docs/`.
 
-### Current phase
+### Snapshot
 
-- **Phase:** 1.5+2 — Pre-Submission Hardening (Sprint E DONE → Sprint F next)
-- **Sprint:** Sprint F — Auth + Multi-tenancy (NEXT — pulled from old Phase 2 Sprint D)
-- **Magic moment ready?** Yes (demo seed mode) — Pola Mingguan + Cuaca + Belanja Card render after onboarding. PWA installable; offline draft queue + skeletons + retry live on /catat + /dashboard.
-- **Next milestone path:** M5 First Real User → M6 Cohort of 10 → M3.5 Wow Layer dry-run → M4 Event Submission
-- **Deployment status:** **HELD** until Sprint I (Beta) gate + Sprint J dry-run passes
-- **Last updated:** 2026-05-20 (codebase cleanup + docs update: dead code removed, 7 unused deps uninstalled, .docs/ updated to reflect post-integration state)
+| Field | Current |
+|---|---|
+| Phase | 1.6 — Demo Readiness (JVC Submission MVP) |
+| Active sprint | Sprint G: Demo Readiness |
+| Status | Polish + dry-run + deploy (no new feature build) |
+| Branch | `feat/ui-kit` |
+| Magic moment | Working end-to-end on demo seed; ready for judging dry-run |
+| Deployment | Production deploy queued; goes live once Sprint G exit criteria met |
+| Last updated | 2026-05-23: scope refocused to JVC submission MVP only |
 
-### Research findings (baked into rules)
+### Roadmap
 
-From 5 interviews (`.docs/research/`). Key signals for Sprint A:
+| Sprint | Status | Scope | Exit signal |
+|---|---:|---|---|
+| Phase 0 | Done | Research + foundation | 5 interviews validated; pain confirmed |
+| Sprint A | Done | Backbone | Onboarding, stock parse, confirm, Supabase save |
+| Sprint B | Done | Magic Layer | Belanja Card, promo draft, riwayat |
+| Sprint C | Done | Polish | Subuh mode, animation, empty/loading/error states |
+| Sprint D | Done | Wow Layer | Pola Mingguan, demo seed, mock cuaca |
+| Sprint E | Done | Reliability | PWA shell, offline draft queue, skeletons, retry, voice flag |
+| Sprint F | Done | Auth + Multi-tenancy + UI Kit | OTP auth, RLS, middleware, UI Kit migration |
+| Sprint G | Active | Demo Readiness | Polish + dry-runs + production deploy + backup video + submission package |
 
-- **Input pattern confirmed:** short chat-style text — "lele sisa 2 kg, ayam habis" — persis magic moment
-- **Rules MUST go down:** Pak Asep "kalau aplikasi bilang beli banyak tapi uangnya nggak ada" → recommendation wajib bisa KURANGI, bukan selalu naikkan
-- **Day-of-week matters:** Jumat/weekend +15-30% volume (Bu Maya, Bu Sari confirm) → day context di rules engine
-- **Modal constraint is real:** recommendation harus respect budget harian pedagang kecil
-- **Weather validated:** 3/5 sebut cuaca sebagai faktor → BMKG hardcode for demo justified
-- **WTP signal:** Rp 10K-50K/bulan disebut organik; conditional on proof → freemium Phase 3 valid
+Post-submission directions (private beta, monetization, scale) live in `.docs/FUTURE_ROADMAP.md` and are not part of current execution scope.
 
-### Now (in-flight this session)
+### Active Sprint G — Demo Readiness
 
-_(kosong — cleanup + docs update complete; Sprint F next)_
+**Goal:** ship submission. No new feature work. Polish, dry-run, deploy.
 
-### Sprint A — Backbone (DONE)
+**Build scope (in priority order):**
+1. Onboarding flow polish — sub-60s time-to-magic-moment confirmed on real device.
+2. UI consistency sweep — all routes match `src/components/ui-kit/*` primitives; mojibake guard holds.
+3. 3× demo dry-run with stopwatch (target <90s to Belanja Card; 0 visible bugs across 5 consecutive runs).
+4. Real-device test — 1 iPhone, 1 low-end Android Chrome.
+5. Vercel production deploy (+ optional custom domain).
+6. 60s backup demo video recorded against production URL.
+7. README polish for judges (tagline + 30-sec flow + demo link + screenshots).
+8. Voice flag decision: flip ON only if 5/5 dry-runs lurus, else stay OFF.
 
-1. ✅ Onboarding 3-layar (variant B single-page scroll, state local in `localStorage`)
-2. ✅ Stock input textarea + Gemini `parseStockNote` via Server Action
-3. ✅ AI parse confirm card (editable items, weather mention, confidence badges)
-4. ✅ Save to Supabase via service-role admin client (single-tenant DEMO_OUTLET_ID)
+**Explicitly out of scope:**
+- Real BMKG API integration (mock weather kept as-built).
+- Sentry / PostHog / third-party observability wiring.
+- 5-merchant beta cohort + D7 retention gate.
+- Multi-staff role, WhatsApp Cloud API, monetization, referrals.
+- Any scaling work.
 
-### Sprint B — Magic Layer (DONE on branch `feat/sprint-b-magic-layer`)
+**Implementation guardrails:**
+- Keep Dashboard, Catat, Riwayat, Login, Onboarding, Pola Mingguan, and `/ui-kit` aligned to `src/components/ui-kit/*`.
+- Preserve `ActionResult<T>` returns; Server Actions do not throw to the client.
+- Keep PII out of logs, prompts, rate-limit keys, and audit records.
+- If BMKG `adm4_code` mapping is missing/null, fall back to mock weather state, not a broken UI.
+- Re-run mobile audit after touching topbar, bottom nav, weather card, dashboard cards, ticker/banner SVG, or `/ui-kit`.
 
-1. ✅ RecommendationService — fetch 7-day history + menu → `rules.recommend` per item → AI `explain-recommendation@v1` → upsert. AI never decides numbers.
-2. ✅ Belanja Card UI on `/dashboard` — signature visual, per-item suggested + reasoning + leftoverYesterday + confidence badge, copy-to-WhatsApp.
-3. ✅ PromoService — `promo-detection.ts` pure rule (ratio + min-units) + `promo-draft@v1` Gemini prompt + `clampDiscount` + `validatePromo` defense-in-depth + frequency cap.
-4. ✅ Promo card list with copy-to-WA + discount badge.
-5. ✅ Riwayat 7 hari at `/riwayat`.
-6. ⏸ End-to-end smoke test against local Supabase → moved to Sprint C dry-run.
+### Research Signals
 
-Catatan teknis:
-- Service-role admin client bypass RLS (Phase 1 only); Phase 2 ganti cookie session + RLS.
-- `server-only` package belum di-install — pure mapping modules (`stock-mapping`, `recommendation-mapping`, `promo-detection`) sengaja dipisah supaya tests bypass.
-- Runtime end-to-end butuh `pnpm db:start` (Docker) + `pnpm db:reset` untuk seed Bu Yati.
+| Signal | Product rule |
+|---|---|
+| Short chat-style input is natural | Keep stock input conversational, e.g. "lele sisa 2 kg, ayam habis" |
+| Bad advice can hurt cashflow | Recommendation must be allowed to reduce purchase, not only increase |
+| Friday/weekend matters | Rules must include day context |
+| Daily cash is constrained | Recommendations must respect small-merchant budget reality |
+| Weather affects demand | BMKG integration is relevant, but fallback must be safe |
+| WTP exists only after proof | Freemium remains valid after real merchant validation |
 
-### Sprint C — Polish & Demo Prep (DONE on branch `feat/sprint-b-magic-layer`)
+### Now
 
-1. ✅ Subuh Mode — pure time gate (`src/lib/subuh.ts`, 02:00-05:30 Asia/Jakarta, no DST), `useSubuhMode` hook (manual override via localStorage wins; polls every 60s), `SubuhToggle` button on Dashboard. CSS re-maps `--color-neutral-*` tokens + warmer brand under `.subuh-mode` — global cream→ink swap without rewriting components.
-2. ✅ Belanja Card signature animation — keyframe `belanja-card-reveal` (translate + scale-in spring) + per-item stagger via `animation-delay` (120ms base + 60ms increments). Respects `prefers-reduced-motion`.
-3. ✅ Empty/loading/error illustrations — `SproutMark`, `NotebookMark`, `CloudMark` SVGs + `EmptyState` component. Replaces generic `<p>` placeholders on `/dashboard` + `/riwayat`. Warmer copy in `lib/copy/belanja.ts`.
-4. ✅ Tests: 12 new tests for Subuh time gate boundaries (02:00 inclusive, 05:30 exclusive, Jakarta TZ regardless of runner TZ). 65/65 total green.
-5. ⏸ End-to-end smoke against local Supabase — moved to Phase 1.5 Sprint F (butuh Docker).
-6. ⏸ Vercel production deploy + dry-run + backup video — moved to Phase 1.5 Sprint F.
+_(empty - Sprint G can start from the readiness baseline above)_
 
-### Phase 1.5+2 — Hardening to Submission (decision 2026-05-20, ACTIVE)
+### Blockers
 
-**Goal:** Production-grade hardening (auth + RLS + real BMKG + observability) + 5 pedagang nyata onboarded BEFORE JVC submission. Demo backed by real usage > demo on seed data. Detail: `.docs/EXECUTION_BLUEPRINT.md §2 Phase 1.5`.
+_(none)_
 
-**Pivot rationale (2026-05-20):** Sprint A-E delivered demo-quality MVP. Submitting now ships untested-in-the-wild software. Pull Phase 2 forward (Auth + Real Integrations + Observability + Beta) so submission story has 5 real merchant sessions behind it. Tradeoff: ~4-5 weeks added; payoff: credibility + de-risked demo. Old Phase 2/Phase 1.5 split dissolves.
+### Verification Gate
 
-**Decision log (2026-05-20):**
-- Old Phase 2 hardening sprints (D-G) pulled into current target as Sprint F-I.
-- Old Phase 1.5 Sprint F (Submission Prep) renamed Sprint J, deferred until after Sprint I Beta gate.
-- Standalone Phase 2 marker dissolved — combined into Phase 1.5+2 active target.
+Before marking any Sprint G slice complete, run:
 
-**Decision log (2026-05-16, historical):**
-- Voice Input ← Phase 3 (behind `FEATURE_VOICE_INPUT` flag, conditional demo)
-- Pola Mingguan ← Phase 3 (SVG manual bar chart × 7 hari + auto-insight)
-- Offline PWA + draft queue ← Phase 2 (`next-pwa`, IndexedDB sync)
-- Pre-seeded sample data (NEW) — Belanja Card jalan instan setelah onboarding
-- Cuaca mock card (NEW) — visualkan weather factor sebelum BMKG real
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test
+FEATURE_UI_KIT_PREVIEW=true pnpm build
+pnpm audit --prod --audit-level=moderate
+```
 
-**Sprint D — Wow Layer (DONE on branch `sprint-d-wowlayer`)**
-1. ✅ Pola Mingguan card on Dashboard — pure `computePolaMingguan` (weekday avg + samples per item), SVG manual bar chart × 7 hari, today bar highlighted, auto-insight when |weekdayRatio - 1| > 15%. Indonesian copy in `lib/copy/pola-mingguan.ts`.
-2. ✅ Pre-seeded sample data on onboarding — `ensureDemoSeed` Server Action called from `OnboardingForm.handleSubmit`. Pure `buildDemoSeedDays` generator (UTC-anchored, deterministic per date) + `upsertStockLogBatch` query. Idempotent via `countRecentStockLogDays` + `(outlet_id, service_date)` UNIQUE.
-3. ✅ Cuaca mock card — `getMockWeather(date)` 3-state FNV-1a hash cycling, deterministic per date. Visible on `/dashboard` above Belanja Card. Phase 2 swaps real BMKG via `FEATURE_MOCK_WEATHER` flag.
+For UI-impacting work, also run `scripts/ui-responsive-audit.fn.js` through Playwright CLI at 390px and 430px with:
 
-**Sprint E — Reliability Layer (DONE on branch `sprint-d-wowlayer`)**
-1. ✅ Offline PWA — `public/manifest.webmanifest` (brand colors + standalone + start_url=/dashboard), SVG icons (`any` + `maskable` purposes), custom service worker (`public/sw.js`) with shell precache + cache-first for `/_next/static` + network-first for HTML + offline fallback to `/dashboard`. `RegisterServiceWorker` client component registers in production only (dev HMR + SW caching conflict).
-2. ✅ IndexedDB draft queue — `lib/offline/draft-queue.ts` (raw IDB, no deps) + `useOnlineStatus` hook + `OfflineQueuedCard` + `OfflineDraftsBanner` on `/catat`. Offline submit → queue, online return → restore via banner. Auto parse+confirm on reconnect deferred (confirm needs user-in-loop for AI mismatch).
-3. ✅ Loading skeletons — `ui/skeleton.tsx` primitive + shimmer keyframe (respects `prefers-reduced-motion`), `BelanjaCardSkeleton` matches BelanjaCard footprint (no layout shift), `ParseLoadingCard` shows 3 skeleton item rows during AI parse.
-4. ✅ Error recovery — `ErrorCard` on `/dashboard` gets retry button calling `loadAll`. `StockFlow` auto-retries once on `AI_PARSE_FAILED` before surfacing error (Gemini occasionally flaky on first call).
-5. ✅ Voice input behind flag — `FEATURE_VOICE_INPUT` env (default `false`). `VoiceInputButton` (Web Speech API id-ID, idle/listening/denied/unsupported state machine) renders in `InputBlock` when flag on. `next.config.ts` relaxes `Permissions-Policy` to `microphone=(self)` only when flag enabled.
-6. ⏸ Cache last Belanja Card client-side — deferred. SW caches HTML shell so /dashboard renders offline with skeleton then ErrorCard; localStorage echo of last good card postponed to follow-up if needed.
+- `stockast.onboarding.v1`
+- `stockast.subuh.override=off`
 
-**Sprint F — Auth + Multi-tenancy** (pulled from old Phase 2 Sprint D)
-1. Supabase phone OTP auth.
-2. RLS policies enabled + tested on `outlets`, `menu_items`, `stock_logs`, `recommendations`, `promos`.
-3. Tenant isolation tests (cross-tenant access attempt → denied).
-4. Migrate hardcoded `DEMO_OUTLET_ID` → authenticated session; remove `service-role` admin client from Server Actions.
-5. Middleware session check + Server Action role guards.
+### Phase Log
 
-**Sprint G — Real Integrations** (pulled from old Phase 2 Sprint E)
-1. BMKG real API client + per-`adm4_code` cache (Vercel KV, 6h TTL).
-2. `FEATURE_MOCK_WEATHER=false` path — swap `getMockWeather` for real fetch.
-3. Rate limiting per user (Vercel KV, thresholds already in `THRESHOLDS.RATE_LIMIT`).
-4. Audit log table + writes for `recommendation_generated` + `promo_generated`.
+| Date | Entry | Verification |
+|---|---|---|
+| 2026-05-23 | Scope refocus: collapsed Sprint G/H/I/J → single Sprint G Demo Readiness; deleted Phase 3/4 from execution doc; synced `.docs/` + `CLAUDE.md`; added UI Kit layout-authority rule | docs only, no code change |
+| 2026-05-22 | Sprint G readiness hardening (under prior scope): KV/rate-limit contract, OTP + AI rate limits, audit events, UI Kit notifications, mojibake guard, env/docs updates, patched dependency overrides | typecheck; lint 0 errors; test 115/115; build; prod audit clean; responsive audit 12/12 |
+| 2026-05-22 | Sprint F complete: phone OTP, RLS tenant isolation, session-scoped Server Actions, middleware, UI Kit migration | 109/109 tests; 10 routes build clean |
+| 2026-05-20 | Codebase cleanup: removed dead feature flag abstraction and unused deps; docs synced to as-built architecture | 104/104 tests |
+| 2026-05-20 | UI Kit foundation landed under `src/components/ui-kit/*`; `/ui-kit` gated by `FEATURE_UI_KIT_PREVIEW` | 104/104 tests; build green |
+| 2026-05-20 | Strategy pivot: Phase 2 hardening pulled into pre-submission track; Sprint J deferred until beta gate | docs updated |
+| 2026-05-20 | Sprint E reliability: PWA, offline drafts, skeletons, retry, voice flag | 104/104 tests; build green |
+| 2026-05-20 | Sprint D audit pipeline: onboarding persistence, graceful DB degrade, Subuh FOUC fix, autoseed flag | 104/104 tests |
+| 2026-05-16 | Sprint D Wow Layer: Pola Mingguan, demo seed, mock cuaca | 82/82 tests; build green |
+| 2026-05-16 | Phase 1.5 strategy locked: voice, Pola Mingguan, offline PWA, seed data, cuaca mock pulled forward | docs updated |
+| 2026-05-16 | Sprint C polish: Subuh mode, Belanja animation, designed empty/loading/error states | 65/65 tests; build green |
+| 2026-05-16 | Sprint B Magic Layer: RecommendationService, PromoService, Belanja Card, PromoCardList, Riwayat | 53/53 tests; build green |
+| 2026-05-15 | Sprint A Backbone: AI parse, copy module, DB layer, StockService, onboarding, StockFlow, dashboard shell | 36/36 tests; build green |
+| 2026-05-15 | Phase 0 research complete | 5/5 interviews validated |
+| 2026-05-15 | Gemini model verify fixed and `.docs/models.json` recorded | model check passed |
+| 2026-05-15 | Foundation scaffold landed | 21 unit tests |
 
-**Sprint H — Observability + Reliability Polish** (pulled from old Phase 2 Sprint F, minus PWA done in Sprint E)
-1. Sentry free tier wiring (server + client).
-2. PostHog free tier wiring (events from `docs/analytics-events.md`).
-3. Recommendation accuracy spot-check tooling (CLI script reading random log → printing rec + reason).
-4. Server Action error monitoring + structured logs (PII-redacted per CLAUDE.md core rule #10).
+### Session Checklist
 
-**Sprint I — Beta Onboarding** (pulled from old Phase 2 Sprint G)
-1. Onboard 5 pedagang nyata (founder network, Salatiga radius).
-2. Daily WhatsApp check-in week 1.
-3. Bug fix sprint — no new features.
-4. Exit criteria: 5/5 aktif D7, retention week 1 > 60%, recommendation accuracy spot-check pass.
+**Start:** read Snapshot + Active Sprint G, skim relevant `.docs/`, confirm task matches current sprint.
 
-**Sprint J — Submission Prep** (DEFERRED — was Phase 1.5 Sprint F)
-1. Demo script + 3x dry-run < 90s to magic moment.
-2. Backup demo video 60s.
-3. Mobile real device test (iPhone SE viewport + Android low-end).
-4. README polish untuk judge — include beta cohort testimonials.
-5. Vercel `--prod` deploy + custom domain (opsional).
-6. Voice flag enable decision (dry-run 5x lurus → ON).
+**End:** update Snapshot/Now/Blockers if changed, append Phase Log only for durable milestones, run the relevant Verification Gate before claiming green.
 
-**Milestone gate Phase 1.5+2:** Sprint I exit criteria met (5 pedagang D7 + retention/accuracy gates) → Sprint J greenlit → submission.
+## Definition of done — Submission MVP
 
-**Total estimasi remaining:** ~4-5 minggu (Sprint F-I + Sprint J).
-
-### Up next — Post-JVC
-
-- ~~Phase 2 hardening~~ — **pulled forward** into Sprint F-I (see Active target above).
-- Phase 3 (post private beta): WhatsApp Cloud API + Multi-staff + Pricing experiment. *Catatan: user mengindikasikan fitur Phase 3 mungkin ditarik lagi tergantung situasi post-JVC.*
-
-### Done log (append-only, newest first)
-
-- **2026-05-20** — Codebase cleanup + docs update. Removed dead abstraction `src/lib/config/feature-flags.ts` (nothing imported it; all code uses `flags` from `env.ts`). Uninstalled 7 unused deps: `@tanstack/react-query`, `@tanstack/react-query-devtools`, `react-hook-form`, `@hookform/resolvers`, `date-fns`, `date-fns-tz`, `@vercel/kv`. Updated `.docs/`: FOUNDATION_BLUEPRINT (folder structure updated to as-built, tech stack table corrected), DESIGN_SYSTEM (typography + new §15 UI Kit Namespace), SYSTEM_ARCHITECTURE (stack table corrected), ENGINEERING_STANDARDS (feature-flags reference fixed, new §17 UI Kit Standards). CLAUDE.md stack line updated. 104/104 tests still pass.
-- **2026-05-20** — UI Kit integration foundation landed. `stockast-UI/` walkthrough assets ported into prod codebase under `src/components/ui-kit/*` (additive — existing prod components untouched). Namespace covers icons (63), item glyphs + motifs + branding + empty-state illustrations, 6 weather scenes, 14 primitives (SkButton/Card/Pill/Input/Label/Topbar/BottomNav/Sheet/Thinking/CountUp/Steps/Typography/WeatherChip), 8 charts (Sparkline/BarSeries/CandleSeries/DeltaWidget/DonutMini/ProgressMeter/TallyCounter/HeatStrip), 5 notifications (Toast/Banner/InlineAlert/PushPreview/ActivityDot), 3 onboarding decor, 4 Belanja Card variants (Editorial/Warm/Compact/Pasar). Token alias layer in `src/styles/ui-kit-tokens.css` maps `--sk-*` → prod `--color-*` (single SoT); Subuh deep-sea palette diverges intentionally under `.subuh-mode`. UI Kit utilities + keyframes in `src/styles/ui-kit-utilities.css`. Newsreader + JetBrains Mono added via `next/font/google` (self-hosted, no CDN). Subuh bridge: `useSubuhMode` + bootstrap script now set both `.subuh-mode` class AND `data-subuh="on"` attribute. Internal preview at `/ui-kit` (gated by `FEATURE_UI_KIT_PREVIEW`, returns 404 in prod without flag). 104/104 tests still pass, build green (dashboard 113 kB First Load JS, new ui-kit route 7.12 kB / 110 kB).
-- **2026-05-20** — Strategy pivot: Phase 2 hardening pulled forward into pre-submission target. Old Phase 2 Sprint D-G renumbered to Sprint F-I (Auth, Real Integrations, Observability, Beta). Old Phase 1.5 Sprint F (Submission Prep) becomes Sprint J, deferred until Sprint I Beta gate clears. Rationale: 5 pedagang nyata onboarded > demo on seed data. ~4-5 weeks added before submission. Docs updated: CLAUDE.md, EXECUTION_BLUEPRINT.md, FEATURE_PRIORITY_MATRIX.md, FUTURE_ROADMAP.md, LAUNCH_CHECKLIST.md.
-- **2026-05-20** — Sprint E Reliability Layer landed on branch `sprint-d-wowlayer`. PWA (manifest + SVG icons + custom SW with shell precache, cache-first static, network-first HTML), IndexedDB offline draft queue + `useOnlineStatus` hook + offline banner on /catat, skeleton primitive + BelanjaCardSkeleton + ParseLoadingCard (no layout shift, respects prefers-reduced-motion), retry button on ErrorCard + auto-retry once on AI_PARSE_FAILED, voice input behind `FEATURE_VOICE_INPUT` flag (default OFF) with `Permissions-Policy` relaxed only when on. 104/104 tests pass, build green (6 static routes, dashboard 6.78 kB / 113 kB First Load JS), all routes 200 + PWA assets served on `pnpm dev`.
-- **2026-05-20** — Sprint D audit pipeline landed (`30e3fe1`). Onboarding-to-DB persistence (`applyOnboardingProfile` Server Action + `syncOutletMenu` query + locations config with adm4 codes), `MissingTableError` graceful degrade with `UnavailableCard`, SubuhModeProvider + `beforeInteractive` bootstrap script (FOUC fix), `FEATURE_DEMO_AUTOSEED` flag gate, onboarding-profile normalization service. +22 tests (db-errors, subuh-mode, onboarding-profile, app-gate). 104/104 pass.
-- **2026-05-16** — Sprint D Wow Layer landed on branch `sprint-d-wowlayer`. Pola Mingguan card (pure `computePolaMingguan` + SVG bar chart × 7 hari + auto-insight via `weekdayRatio`), pre-seeded demo data on onboarding (`ensureDemoSeed` Server Action + idempotent UTC-anchored generator), cuaca mock card (3-state hash cycling). Fixed TZ bug in `buildDemoSeedDays` (parse anchor as UTC). 82/82 tests pass (was 65). Build green (5 routes, dashboard 7.64 kB / 114 kB First Load JS).
-- **2026-05-16** — Phase 1.5 strategy locked. Pull Voice (behind flag), Pola Mingguan, Offline PWA forward; new pre-seeded data + cuaca mock. Deployment held until Sprint F dry-run pass. Docs updated: EXECUTION_BLUEPRINT (Phase 1.5 section + M3.5 milestone), FEATURE_PRIORITY_MATRIX (§2.5 + pulled markers), FUTURE_ROADMAP (drift log), LAUNCH_CHECKLIST (Phase 1.5 additions section).
-- **2026-05-16** — Sprint C polish landed. Subuh Mode (pure time gate + hook + toggle + dark token remap), Belanja Card spring reveal + item stagger, empty/loading/error illustrations (Sprout/Notebook/Cloud SVG + EmptyState component), warmer Indonesian copy across all states. Env Zod schema fixed to coerce blank `""` to undefined (KV/Sentry URLs). 65/65 tests pass (was 53). Build green, all 5 routes 200 on `pnpm dev`.
-- **2026-05-16** — Sprint B magic layer landed on branch `feat/sprint-b-magic-layer`. RecommendationService + explain-recommendation@v1 prompt, PromoService + promo-detection + promo-draft@v1 prompt, BelanjaCard UI with copy-to-WA, PromoCardList, Riwayat 7 hari page, Server Actions getBelanjaCard / getPromosForToday / getRiwayat7d / markPromoCopiedAction. 53/53 tests pass. Build green (5 static routes).
-- **2026-05-15** — Sprint A backbone landed. AI module (Gemini client, versioned `parse-stock@v1` prompt, Zod schema), copy module (id-ID), DB layer (admin client + queries), StockService + Server Actions, UI primitives (button/input/textarea/card/label/select), Onboarding variant B, StockFlow (input→parse→confirm→save), DashboardShell placeholder, AppGate redirect. 36/36 tests pass. Build green.
-- **2026-05-15** — Phase 0 complete. 5/5 user interviews validated. Pain confirmed (Rp 40K-250K loss/minggu). Sprint A gate cleared. Key product signals captured ke Research findings section.
-- **2026-05-15** — Gemini model verify fixed (`--env-file` flag). Pinned models `gemini-2.0-flash` + `gemini-2.0-flash-lite` confirmed live. `.docs/models.json` recorded.
-- **2026-05-15** — Foundation scaffold landed (PR #1). Configs, thresholds, feature flags, rules engines (stock/recommendation/promo), 21 unit tests passing, init migration.
-
-### Blocked
-
-_(none — record blocker + date + mitigation here when found)_
-
-### Session checklist (run at start + end of each session)
-
-**Start:**
-1. Re-read `CLAUDE.md` § Phase tracking + § Core rules.
-2. Skim relevant `.docs/` for the task at hand.
-3. Confirm current phase still matches what you're about to build. If not — stop and re-scope.
-
-**End:**
-1. Update "Last updated" date.
-2. Move completed items from "Now" → "Done log" with one-line outcome.
-3. Refresh "Up next" if priorities shifted.
-4. Record any new blockers.
-5. Run `pnpm typecheck && pnpm lint && pnpm test` before claiming green.
-
-## Definition of done — Phase 1 (Demo MVP)
-
-- [ ] Onboarding < 60 detik
+- [ ] Onboarding < 60 detik on real low-end Android
 - [ ] Stock input → parse → confirm < 30 detik
 - [ ] Belanja Card renders with sensible reasoning
 - [ ] Promo draft generates valid Indonesian copy
 - [ ] Copy-to-WhatsApp works on Android Chrome
-- [ ] Deployed on Vercel production
-- [ ] Demo dry-run 5min zero-bug
-- [ ] Backup demo video recorded
+- [ ] Deployed on Vercel production (custom domain optional)
+- [ ] Demo dry-run 5 menit zero-bug, 5× berturut-turut
+- [ ] Backup demo video recorded against production URL
 - [ ] Subuh Mode toggle works
-- [ ] Loading/empty/error states designed
-- [ ] Tested iPhone SE viewport + Android low-end
+- [ ] Loading/empty/error states verified across all routes
+- [ ] Tested iPhone SE viewport + 1 low-end Android device
+- [ ] README polish: tagline + 30-sec flow + demo link + screenshots
+- [ ] Voice flag decision recorded (default OFF unless 5/5 lurus)
 
-**NOT in Phase 1 DoD:** real auth, real BMKG, multi-tenancy, 100% coverage, prod observability. → Phase 2.
+**NOT in MVP DoD:** real BMKG, observability stack, beta cohort, monetization, scaling. → `.docs/FUTURE_ROADMAP.md`.

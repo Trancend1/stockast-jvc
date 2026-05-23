@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getDemoContext } from '@/lib/auth/demo-context';
+import { requireOutletAccess } from '@/lib/auth/session';
 import {
   getTomorrowRecommendation,
   type BelanjaCardItem,
@@ -9,6 +9,8 @@ import {
 import { type ActionResult, fail, ok } from '@/types/action-result';
 import { tomorrowIsoUtc } from '@/lib/utils';
 import type { Recommendation } from '@/types/domain';
+import { THRESHOLDS } from '@/lib/config/thresholds';
+import { checkRateLimit } from '@/lib/kv';
 
 export type BelanjaCardData = {
   outletId: string;
@@ -23,11 +25,27 @@ export async function getBelanjaCard(input?: {
   serviceDate?: string;
   forceRefresh?: boolean;
 }): Promise<ActionResult<BelanjaCardData>> {
-  const { outletId } = getDemoContext();
+  const ctx = await requireOutletAccess();
   const serviceDate = input?.serviceDate ?? tomorrowIsoUtc();
 
-  const result = await getTomorrowRecommendation({
-    outletId,
+  if (input?.forceRefresh) {
+    const quota = await checkRateLimit({
+      scope: 'ai',
+      identity: ctx.userId,
+      limit: THRESHOLDS.RATE_LIMIT.AI_PER_USER_PER_DAY,
+      windowSec: 24 * 60 * 60,
+    });
+    if (!quota.allowed) {
+      return fail('QUOTA_EXCEEDED', 'Batas refresh AI harian habis. Coba lagi besok ya.', {
+        retryAfterSec: quota.retryAfterSec,
+        resetAt: quota.resetAt,
+        store: quota.store,
+      });
+    }
+  }
+
+  const result = await getTomorrowRecommendation(ctx.db, {
+    outletId: ctx.outletId,
     serviceDate,
     forceRefresh: input?.forceRefresh ?? false,
   });

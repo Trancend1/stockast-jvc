@@ -1,18 +1,18 @@
 'use client';
 
-import * as React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { belanja } from '@/lib/copy/belanja';
-import { weekdayFromServiceDate } from '@/lib/utils';
 import type { BelanjaCardData } from '@/app/actions/recommendation';
-
-/**
- * Signature visual — the Belanja Card.
- * Source: .docs/DESIGN_SYSTEM.md §5 (hero + card stack).
- */
+import { Toast } from '@/components/ui-kit/notifications';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
+import { SkCard } from '@/components/ui-kit/primitives/sk-card';
+import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
+import { belanja } from '@/lib/copy/belanja';
+import { polaMingguan } from '@/lib/copy/pola-mingguan';
+import { weekdayFromServiceDate } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export function BelanjaCard({ data }: { data: BelanjaCardData }) {
+  const router = useRouter();
   const [copied, setCopied] = React.useState(false);
   const weekdayLabel = React.useMemo(() => {
     const idx = weekdayFromServiceDate(data.serviceDate);
@@ -30,14 +30,21 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
     }
   }
 
+  const confidenceTone =
+    data.confidenceLabel === 'Pola jelas'
+      ? 'success'
+      : data.confidenceLabel === 'Data baru, hati-hati'
+        ? 'warn'
+        : ('danger' as const);
+
   return (
-    <Card className="belanja-card-reveal belanja-card-surface border-brand-100">
-      <CardContent>
+    <SkCard signature className="belanja-card-reveal belanja-card-surface border-brand-100">
+      <div style={{ padding: '1rem' }}>
         <div className="flex items-baseline justify-between">
-          <span className="text-xs font-semibold uppercase tracking-wider text-brand-700">
+          <span className="text-brand-700 text-xs font-semibold tracking-wider uppercase">
             {weekdayLabel} · {formatShortDate(data.serviceDate)}
           </span>
-          <ConfidenceBadge label={data.confidenceLabel} />
+          <SkPill tone={confidenceTone}>{belanja.confidence[data.confidenceLabel]}</SkPill>
         </div>
 
         <h2 className="text-2xl font-extrabold tracking-tight text-neutral-900">
@@ -48,17 +55,21 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
           {data.items.map((it, idx) => (
             <li
               key={it.menuItemId}
-              className="belanja-item-reveal flex flex-col gap-1 rounded-button border border-neutral-200 bg-neutral-50 p-3"
+              className="belanja-item-reveal rounded-button flex flex-col gap-1 border border-neutral-200 bg-neutral-50 p-3"
               style={{ animationDelay: `${120 + idx * 60}ms` }}
             >
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="font-semibold text-neutral-900">{it.menuName}</span>
-                <span className="text-2xl font-extrabold text-brand-700">
-                  {it.suggested}
-                  <span className="ml-1 text-sm font-medium text-neutral-500">{it.unit}</span>
+              <div className="flex items-start justify-between gap-3">
+                <span className="flex-1 leading-tight font-semibold text-neutral-900">
+                  {it.menuName}
+                </span>
+                <span className="flex shrink-0 items-baseline gap-1">
+                  <span className="text-brand-700 text-2xl font-extrabold tabular-nums">
+                    {it.suggested}
+                  </span>
+                  <span className="text-sm font-medium text-neutral-500">{it.unit}</span>
                 </span>
               </div>
-              <p className="text-sm text-neutral-700">{it.reasoning}</p>
+              <p className="text-sm leading-relaxed text-neutral-700">{it.reasoning}</p>
               {it.leftoverYesterday !== null && it.leftoverYesterday > 0 ? (
                 <p className="text-xs text-neutral-500">
                   Sisa kemarin: {it.leftoverYesterday} {it.unit}
@@ -69,30 +80,32 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
         </ul>
 
         <p className="mt-3 text-sm leading-relaxed text-neutral-700">{data.summary}</p>
-      </CardContent>
 
-      <CardFooter className="justify-stretch">
-        <Button onClick={handleCopy} size="lg" className="w-full">
-          {copied ? belanja.share.copied : belanja.share.copy}
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function ConfidenceBadge({ label }: { label: keyof typeof belanja.confidence }) {
-  const tone =
-    label === 'Pola jelas'
-      ? 'bg-success/10 text-success'
-      : label === 'Data baru, hati-hati'
-        ? 'bg-warning/10 text-warning'
-        : 'bg-danger/10 text-danger';
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${tone}`}
-    >
-      {belanja.confidence[label]}
-    </span>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <SkButton
+            variant="secondary"
+            size="lg"
+            full
+            onClick={() => router.push('/pola-mingguan')}
+          >
+            {polaMingguan.action}
+          </SkButton>
+          <SkButton variant="brand" size="lg" full onClick={handleCopy}>
+            {copied ? belanja.share.copied : belanja.share.copy}
+          </SkButton>
+        </div>
+        {copied ? (
+          <div className="mt-3">
+            <Toast
+              kind="success"
+              title={belanja.share.copied}
+              message="Tinggal paste ke WhatsApp langganan."
+              onClose={() => setCopied(false)}
+            />
+          </div>
+        ) : null}
+      </div>
+    </SkCard>
   );
 }
 

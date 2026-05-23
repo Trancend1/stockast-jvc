@@ -30,8 +30,6 @@ const EnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
   GEMINI_API_KEY: z.string().min(10),
 
-  BMKG_API_BASE_URL: optionalUrl,
-
   KV_REST_API_URL: optionalUrl,
   KV_REST_API_TOKEN: optionalString,
 
@@ -44,15 +42,9 @@ const EnvSchema = z.object({
   FEATURE_MOCK_WEATHER: z.enum(['true', 'false']).default('true'),
   FEATURE_AI_PARSE_ENABLED: z.enum(['true', 'false']).default('true'),
   FEATURE_PROMO_GENERATION: z.enum(['true', 'false']).default('true'),
-  FEATURE_DEMO_AUTOSEED: z.enum(['true', 'false']).default('true'),
+  FEATURE_DEMO_AUTOSEED: z.enum(['true', 'false']).default('false'),
   FEATURE_VOICE_INPUT: z.enum(['true', 'false']).default('false'),
   FEATURE_UI_KIT_PREVIEW: z.enum(['true', 'false']).default('false'),
-
-  // Ops
-  CRON_SECRET: optionalString.pipe(z.string().min(16).optional()),
-  SENTRY_DSN: optionalUrl,
-  NEXT_PUBLIC_POSTHOG_KEY: optionalString,
-  NEXT_PUBLIC_POSTHOG_HOST: optionalUrl,
 
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 });

@@ -1,7 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/ui/button';
+import { IconMic } from '@/components/ui-kit/icons';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
+import { SkThinking } from '@/components/ui-kit/primitives/sk-thinking';
 import { stock as t } from '@/lib/copy/stock';
 
 /**
@@ -41,11 +43,7 @@ type RecognitionWindow = Window & {
 
 type RecState = 'idle' | 'listening' | 'denied' | 'unsupported';
 
-export function VoiceInputButton({
-  onTranscript,
-}: {
-  onTranscript: (text: string) => void;
-}) {
+export function VoiceInputButton({ onTranscript }: { onTranscript: (text: string) => void }) {
   const [state, setState] = React.useState<RecState>('idle');
   const recognitionRef = React.useRef<Recognition | null>(null);
 
@@ -101,22 +99,19 @@ export function VoiceInputButton({
   }
 
   const label =
-    state === 'listening'
-      ? t.voice.listening
-      : state === 'denied'
-        ? t.voice.denied
-        : t.voice.idle;
+    state === 'listening' ? t.voice.listening : state === 'denied' ? t.voice.denied : t.voice.idle;
 
   return (
-    <Button
+    <SkButton
       type="button"
       variant="ghost"
       size="sm"
       onClick={handleClick}
       aria-pressed={state === 'listening'}
       disabled={state === 'denied'}
+      leading={state === 'listening' ? <SkThinking /> : <IconMic size={15} />}
     >
       {label}
-    </Button>
+    </SkButton>
   );
 }

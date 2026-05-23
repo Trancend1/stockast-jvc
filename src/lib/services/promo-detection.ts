@@ -1,5 +1,5 @@
-import type { MenuRef, StockLogShape } from './recommendation-mapping';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import type { MenuRef, StockLogShape } from './recommendation-mapping';
 
 /**
  * Pure overstock detection. Decides which menu items deserve a promo draft.

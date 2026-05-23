@@ -1,22 +1,17 @@
 'use client';
 
-import * as React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { EmptyState, NotebookMark } from '@/components/ui/illustration';
+import { BarSeries, type BarPoint } from '@/components/ui-kit/charts/sk-charts';
+import { EmptyPanel, IllustNoHistory } from '@/components/ui-kit/illustrations/empty-states';
+import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { polaMingguan } from '@/lib/copy/pola-mingguan';
 import type { PolaMingguanData, PolaMingguanItem } from '@/lib/services/pola-mingguan';
+import * as React from 'react';
 
-/**
- * Today's weekday is computed once at the card level (UTC-stable) and passed
- * down to each row to avoid `new Date().getDay()` on every render — that
- * would cause hydration mismatch when the server pre-renders.
- */
-
-const WEEKDAY_SHORT = ['M', 'S', 'S', 'R', 'K', 'J', 'S'] as const;
+// getUTCDay(): 0 = Sunday
+const WEEKDAY_LABELS = ['Mg', 'Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb'] as const;
 
 export function PolaMingguanCard({ data }: { data: PolaMingguanData }) {
-  // Compute today's weekday once, after mount, so the SSR HTML doesn't pin a
-  // weekday that will mismatch on hydration when the client clock differs.
+  // Compute today's weekday after mount to avoid SSR/hydration mismatch.
   const [today, setToday] = React.useState<number | null>(null);
   React.useEffect(() => {
     setToday(new Date().getUTCDay());
@@ -24,124 +19,54 @@ export function PolaMingguanCard({ data }: { data: PolaMingguanData }) {
 
   if (data.items.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{polaMingguan.heading}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EmptyState
-            icon={<NotebookMark />}
-            title=""
-            description={polaMingguan.empty}
-          />
-        </CardContent>
-      </Card>
+      <EmptyPanel illust={IllustNoHistory} title={polaMingguan.heading} body={polaMingguan.empty} />
     );
   }
 
   const insightText = formatInsight(data);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{polaMingguan.heading}</CardTitle>
-        <CardDescription>{polaMingguan.subheading}</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <SkCard>
+      <div style={{ padding: '1rem' }}>
+        <p className="text-sm font-semibold text-neutral-900">{polaMingguan.heading}</p>
+        <p className="mt-0.5 text-xs text-neutral-500">{polaMingguan.subheading}</p>
+
         {insightText ? (
-          <p className="rounded-button bg-brand-50 px-3 py-2 text-sm font-medium text-brand-800">
+          <p className="rounded-button bg-brand-50 text-brand-800 mt-2 px-3 py-2 text-sm font-medium">
             💡 {insightText}
           </p>
         ) : null}
-        <ul className="flex flex-col gap-3">
+
+        <ul className="mt-3 flex flex-col gap-4">
           {data.items.map((item) => (
             <PolaItemRow key={item.menuItemId} item={item} today={today} />
           ))}
         </ul>
-      </CardContent>
-    </Card>
+      </div>
+    </SkCard>
   );
 }
 
-function PolaItemRow({
-  item,
-  today,
-}: {
-  item: PolaMingguanItem;
-  today: number | null;
-}) {
+function PolaItemRow({ item, today }: { item: PolaMingguanItem; today: number | null }) {
+  const barData: BarPoint[] = item.bars.map((bar) => ({
+    d: WEEKDAY_LABELS[bar.weekday] ?? '?',
+    v: Math.max(bar.avgSold, 0),
+    active: today !== null && bar.weekday === today,
+  }));
+
+  const hasData = barData.some((b) => b.v > 0);
+  const safeData = hasData ? barData : barData.map((b) => ({ ...b, v: 0.001 }));
+
   return (
     <li className="flex flex-col gap-1.5">
-      <div className="flex items-baseline justify-between">
-        <span className="font-semibold text-neutral-900">{item.menuName}</span>
-        <span className="text-xs text-neutral-500">{item.unit}</span>
+      <div className="flex items-center justify-between gap-3">
+        <span className="min-w-0 flex-1 leading-tight font-semibold text-neutral-900">
+          {item.menuName}
+        </span>
+        <span className="shrink-0 text-xs text-neutral-500">{item.unit}</span>
       </div>
-      <WeekdayChart bars={item.bars} max={item.weekdayMax} today={today} />
+      <BarSeries data={safeData} width={280} height={72} showLabels />
     </li>
-  );
-}
-
-const CHART_W = 280;
-const CHART_H = 64;
-const BAR_GAP = 8;
-const TICK_H = 14;
-
-function WeekdayChart({
-  bars,
-  max,
-  today,
-}: {
-  bars: ReadonlyArray<{ weekday: number; avgSold: number; samples: number }>;
-  max: number;
-  today: number | null;
-}) {
-  const usableW = CHART_W;
-  const barW = (usableW - BAR_GAP * 6) / 7;
-  const drawableH = CHART_H - TICK_H - 4;
-  const safeMax = max > 0 ? max : 1;
-
-  return (
-    <svg
-      viewBox={`0 0 ${CHART_W} ${CHART_H}`}
-      role="img"
-      aria-label="Bar chart penjualan per hari"
-      className="w-full max-w-[320px]"
-    >
-      {bars.map((bar, idx) => {
-        const x = idx * (barW + BAR_GAP);
-        const h = bar.avgSold === 0 ? 2 : Math.max(2, (bar.avgSold / safeMax) * drawableH);
-        const y = drawableH - h;
-        const isToday = bar.weekday === today;
-        const hasSample = bar.samples > 0;
-        const fill = !hasSample
-          ? 'var(--color-neutral-200)'
-          : isToday
-            ? 'var(--color-brand-500)'
-            : 'var(--color-brand-300)';
-        return (
-          <g key={idx}>
-            <rect
-              x={x}
-              y={y}
-              width={barW}
-              height={h}
-              rx={3}
-              fill={fill}
-            />
-            <text
-              x={x + barW / 2}
-              y={drawableH + TICK_H - 2}
-              fontSize={11}
-              fontWeight={isToday ? 700 : 500}
-              textAnchor="middle"
-              fill="var(--color-neutral-600)"
-            >
-              {WEEKDAY_SHORT[bar.weekday]}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
   );
 }
 

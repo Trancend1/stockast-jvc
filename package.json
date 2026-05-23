@@ -24,6 +24,7 @@
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --local > src/lib/db/types.ts",
+    "db:wipe": "tsx --env-file=.env.local scripts/dev-wipe.ts",
     "prepare": "lefthook install"
   },
   "dependencies": {
@@ -60,5 +61,11 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.14",
+      "uuid": "^11.1.1"
+    }
   }
 }

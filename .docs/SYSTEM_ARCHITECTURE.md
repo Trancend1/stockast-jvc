@@ -39,12 +39,12 @@
 | **Auth** | Supabase Auth (phone OTP) | Standard for Indonesian users (no email) |
 | **AI** | Gemini API (direct SDK) | `@google/genai`; no Genkit wrapper for MVP. **Default model:** `gemini-2.0-flash` untuk parse + explanation, `gemini-2.0-flash-lite` (atau equivalent latest) untuk high-volume tugas non-kritis. Model name *wajib di-verify* via `https://ai.google.dev/gemini-api/docs/models` di Hari 1 sebelum kode di-write — Gemini model name berubah cepat. |
 | **Storage** | Supabase Storage | Untuk warung photos (Phase 3) |
-| **Background Jobs** | Server Actions (MVP) → Inngest (Phase 3) | Defer queue infrastructure |
-| **Rate Limiting** | Vercel KV + simple counter | Cheap and effective |
+| **Background Jobs** | Server Actions only (MVP submission scope) | Queue infra parked post-submission |
+| **Rate Limiting** | Vercel KV REST contract + simple counter | Cheap and effective; cost guardrail |
 | **Deployment** | Vercel | DX optimal untuk Next.js |
-| **Domain** | Custom via Cloudflare | Free DNS, anti-DDoS |
-| **Error Tracking** | Sentry (free tier, Phase 2) | Defer for MVP |
-| **Analytics** | PostHog (free tier, Phase 2) | Defer for MVP |
+| **Domain** | Custom via Cloudflare | Free DNS, anti-DDoS (optional for submission) |
+| **Error Tracking** | `console.error` + Vercel runtime logs only | Third-party error tooling parked post-submission |
+| **Analytics** | None (no analytics in submission MVP) | Parked post-submission |
 | **CI/CD** | Vercel auto-deploy + GitHub Actions for tests | Zero config |
 
 ### Stack NOT chosen (and why)
@@ -55,7 +55,8 @@
 - ❌ **Custom Express backend** — Next.js API routes + Server Actions suffice
 - ❌ **Docker/K8s** — premature; serverless covers it
 - ❌ **Redis** — Vercel KV when needed
-- ❌ **Kafka/RabbitMQ** — premature; Inngest later
+- ❌ **Kafka/RabbitMQ** — premature; not in submission scope
+- ❌ **Sentry / PostHog / Datadog / Trigger.dev / Inngest** — observability + queue infra parked post-submission; submission MVP runs on `console.error` + Vercel runtime logs
 
 ---
 
@@ -402,20 +403,10 @@ async function requireRole(role: 'owner' | 'staff') {
 
 ## 10. Queue / Background Jobs
 
-### MVP: Server Actions + setTimeout
-Tidak ada queue. Logic berjalan sync di Server Action atau di setelahnya via fire-and-forget.
+Job queue intentionally not in MVP scope. Server Actions + Vercel Cron cover everything submission-scoped. Real queue infrastructure (Inngest, Trigger.dev, or similar) is parked post-submission and lives in `.docs/FUTURE_ROADMAP.md`.
 
-### Phase 2: Vercel Cron
-Scheduled jobs simple:
-- Pre-compute recommendations setiap malam jam 22.00 untuk outlets aktif
-- Cleanup expired drafts setiap hari
-
-### Phase 3: Inngest atau Trigger.dev
-Real queue saat ada:
-- Multiple async steps (parse → validate → compute → notify)
-- Retry logic kompleks
-- Concurrency control needed
-- > 1K active users
+### MVP: Server Actions + fire-and-forget
+Logic berjalan sync di Server Action; deferred work via fire-and-forget when safe. No queue, no retry orchestration beyond what Server Actions provide natively.
 
 ### Job Idempotency Rule
 Setiap job harus aman di-retry:
@@ -493,23 +484,13 @@ Setiap job harus aman di-retry:
 
 ## 14. Monitoring & Logging
 
-### MVP
-- `console.error` + Vercel function logs
-- Manual periodic check
+MVP monitoring = `console.error` + Vercel runtime logs only. No third-party observability tooling shipped for the submission MVP. Sentry, PostHog, uptime monitoring, custom dashboards, and analytics dashboards are parked post-submission (see `.docs/FUTURE_ROADMAP.md`); revisit only if a real-user phase begins.
 
-### Private Beta
-- **Sentry** (free tier): error tracking + perf monitoring
-- **Vercel Analytics:** Web Vitals
-- **PostHog** (free tier): product analytics + session replay
-- **Supabase Dashboard:** DB metrics
-
-### Production
-- Add **Better Stack** atau **Uptime Robot** untuk uptime monitoring
-- Custom dashboard untuk:
-  - AI cost per day
-  - AI parse accuracy rate
-  - Recommendation engagement
-  - Active users by cohort
+### MVP (current scope)
+- `console.error` for server-side issues
+- Vercel runtime logs for request-level visibility
+- Supabase dashboard for raw DB inspection
+- Manual periodic check during dry-runs
 
 ### Log Levels
 - `error`: Things that broke and need investigation

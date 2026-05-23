@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function OnboardingPage() {
   return (
-    <main className="app-container flex min-h-dvh flex-col justify-center py-10">
+    <main className="flex min-h-dvh w-full flex-col bg-[var(--sk-bg)] px-5 py-4 sm:px-8 md:px-10">
       <OnboardingForm />
     </main>
   );

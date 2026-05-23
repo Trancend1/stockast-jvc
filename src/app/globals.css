@@ -45,9 +45,9 @@
   --color-danger: #d04a3e;
   --color-info: #5a8fbf;
   --color-on-brand: #fff5ee;
-  --color-subuh-page: #1a1611;
-  --color-subuh-surface: #2b241b;
-  --color-subuh-surface-soft: #3d3327;
+  --color-subuh-page: #242019;
+  --color-subuh-surface: #2b261f;
+  --color-subuh-surface-soft: #3a3228;
 
   /* Radius — warm, friendly, not sharp */
   --radius-card: 16px;
@@ -73,7 +73,7 @@ html.subuh-mode {
 
 html.subuh-mode body {
   background:
-    radial-gradient(circle at 50% -10%, rgba(242, 111, 27, 0.16), transparent 28rem),
+    radial-gradient(circle at 50% -10%, rgba(233, 154, 93, 0.16), transparent 28rem),
     var(--color-subuh-page);
   color: var(--color-neutral-900);
 }
@@ -82,25 +82,25 @@ html.subuh-mode body {
    Components keep Tailwind utility classes (text-neutral-700, bg-neutral-50, ...);
    we re-map those tokens under .subuh-mode so the cream→ink swap is global. */
 html.subuh-mode {
-  --color-neutral-50: #2b241b;
-  --color-neutral-100: #1a1611;
-  --color-neutral-200: #3d3327;
-  --color-neutral-300: #564a38;
-  --color-neutral-400: #7a6b55;
-  --color-neutral-500: #a89880;
-  --color-neutral-600: #d3c5ae;
-  --color-neutral-700: #e8dfd0;
-  --color-neutral-800: #f5f0e8;
-  --color-neutral-900: #fbf8f4;
+  --color-neutral-50: #2b261f;
+  --color-neutral-100: #242019;
+  --color-neutral-200: #3a3228;
+  --color-neutral-300: #574a3a;
+  --color-neutral-400: #88765f;
+  --color-neutral-500: #b8a98f;
+  --color-neutral-600: #d4c6ac;
+  --color-neutral-700: #e8dcc4;
+  --color-neutral-800: #f4ead6;
+  --color-neutral-900: #fff8eb;
 
-  /* Warm primary in dark mode — slightly more saturated */
-  --color-brand-50: #3d2718;
-  --color-brand-100: #5c2f13;
-  --color-brand-500: #ff8e3c;
-  --color-brand-600: #f26f1b;
-  --color-brand-700: #ffae6b;
-  --color-brand-800: #ffd3af;
-  --color-brand-900: #fff5ee;
+  /* Warm primary in dark mode: calm dawn amber, not blue or harsh orange. */
+  --color-brand-50: #3a2518;
+  --color-brand-100: #4a2e1d;
+  --color-brand-500: #e99a5d;
+  --color-brand-600: #d88245;
+  --color-brand-700: #f0b779;
+  --color-brand-800: #f8d7ad;
+  --color-brand-900: #fff1dc;
 
   /* Softer shadow on dark surface */
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -109,8 +109,12 @@ html.subuh-mode {
 
 /* Signature animation — Belanja Card reveal (DESIGN_SYSTEM.md §12). */
 .belanja-card-surface {
-  background:
-    linear-gradient(135deg, var(--color-neutral-50), var(--color-brand-50), var(--color-neutral-50));
+  background: linear-gradient(
+    135deg,
+    var(--color-neutral-50),
+    var(--color-brand-50),
+    var(--color-neutral-50)
+  );
 }
 
 html.subuh-mode .belanja-card-surface {

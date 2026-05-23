@@ -156,13 +156,15 @@
 
 ---
 
-## 3. Important But Later (Private Beta — Phase 2 → PULLED FORWARD as Sprint F-I)
+## 3. Important But Later (Post-Submission — Parked)
 
-**Note (2026-05-20):** Strategy pivot — Phase 2 hardening pulled into pre-submission target. Old Phase 2 sprints become Sprint F (Auth), G (Real Integrations), H (Observability), I (Beta Onboarding). Submission Prep (was Phase 1.5 Sprint F) renamed Sprint J, deferred. Lihat `EXECUTION_BLUEPRINT.md §2 Phase 1.5+2`. Items below remain valid feature specs — only the phase label changed.
+**Note (2026-05-23):** Scope refocused to JVC submission MVP only. Sprint F (Auth + Multi-tenancy + UI Kit) shipped; old Sprint G (BMKG real API), H (Sentry/PostHog observability), and I (5-merchant D7 retention beta) are parked post-submission per `.docs/FUTURE_ROADMAP.md`. Items below remain valid feature specs — they're parked, not killed.
 
-**Note (2026-05-16, historical):** Offline PWA dipindah ke Phase 1.5 (lihat §2.5). Sisanya tetap di Phase 2 (now pulled forward per 2026-05-20).
+**Note (2026-05-20, historical):** Strategy pivot pulled Phase 2 hardening into pre-submission target; superseded by 2026-05-23 refocus.
 
-**Definition:** Required for real users (5-50 beta cohort). Now BLOCKING for submission per 2026-05-20 pivot.
+**Note (2026-05-16, historical):** Offline PWA dipindah ke Phase 1.5 (lihat §2.5).
+
+**Definition:** Items required only when a real-user phase begins (5-50 pedagang). All P1 infra below is parked indefinitely; submission MVP intentionally ships without observability tooling.
 
 ### Phone OTP Auth (Supabase)
 - **Priority:** P1
@@ -216,20 +218,22 @@
 - **Status:** Pulled forward to Phase 1.5 per 2026-05-16 decision (lihat §2.5).
 
 ### Error Tracking (Sentry)
-- **Priority:** P1
+- **Status:** ⏸ Parked — not in submission scope. Revisit only if real-user phase begins. MVP relies on `console.error` + Vercel runtime logs.
+- **Priority:** P1 (parked)
 - **Complexity:** 🟢 Low (0.5 day)
 - **Business Impact:** ⭐⭐
 - **User Impact:** ⭐ (invisible)
 - **Risk:** ✅ Low
-- **Reasoning:** Free tier. Catches issues real users hit.
+- **Reasoning:** Free tier. Catches issues real users hit. Not needed for 1–5 testers.
 
 ### Product Analytics (PostHog)
-- **Priority:** P1
+- **Status:** ⏸ Parked — not in submission scope. Revisit only if real-user phase begins.
+- **Priority:** P1 (parked)
 - **Complexity:** 🟢 Low (0.5 day)
 - **Business Impact:** ⭐⭐⭐ (data-driven decisions)
 - **User Impact:** ⭐ (invisible)
 - **Risk:** ✅ Low
-- **Reasoning:** Need to measure funnel to improve. Free tier.
+- **Reasoning:** Need to measure funnel to improve. Free tier. Not needed for 1–5 testers.
 
 ### Beta Feedback Mechanism (in-app)
 - **Priority:** P1
@@ -367,7 +371,7 @@
 - **Why kill:** Over-engineered. Use 2 levels: "Data baru, hati-hati" vs "Pola jelas". Caps adjustable internally.
 
 ### Observability Stack (Phase 1)
-- **Why kill:** `console.error` + Vercel logs covers demo phase. Add Sentry/PostHog in Phase 2.
+- **Why kill:** `console.error` + Vercel logs covers submission scope. Sentry/PostHog parked post-submission (see `.docs/FUTURE_ROADMAP.md`).
 
 ### Custom Design System from Scratch
 - **Why kill:** shadcn/ui + Tailwind config extension covers it. Building bespoke design system is 6-month effort.
@@ -436,12 +440,12 @@ If any red: write 1-pager, sit on it 1 week, revisit.
 
 | Bucket | Count | Phase |
 |---|---|---|
-| **Core MVP (P0)** | 10 features | Phase 1 (Sprint A-C, DONE on `feat/sprint-b-magic-layer`) |
-| **JVC Submission Pull-Forward** | 5 features | Phase 1.5 (Sprint D-E-F, decision 2026-05-16) |
-| **Important Later (P1)** | 9 features | Phase 2-3 (Beta → Production) |
-| **Experimental (P2-P3)** | 7 features | Phase 4+ (Validate first) |
+| **Core MVP (P0)** | 10 features | Phase 1 (Sprint A-C, DONE) |
+| **JVC Submission Pull-Forward** | 5 features | Phase 1.5 (Sprint D-E-F, DONE) |
+| **Important Later (P1)** | 9 features | Post-submission (parked) |
+| **Experimental (P2-P3)** | 7 features | Post-submission (validate first) |
 | **Kill List** | 21 features | Never (unless data forces) |
 
-**Ratio:** 15 build before submission : 21 explicitly NOT building.
+**Ratio:** 15 features shipped for submission : 9 parked for post-submission : 7 experimental : 21 killed.
 
 That ratio is the discipline. AI Slop products are the ones that flip this ratio.
