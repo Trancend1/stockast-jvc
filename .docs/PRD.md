@@ -238,10 +238,8 @@ Semua keputusan produk diukur terhadap kalimat ini.
 - **Recommendation engagement:** 50% rekomendasi dibuka sebelum jam belanja
 - **Trust signal:** Manual override rate < 30% setelah 7 hari (artinya AI dipercaya cukup)
 
-### 9.3 Business Metrics (Production)
-- **CAC payback:** < 6 bulan (asumsi monetization Phase 4)
-- **AI cost per active user per bulan:** < Rp 5,000 (hard ceiling; soft target Rp 1,500/bulan = Rp 50/hari rata-rata)
-- **Support tickets per 100 users per minggu:** < 10
+### 9.3 Business Metrics (Post-Submission)
+Business metrics defer to post-submission. Demo success = 5-min flow, zero visible bugs, ≥1 judge requests link. Cost/CAC/support metrics live in `.docs/FUTURE_ROADMAP.md` until real-user phase begins.
 
 ### 9.4 Counter-Metrics (Hindari)
 - Stockout frequency naik > 5% (artinya rekomendasi terlalu konservatif)
@@ -277,28 +275,9 @@ Judge demo selesai dalam 5 menit dengan **0 bug visible**, dan minimal **1 judge
 
 ---
 
-## 11. Future Roadmap (High-Level)
+## 11. Future Roadmap (Post-Submission)
 
-### Phase 2 — Private Beta (Bulan 2-3)
-- Real auth, RLS
-- Real BMKG integration
-- Recommendation audit log
-- Offline draft input
-- 10 pedagang nyata onboarded
-
-### Phase 3 — Production v1 (Bulan 4-6)
-- WhatsApp Cloud API
-- Multi-staff role
-- Voice input (Gemini Audio)
-- Pola Mingguan visualization
-- 100 pedagang nyata, monetization test (freemium)
-
-### Phase 4 — Scale (Bulan 7-12)
-- Multi-outlet untuk Mas Adit persona
-- Supplier marketplace (B2B revenue)
-- ML forecasting engine (jika data sudah cukup)
-
-Detail di `FUTURE_ROADMAP.md`.
+Submission MVP scope is locked at §10. Post-submission roadmap (private beta, monetization, scale, multi-staff, WhatsApp Cloud API, ML forecasting) lives in `.docs/FUTURE_ROADMAP.md` and is explicitly out of current execution scope.
 
 ---
 

@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import {
@@ -14,14 +13,10 @@ import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
 import { BelanjaCardSkeleton } from '@/components/features/belanja/BelanjaCardSkeleton';
 import { PromoCardList } from '@/components/features/belanja/PromoCardList';
 import { CuacaCard } from '@/components/features/cuaca/CuacaCard';
-import { PolaMingguanCard } from '@/components/features/pola-mingguan/PolaMingguanCard';
-import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { Banner } from '@/components/ui-kit/notifications';
 import { getBelanjaCard, type BelanjaCardData } from '@/app/actions/recommendation';
 import { getPromosForToday } from '@/app/actions/promo';
-import { getPolaMingguan } from '@/app/actions/pola-mingguan';
 import type { PromoSuggestion } from '@/lib/services/PromoService';
-import type { PolaMingguanData } from '@/lib/services/pola-mingguan';
 import { belanja } from '@/lib/copy/belanja';
 import { readOnboardingState } from '@/lib/onboarding-state';
 
@@ -29,12 +24,10 @@ type Phase = 'loading' | 'ready' | 'empty' | 'error' | 'unavailable';
 type EmptyReason = 'NO_MENU' | 'NO_HISTORY';
 
 export function DashboardShell() {
-  const router = useRouter();
   const [warungName, setWarungName] = React.useState<string>(belanja.warung_fallback);
   const [phase, setPhase] = React.useState<Phase>('loading');
   const [card, setCard] = React.useState<BelanjaCardData | null>(null);
   const [promos, setPromos] = React.useState<PromoSuggestion[]>([]);
-  const [pola, setPola] = React.useState<PolaMingguanData | null>(null);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [emptyReason, setEmptyReason] = React.useState<EmptyReason>('NO_HISTORY');
 
@@ -59,10 +52,9 @@ export function DashboardShell() {
     async (name: string) => {
       setPhase('loading');
       setErrorMsg(null);
-      const [cardResult, promoResult, polaResult] = await Promise.all([
+      const [cardResult, promoResult] = await Promise.all([
         getBelanjaCard(),
         getPromosForToday({ warungName: name }),
-        getPolaMingguan(),
       ]);
 
       if (cardResult.error) {
@@ -72,7 +64,6 @@ export function DashboardShell() {
 
       setCard(cardResult.data);
       setPromos(promoResult.error ? [] : promoResult.data.promos);
-      setPola(polaResult.error ? null : polaResult.data);
       setPhase('ready');
     },
     [applyCardError],
@@ -98,7 +89,7 @@ export function DashboardShell() {
   }
 
   return (
-    <AppLayout warungName={warungName} trailing={<SubuhToggle />}>
+    <AppLayout warungName={warungName}>
       <div className="flex flex-col gap-6 px-4 pt-4">
         {phase === 'loading' ? <BelanjaCardSkeleton /> : null}
         {phase === 'empty' ? <EmptyCard reason={emptyReason} message={errorMsg} /> : null}
@@ -123,14 +114,9 @@ export function DashboardShell() {
                 }
               />
             ) : null}
-            {pola ? <PolaMingguanCard data={pola} /> : null}
             <PromoCardList promos={promos} />
           </>
         ) : null}
-
-        <SkButton variant="brand" size="lg" full onClick={() => router.push('/catat')}>
-          {belanja.catat_cta}
-        </SkButton>
       </div>
     </AppLayout>
   );

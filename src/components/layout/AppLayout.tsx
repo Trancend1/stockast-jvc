@@ -1,9 +1,12 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import type { ReactNode } from 'react';
+import * as React from 'react';
+import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { SkBottomNav, type SkBottomNavId } from '@/components/ui-kit/primitives/sk-bottom-nav';
 import { SkTopBar, type SkTopBarProps } from '@/components/ui-kit/primitives/sk-topbar';
+import { readOnboardingState } from '@/lib/onboarding-state';
+import { usePathname, useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
 
 const ROUTE_TO_NAV: Record<string, SkBottomNavId> = {
   '/dashboard': 'home',
@@ -30,14 +33,30 @@ export function AppLayout({
   children,
   topbarMode,
   hideNav = false,
+  warungName,
+  trailing,
   ...topbarProps
 }: AppLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [hydratedWarungName, setHydratedWarungName] = React.useState<string | undefined>(
+    warungName,
+  );
 
   const activeNav = ROUTE_TO_NAV[pathname] ?? 'home';
-  const isTopLevel = Object.keys(ROUTE_TO_NAV).includes(pathname);
-  const resolvedMode = topbarMode ?? (isTopLevel ? 'default' : 'task');
+  const resolvedMode = topbarMode ?? 'default';
+  const resolvedTrailing = trailing === undefined ? <SubuhToggle /> : trailing;
+
+  React.useEffect(() => {
+    if (warungName && warungName.trim().length > 0) {
+      setHydratedWarungName(warungName.trim());
+      return;
+    }
+
+    const onboarding = readOnboardingState();
+    const storedName = onboarding?.warungName?.trim();
+    setHydratedWarungName(storedName || undefined);
+  }, [warungName]);
 
   function handleNavChange(id: SkBottomNavId) {
     router.push(NAV_TO_ROUTE[id]);
@@ -54,7 +73,8 @@ export function AppLayout({
     >
       <SkTopBar
         mode={resolvedMode}
-        onBack={resolvedMode === 'task' ? () => router.back() : undefined}
+        warungName={hydratedWarungName}
+        trailing={resolvedTrailing}
         {...topbarProps}
       />
       <main

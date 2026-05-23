@@ -43,6 +43,7 @@ Always check `.docs/` before inventing patterns. If `.docs/` and code disagree, 
 10. **No PII in logs:** phone numbers, raw stock notes, full prompts.
 11. **Conventional Commits** with scopes: `auth · stock · recommendation · promo · ai · ui · db · infra · docs`.
 12. **Forward-only migrations** in `supabase/migrations/`.
+13. **UI Kit is the only layout authority.** Page shells compose `src/components/ui-kit/*` primitives + variants. Feature components never inline raw Tailwind for new visual concepts — extend the kit instead. Tokens edited in `stockast-UI/ui-kit/tokens/tokens.css` + `src/styles/ui-kit-utilities.css` only.
 
 ## Anti-slop (do not ship)
 
@@ -85,13 +86,13 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 
 | Field | Current |
 |---|---|
-| Phase | 1.5+2 Pre-Submission Hardening |
-| Active sprint | Sprint G: Real Integrations |
-| Status | Ready to start development |
+| Phase | 1.6 — Demo Readiness (JVC Submission MVP) |
+| Active sprint | Sprint G: Demo Readiness |
+| Status | Polish + dry-run + deploy (no new feature build) |
 | Branch | `feat/ui-kit` |
-| Magic moment | Ready in demo seed mode: onboarding -> dashboard -> Cuaca + Pola Mingguan + Belanja Card |
-| Deployment | HELD until Sprint I beta gate + Sprint J dry-run pass |
-| Last updated | 2026-05-22: Sprint G readiness hardening complete; 115/115 tests; dependency audit clean |
+| Magic moment | Working end-to-end on demo seed; ready for judging dry-run |
+| Deployment | Production deploy queued; goes live once Sprint G exit criteria met |
+| Last updated | 2026-05-23: scope refocused to JVC submission MVP only |
 
 ### Roadmap
 
@@ -104,33 +105,36 @@ Before declaring work done: `pnpm typecheck && pnpm lint && pnpm test && pnpm bu
 | Sprint D | Done | Wow Layer | Pola Mingguan, demo seed, mock cuaca |
 | Sprint E | Done | Reliability | PWA shell, offline draft queue, skeletons, retry, voice flag |
 | Sprint F | Done | Auth + Multi-tenancy + UI Kit | OTP auth, RLS, middleware, UI Kit migration |
-| Sprint G | Next | Real Integrations | BMKG real API, weather cache, rate limit, audit log |
-| Sprint H | Later | Observability | Sentry, PostHog, accuracy spot-checks, structured logs |
-| Sprint I | Later | Beta Onboarding | 5 real merchants active D7; retention week 1 > 60% |
-| Sprint J | Deferred | Submission Prep | 3 dry-runs, backup video, mobile real device test, README polish |
+| Sprint G | Active | Demo Readiness | Polish + dry-runs + production deploy + backup video + submission package |
 
-### Active Sprint G
+Post-submission directions (private beta, monetization, scale) live in `.docs/FUTURE_ROADMAP.md` and are not part of current execution scope.
 
-**Goal:** replace mock-only integration paths with real, guarded infrastructure while preserving the current mobile/UI baseline.
+### Active Sprint G — Demo Readiness
 
-**Build scope:**
-- BMKG real API client with per-`adm4_code` cache, 6h TTL.
-- `FEATURE_MOCK_WEATHER=false` path from mock weather to real weather.
-- Rate limiting per user/phone/IP using `THRESHOLDS.RATE_LIMIT`.
-- Audit writes for `recommendation_generated` and `promo_generated`.
+**Goal:** ship submission. No new feature work. Polish, dry-run, deploy.
 
-**Readiness baseline already cleared:**
-- KV contract exists in `src/lib/kv/rate-limit.ts`: REST env, no SDK dependency, hashed identities, fixed windows, memory fallback, tests.
-- `src/lib/config/locations.ts` is the current BMKG `adm4_code` mapping source; onboarding persists `location_label` + `adm4_code`.
-- Audit table/RLS exists in `supabase/migrations/0001_init.sql`; AI audit writes are best-effort.
-- Responsive audit passed for `/login`, `/onboarding`, `/dashboard`, `/catat`, `/riwayat`, `/ui-kit` at 390px and 430px with seeded localStorage.
-- Dependency audit passed: `pnpm audit --prod --audit-level=moderate`.
+**Build scope (in priority order):**
+1. Onboarding flow polish — sub-60s time-to-magic-moment confirmed on real device.
+2. UI consistency sweep — all routes match `src/components/ui-kit/*` primitives; mojibake guard holds.
+3. 3× demo dry-run with stopwatch (target <90s to Belanja Card; 0 visible bugs across 5 consecutive runs).
+4. Real-device test — 1 iPhone, 1 low-end Android Chrome.
+5. Vercel production deploy (+ optional custom domain).
+6. 60s backup demo video recorded against production URL.
+7. README polish for judges (tagline + 30-sec flow + demo link + screenshots).
+8. Voice flag decision: flip ON only if 5/5 dry-runs lurus, else stay OFF.
+
+**Explicitly out of scope:**
+- Real BMKG API integration (mock weather kept as-built).
+- Sentry / PostHog / third-party observability wiring.
+- 5-merchant beta cohort + D7 retention gate.
+- Multi-staff role, WhatsApp Cloud API, monetization, referrals.
+- Any scaling work.
 
 **Implementation guardrails:**
-- Keep Dashboard, Catat, Riwayat, Login, Onboarding, and `/ui-kit` aligned to `src/components/ui-kit/*`.
+- Keep Dashboard, Catat, Riwayat, Login, Onboarding, Pola Mingguan, and `/ui-kit` aligned to `src/components/ui-kit/*`.
 - Preserve `ActionResult<T>` returns; Server Actions do not throw to the client.
 - Keep PII out of logs, prompts, rate-limit keys, and audit records.
-- If BMKG mapping is missing/null, fall back to mock or unavailable weather state, not a broken UI.
+- If BMKG `adm4_code` mapping is missing/null, fall back to mock weather state, not a broken UI.
 - Re-run mobile audit after touching topbar, bottom nav, weather card, dashboard cards, ticker/banner SVG, or `/ui-kit`.
 
 ### Research Signals
@@ -173,7 +177,8 @@ For UI-impacting work, also run `scripts/ui-responsive-audit.fn.js` through Play
 
 | Date | Entry | Verification |
 |---|---|---|
-| 2026-05-22 | Sprint G readiness hardening: KV/rate-limit contract, OTP + AI rate limits, audit events, UI Kit notifications, mojibake guard, env/docs updates, patched dependency overrides | typecheck; lint 0 errors; test 115/115; build; prod audit clean; responsive audit 12/12 |
+| 2026-05-23 | Scope refocus: collapsed Sprint G/H/I/J → single Sprint G Demo Readiness; deleted Phase 3/4 from execution doc; synced `.docs/` + `CLAUDE.md`; added UI Kit layout-authority rule | docs only, no code change |
+| 2026-05-22 | Sprint G readiness hardening (under prior scope): KV/rate-limit contract, OTP + AI rate limits, audit events, UI Kit notifications, mojibake guard, env/docs updates, patched dependency overrides | typecheck; lint 0 errors; test 115/115; build; prod audit clean; responsive audit 12/12 |
 | 2026-05-22 | Sprint F complete: phone OTP, RLS tenant isolation, session-scoped Server Actions, middleware, UI Kit migration | 109/109 tests; 10 routes build clean |
 | 2026-05-20 | Codebase cleanup: removed dead feature flag abstraction and unused deps; docs synced to as-built architecture | 104/104 tests |
 | 2026-05-20 | UI Kit foundation landed under `src/components/ui-kit/*`; `/ui-kit` gated by `FEATURE_UI_KIT_PREVIEW` | 104/104 tests; build green |
@@ -195,18 +200,20 @@ For UI-impacting work, also run `scripts/ui-responsive-audit.fn.js` through Play
 
 **End:** update Snapshot/Now/Blockers if changed, append Phase Log only for durable milestones, run the relevant Verification Gate before claiming green.
 
-## Definition of done — Phase 1 (Demo MVP)
+## Definition of done — Submission MVP
 
-- [ ] Onboarding < 60 detik
+- [ ] Onboarding < 60 detik on real low-end Android
 - [ ] Stock input → parse → confirm < 30 detik
 - [ ] Belanja Card renders with sensible reasoning
 - [ ] Promo draft generates valid Indonesian copy
 - [ ] Copy-to-WhatsApp works on Android Chrome
-- [ ] Deployed on Vercel production
-- [ ] Demo dry-run 5min zero-bug
-- [ ] Backup demo video recorded
+- [ ] Deployed on Vercel production (custom domain optional)
+- [ ] Demo dry-run 5 menit zero-bug, 5× berturut-turut
+- [ ] Backup demo video recorded against production URL
 - [ ] Subuh Mode toggle works
-- [ ] Loading/empty/error states designed
-- [ ] Tested iPhone SE viewport + Android low-end
+- [ ] Loading/empty/error states verified across all routes
+- [ ] Tested iPhone SE viewport + 1 low-end Android device
+- [ ] README polish: tagline + 30-sec flow + demo link + screenshots
+- [ ] Voice flag decision recorded (default OFF unless 5/5 lurus)
 
-**NOT in Phase 1 DoD:** real auth, real BMKG, multi-tenancy, 100% coverage, prod observability. → Phase 2.
+**NOT in MVP DoD:** real BMKG, observability stack, beta cohort, monetization, scaling. → `.docs/FUTURE_ROADMAP.md`.

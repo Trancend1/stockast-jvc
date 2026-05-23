@@ -1,28 +1,27 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import {
+  confirmStockLog,
+  parseAndSaveStockDraft,
+  type ConfirmStockInput,
+} from '@/app/actions/stock';
+import { VoiceInputButton } from '@/components/features/stock/VoiceInputButton';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Banner, InlineAlert } from '@/components/ui-kit/notifications';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { SkInput } from '@/components/ui-kit/primitives/sk-input';
 import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
 import { SkSkeleton } from '@/components/ui-kit/primitives/sk-skeleton';
 import { SkTextarea } from '@/components/ui-kit/primitives/sk-textarea';
-import { Banner, InlineAlert } from '@/components/ui-kit/notifications';
-import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
-import { VoiceInputButton } from '@/components/features/stock/VoiceInputButton';
-import { stock as t } from '@/lib/copy/stock';
-import { common } from '@/lib/copy/common';
-import { THRESHOLDS } from '@/lib/config/thresholds';
-import {
-  parseAndSaveStockDraft,
-  confirmStockLog,
-  type ConfirmStockInput,
-} from '@/app/actions/stock';
-import type { ParsedStockPayload } from '@/types/domain';
 import { useOnlineStatus } from '@/hooks/use-online-status';
+import { THRESHOLDS } from '@/lib/config/thresholds';
+import { common } from '@/lib/copy/common';
+import { stock as t } from '@/lib/copy/stock';
 import { listDrafts, pushDraft, removeDraft, type OfflineDraft } from '@/lib/offline/draft-queue';
+import type { ParsedStockPayload } from '@/types/domain';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 type Phase = 'input' | 'parsing' | 'confirm' | 'saving' | 'error' | 'offline-queued';
 
@@ -180,7 +179,7 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
   }
 
   return (
-    <AppLayout topbarMode="task" title="Catat Stok" trailing={<SubuhToggle />}>
+    <AppLayout title="Catat Stok">
       <div className="flex flex-col gap-4 px-4 pt-4">
         {phase === 'confirm' ? (
           <ConfirmCard

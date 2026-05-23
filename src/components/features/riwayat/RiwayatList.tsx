@@ -1,7 +1,6 @@
 'use client';
 
 import { getRiwayat7d, type RiwayatDay } from '@/app/actions/riwayat';
-import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
   EmptyPanel,
@@ -45,7 +44,7 @@ export function RiwayatList() {
   }
 
   return (
-    <AppLayout topbarMode="task" title="Riwayat 7 Hari" trailing={<SubuhToggle />}>
+    <AppLayout title="Riwayat 7 Hari">
       <div className="flex flex-col gap-4 px-4 pt-4">
         {phase === 'loading' ? (
           <EmptyPanel

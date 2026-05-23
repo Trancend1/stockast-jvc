@@ -73,6 +73,7 @@ Why this shape (per `SYSTEM_ARCHITECTURE.md §1`):
 | Services → Services | Forbidden cross-service calls. Orchestrate at Server Action level. | Prevents hidden coupling, keeps services pure-function-testable. |
 | AI → Decision | Forbidden. AI explains, rule engine decides. | Trust foundation (`SYSTEM_ARCHITECTURE.md §4`). |
 | Client → Secrets | Forbidden. Server-only env vars never in `NEXT_PUBLIC_*`. | Security baseline. |
+| Feature → UI Kit | Feature shells consume `src/components/ui-kit/*` primitives and variants only. UI Kit never imports feature code, services, or Server Actions. | Keeps the kit reusable, makes layout iteration cheap and reversible. |
 
 ### 1.4 The four "kinds" of code (and where each lives)
 
@@ -211,12 +212,14 @@ stockast/
 
 ### Planned but not yet built
 
-- `src/lib/kv/` — Vercel KV REST-backed rate-limit + future idempotency (Sprint G)
-- `src/lib/logger/` — structured PII-safe logger (Sprint H)
-- `(auth)/` route group — Supabase phone OTP (Sprint F)
-- `src/middleware.ts` — session check + redirect (Sprint F)
-- `tests/integration/` — RLS multi-tenant tests (Sprint F)
-- `tests/e2e/` — Playwright magic-moment flow (Sprint J)
+- `src/lib/kv/` — Vercel KV REST-backed rate-limit + future idempotency (in place; cost guardrail only for submission MVP)
+- `(auth)/` route group — Supabase phone OTP (Sprint F, DONE)
+- `src/middleware.ts` — session check + redirect (Sprint F, DONE)
+- `tests/integration/` — RLS multi-tenant tests (Sprint F, DONE)
+
+Parked post-submission (see `.docs/FUTURE_ROADMAP.md`):
+- `src/lib/logger/` — structured PII-safe logger
+- `tests/e2e/` — Playwright magic-moment flow
 
 ### What is intentionally absent
 
@@ -254,7 +257,9 @@ Locked per `SYSTEM_ARCHITECTURE.md §2`. Below is the **exact version range** to
 | Git hooks | Lefthook | latest | `pnpm add -D lefthook && pnpm lefthook install` | Lighter than husky+lint-staged. |
 
 **Explicitly NOT installing** (per `SYSTEM_ARCHITECTURE.md §2` "stack not chosen"):
-- ❌ Prisma · ❌ tRPC · ❌ Genkit · ❌ Zustand · ❌ Redux · ❌ Express · ❌ Docker · ❌ Redis (use Vercel KV) · ❌ Inngest (defer to Phase 3) · ❌ Sentry (defer to Phase 2)
+- ❌ Prisma · ❌ tRPC · ❌ Genkit · ❌ Zustand · ❌ Redux · ❌ Express · ❌ Docker · ❌ Redis (use Vercel KV REST contract) · ❌ Inngest · ❌ Sentry · ❌ PostHog · ❌ Datadog · ❌ Trigger.dev
+
+Observability tooling and job queue infra are intentionally omitted from the MVP stack; `console.error` + Vercel runtime logs suffice for the 1–5 tester submission scope. Revisit only if a real-user phase begins (see `.docs/FUTURE_ROADMAP.md`).
 
 ### Day-0 gate: Gemini model name verification
 
@@ -1192,7 +1197,7 @@ A consolidated risk register cross-referencing PRD §12, ARCH §16, and EXEC §9
 - ❌ Custom CDN before standard CDN insufficient.
 - ❌ Event sourcing for CRUD app.
 - ❌ Microservices before the monolith strains.
-- ❌ Premature observability stack (Sentry/PostHog deferred to Phase 2).
+- ❌ Premature observability stack (Sentry/PostHog/Datadog parked post-submission; MVP uses `console.error` + Vercel runtime logs only).
 - ❌ Custom design system from scratch (shadcn + Tailwind extension is the design system).
 
 ### 11.4 Reversibility ladder (what to invest review time in)

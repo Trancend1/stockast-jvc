@@ -88,13 +88,9 @@ Full standards: [.docs/ENGINEERING_STANDARDS.md](.docs/ENGINEERING_STANDARDS.md)
 
 ## Phase plan (one paragraph)
 
-**Phase 0** (Hari 1-3) — user interviews + scaffold + Gemini verify.
-**Phase 1** (Hari 4-10) — Demo MVP for #JuaraVibeCoding: onboarding, stock parse, Belanja Card, promo, copy-to-WhatsApp. Single-tenant, mock weather.
-**Phase 2** (Minggu 3-6) — real auth + RLS + BMKG + rate limit + Sentry + 5 pedagang nyata.
-**Phase 3** (Bulan 2-3) — voice input, WhatsApp Cloud API, multi-staff, pricing experiment.
-**Phase 4** (Bulan 4-6) — multi-outlet, landing, referral.
+Submission MVP for #JuaraVibeCoding. Target usage: 1–5 testers (founder + close network) for flow validation and demo polish. Sprint A–F shipped (backbone, magic layer, polish, wow layer, reliability, auth + UI Kit). Sprint G — Demo Readiness — is active: polish, dry-runs, Vercel production deploy, backup video, README polish. Mock weather kept; real BMKG, observability stack, beta cohort, monetization, and scaling are all parked post-submission.
 
-Detail per phase: [.docs/EXECUTION_BLUEPRINT.md](.docs/EXECUTION_BLUEPRINT.md).
+Detail: [.docs/EXECUTION_BLUEPRINT.md](.docs/EXECUTION_BLUEPRINT.md). Post-submission roadmap: [.docs/FUTURE_ROADMAP.md](.docs/FUTURE_ROADMAP.md).
 
 ---
 

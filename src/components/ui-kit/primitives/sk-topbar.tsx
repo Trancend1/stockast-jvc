@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import type { ReactNode } from 'react';
 import { IconArrowL } from '@/components/ui-kit/icons';
 
@@ -19,7 +20,7 @@ export interface SkTopBarProps {
 export function SkTopBar({
   mode = 'default',
   title,
-  warungName = 'Bu Yati',
+  warungName,
   date,
   status,
   onBack,
@@ -71,7 +72,7 @@ export function SkTopBar({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.012em' }}>
-            Warung {warungName}
+            {formatWarungName(warungName)}
           </span>
           {status && (
             <span
@@ -92,4 +93,10 @@ export function SkTopBar({
       <div style={{ display: 'flex', gap: 6 }}>{trailing}</div>
     </div>
   );
+}
+
+function formatWarungName(name?: string): string {
+  const trimmed = name?.trim();
+  if (!trimmed) return 'Warung kamu';
+  return /^warung\b/i.test(trimmed) ? trimmed : `Warung ${trimmed}`;
 }

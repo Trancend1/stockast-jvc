@@ -187,7 +187,7 @@ const handleSubmit = async () => {
 - ❌ `throw` from Server Actions to client (returns 500 + crashes flow)
 - ❌ Show raw error messages to users
 - ❌ Swallow errors silently
-- ❌ Log full error stacks in production console (use Sentry)
+- ❌ Log full error stacks in client-visible output (use `console.error` server-side; full stacks stay in Vercel runtime logs). Third-party error loggers are explicitly out of scope for the submission MVP.
 
 ### Custom Error Classes (Server-Side)
 ```typescript
@@ -230,9 +230,10 @@ logger.info('stock.draft.created', {
 });
 ```
 
-### Production
-- MVP: Vercel function logs
-- Phase 2+: Sentry for errors, structured logs to Vercel/Logflare
+### Production (submission MVP)
+- `console.error` + Vercel runtime logs only
+- No third-party error tracking or structured log shipping
+- Sentry / Logflare / Datadog are parked post-submission (see `.docs/FUTURE_ROADMAP.md`)
 
 ---
 

@@ -557,3 +557,30 @@ Before shipping any screen, check:
 A pedagang opening Stockast at 03.00, wet hands, dim light, slow internet, **says nothing**, taps once, gets her belanja card, screenshots it, pastes to supplier WhatsApp, and closes the app — **all in under 15 seconds, without thinking**.
 
 That's the design north star.
+
+---
+
+## 17. UX Iteration Surface
+
+The UI Kit under `src/components/ui-kit/*` is designed for layout-level iteration without service-layer churn. The composition surface is the contract that keeps UX iteration cheap and reversible.
+
+### Composition rules
+
+- All page-level shells (`DashboardShell`, `BelanjaCard`, `StockFlow`, `RiwayatList`, `PolaMingguanShell`) consume primitives and variants only — swapping a Belanja variant (`warm` ↔ `compact` ↔ `editorial` ↔ `pasar`) is a one-import change.
+- Token edits live in `stockast-UI/ui-kit/tokens/tokens.css` and `src/styles/ui-kit-utilities.css` only; no component code references hex values.
+- To add a new layout: compose existing primitives in a new file under `src/components/features/<area>/`. Do not modify the primitive set.
+- To add a new primitive: drop it under `src/components/ui-kit/primitives/sk-<name>.tsx`, export through `src/components/ui-kit/index.ts`, and showcase it on the `/ui-kit` route (gated by `FEATURE_UI_KIT_PREVIEW`).
+- Feature shells never inline raw Tailwind for new visual concepts — extend the kit instead.
+
+### Available surface
+
+- **Primitives** — `sk-button`, `sk-card`, `sk-pill`, `sk-input`, `sk-label`, `sk-textarea`, `sk-select`, `sk-topbar`, `sk-bottom-nav`, `sk-sheet`, `sk-skeleton`, `sk-steps`, `sk-typography`, `sk-thinking`, `sk-count-up`, `sk-weather-chip`.
+- **Belanja variants** — `warm`, `compact`, `editorial`, `pasar` (under `belanja-variants/`).
+- **Charts** — `sk-charts` for Pola Mingguan.
+- **Glyphs, illustrations, weather scenes** — standalone modules under `glyphs/`, `illustrations/`, `weather/`.
+- **Notifications** — `sk-notify` for toasts and inline notifications.
+- **Onboarding decor** — `onb-decor` composition layer.
+
+### Review gate
+
+Any change that breaks the composition rules (feature shell reaching around the UI Kit, raw hex in components, primitive importing feature code) must be flagged in review and either reverted or moved into the kit before merge.

@@ -6,10 +6,13 @@ import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
 import { belanja } from '@/lib/copy/belanja';
+import { polaMingguan } from '@/lib/copy/pola-mingguan';
 import { weekdayFromServiceDate } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
 export function BelanjaCard({ data }: { data: BelanjaCardData }) {
+  const router = useRouter();
   const [copied, setCopied] = React.useState(false);
   const weekdayLabel = React.useMemo(() => {
     const idx = weekdayFromServiceDate(data.serviceDate);
@@ -78,7 +81,15 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
 
         <p className="mt-3 text-sm leading-relaxed text-neutral-700">{data.summary}</p>
 
-        <div style={{ marginTop: '1rem' }}>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <SkButton
+            variant="secondary"
+            size="lg"
+            full
+            onClick={() => router.push('/pola-mingguan')}
+          >
+            {polaMingguan.action}
+          </SkButton>
           <SkButton variant="brand" size="lg" full onClick={handleCopy}>
             {copied ? belanja.share.copied : belanja.share.copy}
           </SkButton>

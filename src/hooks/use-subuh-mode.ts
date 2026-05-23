@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { readOnboardingState } from '@/lib/onboarding-state';
 import {
   resolveSubuhMode,
   SUBUH_CLASS_NAME,
@@ -16,12 +17,19 @@ const POLL_INTERVAL_MS = 60_000;
  *
  * Resolution: manual override (localStorage) wins over time gate.
  * When override is null → follow isSubuhTime() and re-check every minute.
+ * Subuh mode is disabled entirely until onboarding is complete.
  */
 export function useSubuhMode() {
   const [active, setActive] = React.useState(false);
   const [override, setOverrideState] = React.useState<SubuhOverride>(null);
 
   React.useEffect(() => {
+    // No confirmed user — clear any class set by the bootstrap script and bail.
+    if (!readOnboardingState()?.completedAt) {
+      clearSubuhClass();
+      return;
+    }
+
     const stored = readOverride();
     setOverrideState(stored);
     applyState(stored, new Date(), setActive);
@@ -52,6 +60,12 @@ function applyState(override: SubuhOverride, now: Date, setActive: (v: boolean) 
   if (typeof document === 'undefined') return;
   document.documentElement.classList.toggle(SUBUH_CLASS_NAME, next);
   document.documentElement.setAttribute(SUBUH_DATA_ATTR, next ? 'on' : 'off');
+}
+
+function clearSubuhClass(): void {
+  if (typeof document === 'undefined') return;
+  document.documentElement.classList.remove(SUBUH_CLASS_NAME);
+  document.documentElement.setAttribute(SUBUH_DATA_ATTR, 'off');
 }
 
 function readOverride(): SubuhOverride {

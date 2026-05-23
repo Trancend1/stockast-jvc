@@ -1,5 +1,7 @@
 export const polaMingguan = {
+  action: 'Pola Mingguan',
   heading: 'Pola minggu ini',
+  page_title: 'Pola Mingguan',
   subheading: 'Penjualan rata-rata per hari, 7 hari terakhir.',
   empty: 'Catat 3 hari dulu, pola bakal muncul di sini.',
   insight_up: (item: string, weekday: string, pct: number) =>

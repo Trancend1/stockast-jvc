@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
 import { AppGate } from '@/components/features/app-gate/AppGate';
-import { StockFlow } from '@/components/features/stock/StockFlow';
-import { flags } from '@/lib/config/env';
+import { PolaMingguanShell } from '@/components/features/pola-mingguan/PolaMingguanShell';
+import { polaMingguan } from '@/lib/copy/pola-mingguan';
 
 export const metadata: Metadata = {
-  title: 'Catat stok',
+  title: polaMingguan.page_title,
 };
 
-export default function CatatPage() {
+export default function PolaMingguanPage() {
   return (
     <AppGate fallback={<p className="text-sm text-neutral-500">Sebentar ya...</p>}>
-      <StockFlow voiceEnabled={flags.voiceInput} />
+      <PolaMingguanShell />
     </AppGate>
   );
 }

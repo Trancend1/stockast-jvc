@@ -2,16 +2,22 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { readOnboardingState } from '@/lib/onboarding-state';
+import { ONBOARDING_STORAGE_KEY, readOnboardingState } from '@/lib/onboarding-state';
 
-/**
- * Phase 1 entry: route to /onboarding if not done, otherwise /dashboard.
- * Phase 2 replaces with server-side cookie gate in middleware.
- */
 export default function HomePage() {
   const router = useRouter();
 
   React.useEffect(() => {
+    // Dev: always start clean — each root visit resets to onboarding.
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+      } catch {
+        // Storage unavailable — proceed anyway.
+      }
+      router.replace('/onboarding');
+      return;
+    }
     const state = readOnboardingState();
     router.replace(state ? '/dashboard' : '/onboarding');
   }, [router]);

@@ -8,7 +8,7 @@ import { provisionNewUser } from '@/lib/auth/provisioning';
 import { getUserOutlet } from '@/lib/db/queries/users';
 import { listMenuItems, syncOutletMenu } from '@/lib/db/queries/menu-items';
 import { countRecentStockLogDays, upsertStockLogBatch } from '@/lib/db/queries/demo-seed';
-import { updateOutletProfile } from '@/lib/db/queries/outlets';
+import { updateOutletProfile, upsertDemoOutletProfile } from '@/lib/db/queries/outlets';
 import { buildDemoSeedDays } from '@/lib/services/demo-seed';
 import {
   normalizeOnboardingProfile,
@@ -54,9 +54,10 @@ export async function applyOnboardingProfile(
   const adm4Code = location?.adm4Code ?? null;
 
   if (!flags.authRequired) {
-    const { outletId } = getDemoContext();
+    const { userId, outletId } = getDemoContext();
     try {
-      await updateOutletProfile(adminDb(), {
+      await upsertDemoOutletProfile(adminDb(), {
+        userId,
         outletId,
         name: normalized.warungName,
         locationLabel,

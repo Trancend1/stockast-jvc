@@ -24,6 +24,7 @@
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --local > src/lib/db/types.ts",
+    "db:wipe": "tsx --env-file=.env.local scripts/dev-wipe.ts",
     "prepare": "lefthook install"
   },
   "dependencies": {
