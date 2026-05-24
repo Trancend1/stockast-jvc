@@ -110,6 +110,7 @@ describe('OnboardingForm', () => {
 
     expect(screen.getByLabelText(/nama warung/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /nama warung kamu apa/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /masuk di sini/i })).toHaveAttribute('href', '/login');
     expect(screen.queryByLabelText(/kota/i)).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText(/nama warung/i), { target: { value: 'Warung Test' } });

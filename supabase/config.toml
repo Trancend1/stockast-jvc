@@ -52,3 +52,6 @@ enable_confirmations = false
 enable_signup = true
 enable_confirmations = true
 template = "Kode masuk Stockast kamu: {{ .Code }}"
+
+[analytics]
+enabled = false

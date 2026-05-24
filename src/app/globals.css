@@ -45,9 +45,9 @@
   --color-danger: #d04a3e;
   --color-info: #5a8fbf;
   --color-on-brand: #fff5ee;
-  --color-subuh-page: #242019;
-  --color-subuh-surface: #2b261f;
-  --color-subuh-surface-soft: #3a3228;
+  --color-subuh-page: #111620;
+  --color-subuh-surface: #171d2c;
+  --color-subuh-surface-soft: #1e2538;
 
   /* Radius — warm, friendly, not sharp */
   --radius-card: 16px;
@@ -69,11 +69,12 @@
 html.subuh-mode {
   background: var(--color-subuh-page);
   color: var(--color-neutral-900);
+  color-scheme: dark;
 }
 
 html.subuh-mode body {
   background:
-    radial-gradient(circle at 50% -10%, rgba(233, 154, 93, 0.16), transparent 28rem),
+    radial-gradient(circle at 50% -10%, rgba(80, 120, 200, 0.07), transparent 28rem),
     var(--color-subuh-page);
   color: var(--color-neutral-900);
 }
@@ -82,29 +83,29 @@ html.subuh-mode body {
    Components keep Tailwind utility classes (text-neutral-700, bg-neutral-50, ...);
    we re-map those tokens under .subuh-mode so the cream→ink swap is global. */
 html.subuh-mode {
-  --color-neutral-50: #2b261f;
-  --color-neutral-100: #242019;
-  --color-neutral-200: #3a3228;
-  --color-neutral-300: #574a3a;
-  --color-neutral-400: #88765f;
-  --color-neutral-500: #b8a98f;
-  --color-neutral-600: #d4c6ac;
-  --color-neutral-700: #e8dcc4;
-  --color-neutral-800: #f4ead6;
-  --color-neutral-900: #fff8eb;
+  --color-neutral-50: #1a1f2e;
+  --color-neutral-100: #111620;
+  --color-neutral-200: #242d42;
+  --color-neutral-300: #3a4560;
+  --color-neutral-400: #607090;
+  --color-neutral-500: #8a97b4;
+  --color-neutral-600: #aebbd2;
+  --color-neutral-700: #c6d0e6;
+  --color-neutral-800: #dce4f2;
+  --color-neutral-900: #edf1fa;
 
-  /* Warm primary in dark mode: calm dawn amber, not blue or harsh orange. */
-  --color-brand-50: #3a2518;
-  --color-brand-100: #4a2e1d;
-  --color-brand-500: #e99a5d;
-  --color-brand-600: #d88245;
-  --color-brand-700: #f0b779;
-  --color-brand-800: #f8d7ad;
-  --color-brand-900: #fff1dc;
+  /* Brand uses cool off-white in dark mode — cohesive with slate palette. */
+  --color-brand-50: #1e2538;
+  --color-brand-100: #2a3450;
+  --color-brand-500: #edf1fa;
+  --color-brand-600: #d6ddf0;
+  --color-brand-700: #b8c4dc;
+  --color-brand-800: #8a9ab8;
+  --color-brand-900: #627094;
 
-  /* Softer shadow on dark surface */
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.5);
+  /* Deeper shadow on cool dark surface */
+  --shadow-card: 0 2px 8px rgba(0, 4, 20, 0.4);
+  --shadow-elevated: 0 8px 24px rgba(0, 4, 20, 0.5);
 }
 
 /* Signature animation — Belanja Card reveal (DESIGN_SYSTEM.md §12). */
@@ -119,9 +120,9 @@ html.subuh-mode {
 
 html.subuh-mode .belanja-card-surface {
   background:
-    linear-gradient(135deg, rgba(43, 36, 27, 0.98), rgba(61, 51, 39, 0.94)),
+    linear-gradient(135deg, rgba(23, 29, 44, 0.98), rgba(30, 37, 56, 0.94)),
     var(--color-subuh-surface);
-  border-color: rgba(255, 174, 107, 0.35);
+  border-color: rgba(160, 190, 255, 0.14);
 }
 
 @keyframes belanja-card-reveal {
@@ -155,6 +156,42 @@ html.subuh-mode .belanja-card-surface {
   opacity: 0;
 }
 
+.belanja-item-scroll {
+  background-image: linear-gradient(rgba(26, 22, 17, 0.1), rgba(26, 22, 17, 0.1));
+  background-position: right 2px top;
+  background-repeat: no-repeat;
+  background-size: 1px 100%;
+  scrollbar-width: none;
+}
+
+.belanja-item-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.belanja-item-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.belanja-item-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.belanja-item-scroll::-webkit-scrollbar-thumb {
+  background: rgba(26, 22, 17, 0.14);
+  border-radius: 999px;
+}
+
+html.subuh-mode .belanja-item-scroll {
+  background-image: linear-gradient(rgba(230, 235, 245, 0.12), rgba(230, 235, 245, 0.12));
+}
+
+html.subuh-mode .belanja-item-scroll::-webkit-scrollbar-thumb {
+  background: rgba(230, 235, 245, 0.16);
+}
+
 /* Skeleton shimmer (E.3) — soft cream-on-cream sweep, no shock. */
 @keyframes skeleton-shimmer {
   0% {
@@ -179,9 +216,9 @@ html.subuh-mode .belanja-card-surface {
 html.subuh-mode .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    var(--color-neutral-200) 0%,
-    var(--color-neutral-300) 50%,
-    var(--color-neutral-200) 100%
+    rgba(140, 165, 220, 0.06) 0%,
+    rgba(140, 165, 220, 0.12) 50%,
+    rgba(140, 165, 220, 0.06) 100%
   );
   background-size: 200% 100%;
 }

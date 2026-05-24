@@ -1,6 +1,5 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { getDemoContext } from '@/lib/auth/demo-context';
 import { adminDb } from '@/lib/db/admin';
 import { createServerClient } from '@/lib/db/supabase-client';
@@ -34,9 +33,10 @@ export type ApplyOnboardingProfileData = {
 /**
  * Persist onboarding inputs to the database.
  *
- * FEATURE_AUTH_REQUIRED=true (Sprint F+):
- *   New user  → provision org + membership + outlet (adminDb), then sync menu.
- *   Returning → update existing outlet + resync menu (session client + RLS).
+ * FEATURE_AUTH_REQUIRED=true:
+ *   Anonymous → updates the local-first demo outlet so onboarding stays light.
+ *   New auth user → provision org + membership + outlet, then sync menu.
+ *   Returning auth user → update existing outlet + resync menu.
  *
  * FEATURE_AUTH_REQUIRED=false (Phase 1 demo):
  *   Updates the seeded DEMO_OUTLET_ID outlet in place.
@@ -76,7 +76,23 @@ export async function applyOnboardingProfile(
   const {
     data: { user },
   } = await sessionDb.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) {
+    const { userId, outletId } = getDemoContext();
+    try {
+      await upsertDemoOutletProfile(adminDb(), {
+        userId,
+        outletId,
+        name: normalized.warungName,
+        locationLabel,
+        adm4Code,
+      });
+      const synced = await syncOutletMenu(adminDb(), outletId, normalized.menuItems);
+      return ok({ outletId, menuCount: synced.length });
+    } catch (err) {
+      if (err instanceof MissingTableError) return fail('SERVICE_UNAVAILABLE', err.message);
+      return fail('INTERNAL', err instanceof Error ? err.message : 'gagal');
+    }
+  }
 
   const existingOutletId = await getUserOutlet(sessionDb, user.id);
 

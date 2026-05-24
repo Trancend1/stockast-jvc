@@ -24,7 +24,7 @@ type Phase = 'loading' | 'ready' | 'empty' | 'error' | 'unavailable';
 type EmptyReason = 'NO_MENU' | 'NO_HISTORY';
 
 export function DashboardShell() {
-  const [warungName, setWarungName] = React.useState<string>(belanja.warung_fallback);
+  const [warungName, setWarungName] = React.useState<string | undefined>(undefined);
   const [phase, setPhase] = React.useState<Phase>('loading');
   const [card, setCard] = React.useState<BelanjaCardData | null>(null);
   const [promos, setPromos] = React.useState<PromoSuggestion[]>([]);
@@ -71,8 +71,9 @@ export function DashboardShell() {
 
   React.useEffect(() => {
     const state = readOnboardingState();
-    const resolved = state?.warungName?.trim() || belanja.warung_fallback;
-    setWarungName(resolved);
+    const storedName = state?.warungName?.trim();
+    const resolved = storedName || belanja.warung_fallback;
+    setWarungName(storedName || undefined);
     void loadAll(resolved);
   }, [loadAll]);
 
@@ -94,7 +95,10 @@ export function DashboardShell() {
         {phase === 'loading' ? <BelanjaCardSkeleton /> : null}
         {phase === 'empty' ? <EmptyCard reason={emptyReason} message={errorMsg} /> : null}
         {phase === 'error' ? (
-          <ErrorCard message={errorMsg} onRetry={() => loadAll(warungName)} />
+          <ErrorCard
+            message={errorMsg}
+            onRetry={() => loadAll(warungName ?? belanja.warung_fallback)}
+          />
         ) : null}
         {phase === 'unavailable' ? <UnavailableCard message={errorMsg} /> : null}
 

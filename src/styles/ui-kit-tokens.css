@@ -67,39 +67,39 @@
   --sk-grain: 0.05;
 }
 
-/* Subuh - serene warm charcoal palette. Triggered by `.subuh-mode` (prod canonical class). */
+/* Subuh - serene cool slate palette. Triggered by `.subuh-mode` (prod canonical class). */
 html.subuh-mode {
-  --sk-bg: #242019;
-  --sk-surface: rgba(255, 248, 235, 0.06);
-  --sk-surface-2: rgba(255, 248, 235, 0.04);
-  --sk-surface-3: rgba(233, 154, 93, 0.1);
+  --sk-bg: #111620;
+  --sk-surface: rgba(160, 185, 255, 0.045);
+  --sk-surface-2: rgba(160, 185, 255, 0.025);
+  --sk-surface-3: rgba(100, 140, 220, 0.08);
 
-  --sk-text: #fff8eb;
-  --sk-text-2: #d4c6ac;
-  --sk-text-3: #a99880;
-  --sk-text-disabled: #6f6250;
+  --sk-text: #edf1fa;
+  --sk-text-2: #8a97b4;
+  --sk-text-3: #546080;
+  --sk-text-disabled: #2e3650;
 
-  --sk-line: rgba(255, 248, 235, 0.1);
-  --sk-line-strong: rgba(255, 248, 235, 0.18);
-  --sk-line-active: #f4ead6;
+  --sk-line: rgba(140, 165, 220, 0.1);
+  --sk-line-strong: rgba(140, 165, 220, 0.18);
+  --sk-line-active: #c0ccdf;
 
-  --sk-brand: #e99a5d;
-  --sk-brand-press: #f0b779;
-  --sk-brand-soft: rgba(233, 154, 93, 0.14);
-  --sk-brand-ink: #21170f;
+  --sk-brand: #edf1fa;
+  --sk-brand-press: #d6ddf0;
+  --sk-brand-soft: rgba(237, 241, 250, 0.1);
+  --sk-brand-ink: #111620;
 
-  --sk-success: #95d5a6;
-  --sk-success-soft: rgba(149, 213, 166, 0.12);
-  --sk-warn: #e8c074;
-  --sk-warn-soft: rgba(232, 192, 116, 0.12);
-  --sk-danger: #df8a7c;
-  --sk-danger-soft: rgba(223, 138, 124, 0.12);
+  --sk-success: #6ecb94;
+  --sk-success-soft: rgba(110, 203, 148, 0.12);
+  --sk-warn: #d4a844;
+  --sk-warn-soft: rgba(212, 168, 68, 0.12);
+  --sk-danger: #e07878;
+  --sk-danger-soft: rgba(224, 120, 120, 0.12);
 
   --sk-shadow-card:
-    inset 0 1px 0 rgba(255, 248, 235, 0.05), 0 1px 2px rgba(0, 0, 0, 0.26),
-    0 22px 52px rgba(17, 13, 9, 0.46);
-  --sk-shadow-lift: inset 0 1px 0 rgba(255, 248, 235, 0.07), 0 30px 72px rgba(17, 13, 9, 0.56);
+    inset 0 1px 0 rgba(160, 185, 255, 0.04), 0 1px 2px rgba(0, 4, 20, 0.3),
+    0 22px 52px rgba(0, 4, 20, 0.5);
+  --sk-shadow-lift: inset 0 1px 0 rgba(160, 185, 255, 0.05), 0 30px 72px rgba(0, 4, 20, 0.6);
 
   --sk-grain: 0;
-  --sk-scrim: rgba(20, 17, 13, 0.72);
+  --sk-scrim: rgba(8, 12, 24, 0.72);
 }

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 const G_BRICK = '#F26F1B';
@@ -26,7 +27,13 @@ function Glyph({ children, size = 24, style }: GlyphProps & { children: ReactNod
 export function GlyphLele({ size, style }: GlyphProps) {
   return (
     <Glyph size={size} style={style}>
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M 5 21 q 4 -7 12 -7 q 8 0 14 4 l 4 -4 l -1 5 l 1 5 l -4 -4 q -6 4 -14 4 q -8 0 -12 -7 z" />
         <path d="M 24 16 q 0 5 0 10" opacity="0.4" />
         <path d="M 10 22 q -2 4 -4 5 M 13 23 q -1 4 -3 6" opacity="0.55" strokeWidth="1.2" />
@@ -39,7 +46,13 @@ export function GlyphLele({ size, style }: GlyphProps) {
 export function GlyphAyam({ size, style }: GlyphProps) {
   return (
     <Glyph size={size} style={style}>
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M 10 28 q -2 -10 8 -12 q 10 -2 12 6 q 2 6 -2 8 q -2 -4 -6 -3 q 0 4 -2 4 q -2 0 -2 -4 q -4 1 -8 1 z" />
         <path d="M 16 27 v 4 M 22 27 v 4" strokeWidth="1.2" />
         <path d="M 30 19 l 4 -1 l -3 3 z" fill="currentColor" stroke="none" opacity="0.7" />
@@ -57,7 +70,13 @@ export function GlyphAyam({ size, style }: GlyphProps) {
 export function GlyphTahu({ size, style }: GlyphProps) {
   return (
     <Glyph size={size} style={style}>
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      >
         <path d="M 8 16 L 20 11 L 32 16 L 20 21 Z" />
         <path d="M 8 16 L 8 27 L 20 32 L 20 21" />
         <path d="M 32 16 L 32 27 L 20 32" />
@@ -73,7 +92,13 @@ export function GlyphTahu({ size, style }: GlyphProps) {
 export function GlyphTempe({ size, style }: GlyphProps) {
   return (
     <Glyph size={size} style={style}>
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      >
         <path d="M 6 17 L 22 12 L 34 17 L 18 22 Z" />
         <path d="M 6 17 L 6 24 L 18 29 L 18 22" />
         <path d="M 34 17 L 34 24 L 18 29" />
@@ -114,13 +139,7 @@ export function GlyphCabai({ size, style }: GlyphProps) {
           stroke="currentColor"
           strokeWidth="1.5"
         />
-        <path
-          d="M 17 14 q 3 4 4 12"
-          fill="none"
-          stroke="#FFF"
-          strokeWidth="1.2"
-          opacity="0.4"
-        />
+        <path d="M 17 14 q 3 4 4 12" fill="none" stroke="#FFF" strokeWidth="1.2" opacity="0.4" />
       </g>
     </Glyph>
   );
@@ -142,8 +161,10 @@ export type GlyphCategory = 'Protein' | 'Pendamping' | 'Bumbu' | 'Lainnya';
 
 export function categoryFor(name: string | null | undefined): GlyphCategory {
   const n = (name ?? '').toLowerCase();
-  if (n.includes('lele') || n.includes('ayam') || n.includes('ikan') || n.includes('daging')) return 'Protein';
+  if (n.includes('lele') || n.includes('ayam') || n.includes('ikan') || n.includes('daging'))
+    return 'Protein';
   if (n.includes('tahu') || n.includes('tempe')) return 'Pendamping';
-  if (n.includes('cabai') || n.includes('cabe') || n.includes('rawit') || n.includes('bawang')) return 'Bumbu';
+  if (n.includes('cabai') || n.includes('cabe') || n.includes('rawit') || n.includes('bawang'))
+    return 'Bumbu';
   return 'Lainnya';
 }

@@ -2,12 +2,7 @@
 
 import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { SkPill } from '@/components/ui-kit/primitives/sk-pill';
-import {
-  SkWeatherChip,
-  type SkWeatherChipKind,
-} from '@/components/ui-kit/primitives/sk-weather-chip';
 import { WeatherScene, type WeatherKind } from '@/components/ui-kit/weather/scenes';
-import { cuaca } from '@/lib/copy/cuaca';
 import { getMockWeather } from '@/lib/cuaca-mock';
 import { tomorrowIsoUtc } from '@/lib/utils';
 import * as React from 'react';
@@ -22,26 +17,37 @@ import * as React from 'react';
 export function CuacaCard({ serviceDate }: { serviceDate?: string }) {
   const isoDate = React.useMemo(() => serviceDate ?? tomorrowIsoUtc(), [serviceDate]);
   const weather = React.useMemo(() => getMockWeather(isoDate), [isoDate]);
-
+  const badge = weather.label.toLowerCase();
   const kind = weatherKindForCategory(weather.category);
-  const chipKind = weatherChipForKind(kind);
 
   return (
     <SkCard tone="ghost" style={{ padding: 0, overflow: 'hidden' }}>
-      <div className="relative">
-        <WeatherScene kind={kind} width="100%" height={120} style={{ borderRadius: 0 }} />
-        <div className="absolute top-3 right-3">
-          <SkPill tone="brand">{cuaca.mock_badge}</SkPill>
+      <WeatherScene kind={kind} width="100%" height={92} style={{ display: 'block' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px 12px' }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <h3
+            style={{
+              margin: 0,
+              color: 'var(--sk-text)',
+              fontSize: 15,
+              fontWeight: 750,
+              lineHeight: 1.2,
+            }}
+          >
+            {weather.label}
+          </h3>
+          <p
+            style={{
+              margin: '3px 0 0',
+              color: 'var(--sk-text-2)',
+              fontSize: 13,
+              lineHeight: 1.35,
+            }}
+          >
+            {compactHint(weather)}
+          </p>
         </div>
-      </div>
-      <div className="flex flex-col gap-2 p-4">
-        <div className="flex items-center gap-2">
-          <SkWeatherChip kind={chipKind} time="Besok" />
-          <h3 className="text-xl font-bold text-neutral-900">{weather.label}</h3>
-        </div>
-        <p className="text-sm leading-relaxed text-neutral-700">
-          <span className="font-semibold text-neutral-800">{cuaca.hint_prefix}</span> {weather.hint}
-        </p>
+        <SkPill>{badge}</SkPill>
       </div>
     </SkCard>
   );
@@ -55,8 +61,8 @@ function weatherKindForCategory(
   return 'cerah';
 }
 
-function weatherChipForKind(kind: WeatherKind): SkWeatherChipKind {
-  if (kind === 'hujan' || kind === 'petir') return 'rain';
-  if (kind === 'berawan' || kind === 'berkabut') return 'cloud';
-  return 'sun';
+function compactHint(weather: ReturnType<typeof getMockWeather>): string {
+  if (weather.category === 'cerah_libur') return 'Pagi cerah, ramai siap-siap';
+  if (weather.category === 'mendung') return 'Pagi mendung, stok normal';
+  return 'Pagi hujan, stok jangan berlebih';
 }

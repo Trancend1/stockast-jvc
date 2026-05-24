@@ -1,20 +1,20 @@
 import type { Metadata } from 'next';
 import { AppGate } from '@/components/features/app-gate/AppGate';
-import { RiwayatList } from '@/components/features/riwayat/RiwayatList';
+import { SetelanView } from '@/components/features/setelan/SetelanView';
 import { getSessionUser } from '@/lib/auth/session';
 
 export const metadata: Metadata = {
-  title: 'Riwayat 7 hari',
+  title: 'Setelan',
 };
 
-export default async function RiwayatPage() {
+export default async function SetelanPage() {
   const user = await getSessionUser();
   return (
     <AppGate
       allowWithoutOnboarding={Boolean(user)}
-      fallback={<p className="text-sm text-neutral-500">Sebentar ya...</p>}
+      fallback={<p className="p-4 text-sm text-neutral-500">Sebentar ya...</p>}
     >
-      <RiwayatList />
+      <SetelanView />
     </AppGate>
   );
 }
