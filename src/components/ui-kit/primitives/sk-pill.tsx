@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 export type SkPillTone = 'default' | 'success' | 'warn' | 'danger' | 'brand';

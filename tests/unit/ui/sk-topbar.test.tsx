@@ -16,4 +16,34 @@ describe('SkTopBar', () => {
     expect(screen.getByText('Warung Maju Jaya')).toBeInTheDocument();
     expect(screen.queryByText('Warung Warung Maju Jaya')).not.toBeInTheDocument();
   });
+
+  it('keeps default identity on the left with the date under it and controls on the right', () => {
+    render(
+      <SkTopBar
+        mode="default"
+        warungName="Maju Jaya"
+        date="Minggu, 24 Mei"
+        trailing={<button type="button">Mode</button>}
+      />,
+    );
+
+    expect(screen.getByText('Warung Maju Jaya')).toBeInTheDocument();
+    expect(screen.getByText('Minggu, 24 Mei')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mode' })).toBeInTheDocument();
+  });
+
+  it('centers task title and accepts a voice control on the left', () => {
+    render(
+      <SkTopBar
+        mode="task"
+        title="Catat Stok"
+        leading={<button type="button">Voice</button>}
+        trailing={<button type="button">Mode</button>}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Voice' })).toBeInTheDocument();
+    expect(screen.getByText('Catat Stok')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mode' })).toBeInTheDocument();
+  });
 });

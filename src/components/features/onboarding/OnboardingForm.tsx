@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { SkInput } from '@/components/ui-kit/primitives/sk-input';
@@ -98,7 +99,7 @@ export function OnboardingForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex min-h-[calc(100dvh-3rem)] w-full max-w-[560px] flex-col justify-between gap-5 py-3 sm:min-h-[720px] sm:gap-7 sm:py-6"
+      className="mx-auto flex min-h-[calc(100dvh-3rem)] w-full max-w-[560px] flex-col justify-between gap-4 py-3 sm:min-h-[720px] sm:gap-5 sm:py-6"
     >
       <header className="flex flex-col gap-2">
         <SkSteps count={TOTAL_STEPS} current={currentStep} />
@@ -113,11 +114,8 @@ export function OnboardingForm() {
         </p>
       </header>
 
-      <div
-        className="flex flex-1 items-center justify-center py-3 sm:py-6 md:py-8"
-        aria-hidden="true"
-      >
-        <div className="h-36 w-full max-w-[300px] sm:h-44 sm:max-w-[340px] md:h-52">
+      <div className="flex items-center justify-center py-4 sm:py-6" aria-hidden="true">
+        <div className="h-32 w-full max-w-[240px] sm:h-36 sm:max-w-[280px]">
           {step === 0 ? <OnbDecorNama /> : null}
           {step === 1 ? <OnbDecorLokasi /> : null}
           {step === 2 ? <OnbDecorMenu /> : null}
@@ -184,7 +182,7 @@ export function OnboardingForm() {
 
         <div className={step === 0 ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-2'}>
           {step > 0 ? (
-            <SkButton type="button" variant="secondary" size="lg" full onClick={goPrevious}>
+            <SkButton type="button" variant="secondary" size="md" full onClick={goPrevious}>
               {t.previous}
             </SkButton>
           ) : null}
@@ -192,7 +190,7 @@ export function OnboardingForm() {
             <SkButton
               type="button"
               variant="brand"
-              size="lg"
+              size="md"
               full
               disabled={stepIncomplete}
               onClick={goNext}
@@ -200,11 +198,18 @@ export function OnboardingForm() {
               {t.next}
             </SkButton>
           ) : (
-            <SkButton type="submit" variant="brand" size="lg" full disabled={disabled}>
+            <SkButton type="submit" variant="brand" size="md" full disabled={disabled}>
               {submitting ? t.finishing : t.submit}
             </SkButton>
           )}
         </div>
+
+        <p className="text-center text-xs text-neutral-500">
+          {t.returning.prompt}{' '}
+          <Link href="/login" className="font-semibold text-[var(--sk-brand)] underline-offset-2">
+            {t.returning.link}
+          </Link>
+        </p>
 
         <p className="text-center text-xs text-neutral-500">{common.tagline}</p>
       </div>

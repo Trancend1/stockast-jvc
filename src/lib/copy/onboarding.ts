@@ -38,6 +38,10 @@ export const onboarding = {
   next: 'Lanjut',
   submit: 'Mulai catat stok',
   finishing: 'Lagi siapin warung kamu...',
+  returning: {
+    prompt: 'Sudah punya warung?',
+    link: 'Masuk di sini',
+  },
   errors: {
     profile_failed: 'Gagal nyimpen data warung. Coba lagi ya.',
     menu_empty: 'Minimal 1 menu ya.',

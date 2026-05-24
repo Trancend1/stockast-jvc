@@ -1,11 +1,20 @@
+import * as React from 'react';
 import type { ReactNode, SVGProps } from 'react';
 
-export interface SkIconProps extends Omit<SVGProps<SVGSVGElement>, 'viewBox' | 'fill' | 'stroke' | 'strokeWidth'> {
+export interface SkIconProps extends Omit<
+  SVGProps<SVGSVGElement>,
+  'viewBox' | 'fill' | 'stroke' | 'strokeWidth'
+> {
   size?: number;
   stroke?: number;
 }
 
-function IconShell({ children, size = 18, stroke = 1.5, ...rest }: SkIconProps & { children: ReactNode }) {
+function IconShell({
+  children,
+  size = 18,
+  stroke = 1.5,
+  ...rest
+}: SkIconProps & { children: ReactNode }) {
   return (
     <svg
       width={size}
@@ -124,7 +133,11 @@ export function IconWhatsapp(p: SkIconProps) {
   return (
     <IconShell {...p}>
       <path d="M4 20l1.5-4.4A8 8 0 1 1 8.7 19L4 20Z" />
-      <path d="M9 9c0 3 2 5 5 5l1.2-1.5-2-1L12 13l-2-2 .5-1.2-1-2L8 9Z" fill="currentColor" stroke="none" />
+      <path
+        d="M9 9c0 3 2 5 5 5l1.2-1.5-2-1L12 13l-2-2 .5-1.2-1-2L8 9Z"
+        fill="currentColor"
+        stroke="none"
+      />
     </IconShell>
   );
 }
@@ -635,7 +648,11 @@ export function IconPartlyCloud(p: SkIconProps) {
 export function IconStarSmall(p: SkIconProps) {
   return (
     <IconShell {...p}>
-      <path d="M12 5l1.5 4 4 .5-3 3 1 4-3.5-2-3.5 2 1-4-3-3 4-.5L12 5Z" fill="currentColor" stroke="none" />
+      <path
+        d="M12 5l1.5 4 4 .5-3 3 1 4-3.5-2-3.5 2 1-4-3-3 4-.5L12 5Z"
+        fill="currentColor"
+        stroke="none"
+      />
     </IconShell>
   );
 }

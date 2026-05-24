@@ -43,7 +43,13 @@ type RecognitionWindow = Window & {
 
 type RecState = 'idle' | 'listening' | 'denied' | 'unsupported';
 
-export function VoiceInputButton({ onTranscript }: { onTranscript: (text: string) => void }) {
+export function VoiceInputButton({
+  compact = false,
+  onTranscript,
+}: {
+  compact?: boolean;
+  onTranscript: (text: string) => void;
+}) {
   const [state, setState] = React.useState<RecState>('idle');
   const recognitionRef = React.useRef<Recognition | null>(null);
 
@@ -108,10 +114,13 @@ export function VoiceInputButton({ onTranscript }: { onTranscript: (text: string
       size="sm"
       onClick={handleClick}
       aria-pressed={state === 'listening'}
+      aria-label={label}
       disabled={state === 'denied'}
       leading={state === 'listening' ? <SkThinking /> : <IconMic size={15} />}
+      data-icon-only={compact ? 'true' : undefined}
+      style={compact ? { width: 36, height: 36, padding: 0 } : undefined}
     >
-      {label}
+      {compact ? null : label}
     </SkButton>
   );
 }

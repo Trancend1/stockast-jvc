@@ -48,4 +48,16 @@ describe('AppGate', () => {
     expect(screen.queryByText('Loading gate')).not.toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
   });
+
+  it('lets an existing authenticated user continue without repeating local onboarding', async () => {
+    render(
+      <AppGate allowWithoutOnboarding fallback={<p>Loading gate</p>}>
+        <p>Dashboard content</p>
+      </AppGate>,
+    );
+
+    expect(await screen.findByText('Dashboard content')).toBeInTheDocument();
+    expect(screen.queryByText('Loading gate')).not.toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
+  });
 });

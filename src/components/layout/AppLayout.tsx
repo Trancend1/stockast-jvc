@@ -12,13 +12,14 @@ const ROUTE_TO_NAV: Record<string, SkBottomNavId> = {
   '/dashboard': 'home',
   '/catat': 'catat',
   '/riwayat': 'riwayat',
+  '/setelan': 'setelan',
 };
 
 const NAV_TO_ROUTE: Record<SkBottomNavId, string> = {
   home: '/dashboard',
   catat: '/catat',
   riwayat: '/riwayat',
-  setelan: '/dashboard', // Setelan deferred to Sprint G
+  setelan: '/setelan',
 };
 
 interface AppLayoutProps extends Omit<SkTopBarProps, 'mode'> {
@@ -46,6 +47,14 @@ export function AppLayout({
   const activeNav = ROUTE_TO_NAV[pathname] ?? 'home';
   const resolvedMode = topbarMode ?? 'default';
   const resolvedTrailing = trailing === undefined ? <SubuhToggle /> : trailing;
+  const todayLabel = React.useMemo(() => {
+    const today = new Date();
+    return today.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+  }, []);
 
   React.useEffect(() => {
     if (warungName && warungName.trim().length > 0) {
@@ -72,10 +81,11 @@ export function AppLayout({
       }}
     >
       <SkTopBar
+        {...topbarProps}
         mode={resolvedMode}
         warungName={hydratedWarungName}
+        date={topbarProps.date ?? todayLabel}
         trailing={resolvedTrailing}
-        {...topbarProps}
       />
       <main
         style={{

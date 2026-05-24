@@ -1,19 +1,14 @@
 import 'server-only';
-import { env, flags } from '@/lib/config/env';
+import { env } from '@/lib/config/env';
 
 /**
- * Phase 1 demo: hardcoded single-tenant context.
- * Only valid when FEATURE_AUTH_REQUIRED=false.
+ * Local-first anonymous context.
  *
- * Sprint F+: replaced by requireOutletAccess() from cookie session.
- * Reads .env.local DEMO_USER_ID / DEMO_OUTLET_ID, matches seeded outlet.
+ * Used when the user has not connected OTP yet, so onboarding and the magic
+ * moment can run before account verification. Authenticated users still use
+ * their session-scoped outlet through requireOutletAccess().
  */
 export function getDemoContext(): { userId: string; outletId: string } {
-  if (flags.authRequired) {
-    throw new Error(
-      'getDemoContext() called with FEATURE_AUTH_REQUIRED=true. Use requireOutletAccess() instead.',
-    );
-  }
   const userId = env.DEMO_USER_ID;
   const outletId = env.DEMO_OUTLET_ID;
   if (!userId || !outletId) {

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { ReactNode } from 'react';
 
 const M_BRICK = '#F26F1B';
@@ -57,9 +58,25 @@ export function DawnRibbon({
           <circle cx="22" cy="26" r="6" fill={sunFill} />
         )}
 
-        <line x1="0" y1="36" x2="140" y2="36" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.55" />
+        <line
+          x1="0"
+          y1="36"
+          x2="140"
+          y2="36"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.55"
+        />
 
-        <g fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" opacity="0.65">
+        <g
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.65"
+        >
           <path d="M 46 36 L 46 26 L 54 21 L 62 26 L 62 36" />
           <path d="M 70 36 L 70 30 L 76 26 L 82 30 L 82 36" />
           <path d="M 90 36 L 90 24 L 100 18 L 110 24 L 110 36" />
@@ -139,12 +156,28 @@ export function SignatureSeal({ time = '03:12', confidence = 'high' }: Signature
           strokeDasharray="60 4 28 3"
           opacity="0.7"
         />
-        <circle cx="18" cy="18" r="9" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" />
-        <path d="M 18 12 v 8 M 14 18 h 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.85" />
+        <circle
+          cx="18"
+          cy="18"
+          r="9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1"
+          opacity="0.4"
+        />
+        <path
+          d="M 18 12 v 8 M 14 18 h 8"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          opacity="0.85"
+        />
         <circle cx="18" cy="18" r="1.4" fill="currentColor" />
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-        <span style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '-0.005em' }}>Disusun Stockast</span>
+        <span style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '-0.005em' }}>
+          Disusun Stockast
+        </span>
         <span className="sk-mono" style={{ fontSize: 10.5, color: 'var(--sk-text-3)' }}>
           {time} · {confidence === 'high' ? 'yakin' : 'perlu cek'}
         </span>
@@ -171,7 +204,10 @@ export function TallyStamp({ count }: TallyStampProps) {
         minWidth: 56,
       }}
     >
-      <span className="sk-mono" style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.04em', lineHeight: 1 }}>
+      <span
+        className="sk-mono"
+        style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.04em', lineHeight: 1 }}
+      >
         {count}
       </span>
       <span
@@ -233,7 +269,13 @@ export function NotebookFold({ size = 36 }: NotebookFoldProps) {
       aria-hidden="true"
       style={{ flexShrink: 0, display: 'block' }}
     >
-      <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round">
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      >
         <path d="M 6 6 L 32 6 L 42 16 L 42 42 L 6 42 Z" />
         <path d="M 32 6 L 32 16 L 42 16" />
         <path d="M 12 26 L 38 26 M 12 32 L 38 32 M 12 38 L 32 38" opacity="0.35" strokeWidth="1" />
@@ -254,17 +296,32 @@ export interface CapturedStampProps {
 export function CapturedStamp({ count, label = 'tangkap' }: CapturedStampProps) {
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '4px 4px' }}>
-      <svg viewBox="0 0 40 28" width={42} height={28} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg
+        viewBox="0 0 40 28"
+        width={42}
+        height={28}
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
         <g fill="currentColor">
           <circle cx="6" cy="10" r="2.4" opacity="0.4" />
           <circle cx="14" cy="10" r="2.4" opacity="0.65" />
           <circle cx="22" cy="10" r="2.4" />
         </g>
-        <path d="M 4 20 q 14 4 32 -2" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.6" />
+        <path
+          d="M 4 20 q 14 4 32 -2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          opacity="0.6"
+        />
         <circle cx="34" cy="10" r="2.2" fill={M_BRICK} />
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-        <span style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '-0.005em' }}>AI {label}</span>
+        <span style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '-0.005em' }}>
+          AI {label}
+        </span>
         {count != null && (
           <span className="sk-mono" style={{ fontSize: 10.5, color: 'var(--sk-text-3)' }}>
             {count} hal
@@ -294,8 +351,24 @@ export function SavedSeal({ label = 'Tersimpan', time }: SavedSealProps) {
       }}
     >
       <svg viewBox="0 0 24 24" width={18} height={18} aria-hidden="true">
-        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="42 3 14 3" opacity="0.6" />
-        <path d="M 7 12 L 11 16 L 17 8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeDasharray="42 3 14 3"
+          opacity="0.6"
+        />
+        <path
+          d="M 7 12 L 11 16 L 17 8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
         <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '-0.005em' }}>{label}</span>
@@ -315,7 +388,11 @@ export interface LedgerStripeProps {
   best?: string;
 }
 
-export function LedgerStripe({ rangeLabel = '12 – 18 Mei', avg = 28, best = 'Sabtu' }: LedgerStripeProps) {
+export function LedgerStripe({
+  rangeLabel = '12 – 18 Mei',
+  avg = 28,
+  best = 'Sabtu',
+}: LedgerStripeProps) {
   return (
     <div
       style={{
@@ -338,7 +415,13 @@ export function LedgerStripe({ rangeLabel = '12 – 18 Mei', avg = 28, best = 'S
       >
         <circle cx="42" cy="14" r="9" fill={M_BRICK} opacity="0.16" />
         <circle cx="42" cy="14" r="5" fill={M_BRICK} opacity="0.7" />
-        <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <g
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M 4 32 L 4 14 L 18 18 L 18 36 Z" fill="var(--sk-surface-2)" />
           <path d="M 32 32 L 32 14 L 18 18 L 18 36 Z" fill="var(--sk-surface-2)" />
           <path
@@ -362,7 +445,15 @@ export function LedgerStripe({ rangeLabel = '12 – 18 Mei', avg = 28, best = 'S
         >
           {rangeLabel}
         </div>
-        <div style={{ display: 'flex', gap: 12, marginTop: 6, fontSize: 11.5, color: 'var(--sk-text-3)' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 12,
+            marginTop: 6,
+            fontSize: 11.5,
+            color: 'var(--sk-text-3)',
+          }}
+        >
           <span>
             <span className="sk-mono" style={{ color: 'var(--sk-text)', fontWeight: 600 }}>
               {avg}
@@ -394,7 +485,13 @@ export function WarungMark({ size = 56 }: WarungMarkProps) {
       style={{ flexShrink: 0, display: 'block' }}
     >
       <circle cx="14" cy="14" r="9" fill={M_BRICK} opacity="0.20" />
-      <g fill="none" stroke="#1A1611" strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round">
+      <g
+        fill="none"
+        stroke="#1A1611"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      >
         <path d="M 8 26 L 30 14 L 52 26" fill="#F4ECD9" />
         <path d="M 6 26 L 54 26" />
         <path d="M 10 26 L 10 50 L 50 50 L 50 26" fill="#F4ECD9" />

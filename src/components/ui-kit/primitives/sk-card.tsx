@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { HTMLAttributes, ReactNode } from 'react';
 
 export type SkCardTone = 'default' | 'muted' | 'ghost';

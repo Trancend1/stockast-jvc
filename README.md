@@ -26,10 +26,16 @@ pnpm verify-gemini
 pnpm db:start            # supabase start
 pnpm db:reset            # apply migrations + seed Bu Yati sample
 pnpm db:types            # generate src/lib/db/types.ts
+pnpm seed:dimsum         # optional: seed Warung Dimsum Pak Budi + OTP phone
 
 # 5. dev
 pnpm dev                 # http://localhost:3000
 ```
+
+Default Dimsum login phone is `+6281234567000`; override with `SEED_DIMSUM_PHONE`.
+If the Supabase SMS provider is disabled, this seed phone can continue with demo code `123456`;
+override it with `SEED_DIMSUM_OTP`.
+The fallback signs in through a synthetic seed email, overrideable with `SEED_DIMSUM_EMAIL`.
 
 ---
 
@@ -86,38 +92,6 @@ Full standards: [.docs/ENGINEERING_STANDARDS.md](.docs/ENGINEERING_STANDARDS.md)
 
 ---
 
-## Phase plan (one paragraph)
-
-Submission MVP for #JuaraVibeCoding. Target usage: 1–5 testers (founder + close network) for flow validation and demo polish. Sprint A–F shipped (backbone, magic layer, polish, wow layer, reliability, auth + UI Kit). Sprint G — Demo Readiness — is active: polish, dry-runs, Vercel production deploy, backup video, README polish. Mock weather kept; real BMKG, observability stack, beta cohort, monetization, and scaling are all parked post-submission.
-
-Detail: [.docs/EXECUTION_BLUEPRINT.md](.docs/EXECUTION_BLUEPRINT.md). Post-submission roadmap: [.docs/FUTURE_ROADMAP.md](.docs/FUTURE_ROADMAP.md).
-
----
-
-## Demo runbook (Phase 1)
-
-T-24h
-- Run full demo flow 3 times against production URL.
-- Charge demo device + spare.
-- Confirm venue Wi-Fi or set up hotspot.
-- Print demo script.
-
-T-2h
-- Open production URL on demo device, verify.
-- Open backup video on second device.
-- Check Vercel status: green.
-- Check Gemini API status.
-
-T-30m
-- Final dry run with stopwatch.
-
-During
-- Confidence over perfection. If something fails: switch to backup video.
-
-T+24h
-- Post-mortem. What worked, what didn't.
-
----
 
 ## Standards (the irreducible subset)
 

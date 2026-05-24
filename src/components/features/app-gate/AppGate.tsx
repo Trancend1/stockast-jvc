@@ -12,9 +12,11 @@ import { readOnboardingState } from '@/lib/onboarding-state';
 export function AppGate({
   children,
   fallback,
+  allowWithoutOnboarding = false,
 }: {
   children: React.ReactNode;
   fallback?: React.ReactNode;
+  allowWithoutOnboarding?: boolean;
 }) {
   const router = useRouter();
   const [ready, setReady] = React.useState(false);
@@ -22,11 +24,15 @@ export function AppGate({
   React.useEffect(() => {
     const state = readOnboardingState();
     if (!state) {
+      if (allowWithoutOnboarding) {
+        setReady(true);
+        return;
+      }
       router.replace('/onboarding');
       return;
     }
     setReady(true);
-  }, [router]);
+  }, [allowWithoutOnboarding, router]);
 
   if (!ready) {
     return <>{fallback ?? null}</>;

@@ -14,6 +14,7 @@ export interface SkTopBarProps {
   date?: ReactNode;
   status?: SkTopBarStatus;
   onBack?: () => void;
+  leading?: ReactNode;
   trailing?: ReactNode;
 }
 
@@ -24,9 +25,11 @@ export function SkTopBar({
   date,
   status,
   onBack,
+  leading,
   trailing,
 }: SkTopBarProps) {
   if (mode === 'task') {
+    const leadingControl = leading ?? (onBack ? <BackButton onBack={onBack} /> : null);
     return (
       <div
         className="sk-topbar"
@@ -38,17 +41,7 @@ export function SkTopBar({
           paddingBottom: 8,
         }}
       >
-        <button
-          type="button"
-          onClick={onBack}
-          className="sk-btn"
-          data-variant="ghost"
-          data-size="sm"
-          aria-label="Kembali"
-          style={{ width: 36, height: 36, padding: 0 }}
-        >
-          <IconArrowL size={18} />
-        </button>
+        <div style={{ justifySelf: 'start', minWidth: 36 }}>{leadingControl}</div>
         <div
           style={{
             minWidth: 0,
@@ -92,6 +85,22 @@ export function SkTopBar({
       </div>
       <div style={{ display: 'flex', gap: 6 }}>{trailing}</div>
     </div>
+  );
+}
+
+function BackButton({ onBack }: { onBack: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onBack}
+      className="sk-btn"
+      data-variant="ghost"
+      data-size="sm"
+      aria-label="Kembali"
+      style={{ width: 36, height: 36, padding: 0 }}
+    >
+      <IconArrowL size={18} />
+    </button>
   );
 }
 

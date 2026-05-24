@@ -179,7 +179,13 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
   }
 
   return (
-    <AppLayout title="Catat Stok">
+    <AppLayout
+      title="Catat Stok"
+      topbarMode="task"
+      leading={
+        voiceEnabled ? <VoiceInputButton compact onTranscript={appendVoiceTranscript} /> : undefined
+      }
+    >
       <div className="flex flex-col gap-4 px-4 pt-4">
         {phase === 'confirm' ? (
           <ConfirmCard
@@ -206,7 +212,7 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
             onDiscardDraft={handleDiscardDraft}
             loading={false}
             errorMessage={phase === 'error' ? errorMessage : null}
-            voiceEnabled={voiceEnabled}
+            voiceEnabled={false}
             onVoiceTranscript={appendVoiceTranscript}
           />
         )}
