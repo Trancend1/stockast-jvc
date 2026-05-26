@@ -191,8 +191,8 @@ export function SetelanView() {
       : t.profil.menu_empty;
 
   return (
-    <AppLayout warungName={profile.warungName}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '14px 16px 32px' }}>
+    <AppLayout warungName={profile.warungName} contentWidth="wide">
+      <div className="page-shell settings-shell" data-testid="settings-shell">
         <div className="sk-card sk-grain" style={{ padding: '14px 14px 12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
@@ -334,7 +334,7 @@ export function SetelanView() {
             </div>
           </div>
         ) : (
-          <>
+          <div className="settings-grid">
             <div>
               <SectionLabel>{t.profil.section}</SectionLabel>
               <div className="sk-card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -401,7 +401,7 @@ export function SetelanView() {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         <div>

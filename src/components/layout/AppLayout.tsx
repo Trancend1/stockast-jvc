@@ -28,12 +28,15 @@ interface AppLayoutProps extends Omit<SkTopBarProps, 'mode'> {
   topbarMode?: SkTopBarProps['mode'];
   /** Hide bottom nav (e.g. deep task pages) */
   hideNav?: boolean;
+  /** Shared desktop/tablet content width policy */
+  contentWidth?: 'base' | 'wide' | 'full';
 }
 
 export function AppLayout({
   children,
   topbarMode,
   hideNav = false,
+  contentWidth = 'base',
   warungName,
   trailing,
   ...topbarProps
@@ -73,6 +76,7 @@ export function AppLayout({
 
   return (
     <div
+      className="app-layout-shell"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -80,21 +84,31 @@ export function AppLayout({
         background: 'var(--sk-bg)',
       }}
     >
-      <SkTopBar
-        {...topbarProps}
-        mode={resolvedMode}
-        warungName={hydratedWarungName}
-        date={topbarProps.date ?? todayLabel}
-        trailing={resolvedTrailing}
-      />
+      <div className="app-layout-topbar-shell">
+        <div className="app-layout-topbar-content">
+          <SkTopBar
+            {...topbarProps}
+            mode={resolvedMode}
+            warungName={hydratedWarungName}
+            date={topbarProps.date ?? todayLabel}
+            trailing={resolvedTrailing}
+          />
+        </div>
+      </div>
       <main
+        className="app-layout-main"
         style={{
           flex: 1,
           overflowY: 'auto',
           paddingBottom: hideNav ? 0 : 72,
         }}
       >
-        {children}
+        <div
+          data-testid="app-layout-content"
+          className={`app-layout-content app-layout-content--${contentWidth}`}
+        >
+          {children}
+        </div>
       </main>
       {!hideNav && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>

@@ -1,8 +1,10 @@
 'use client';
 
-import { useSubuhMode } from '@/hooks/use-subuh-mode';
+import * as React from 'react';
+import { SubuhModeContext, useSubuhModeState } from '@/hooks/use-subuh-mode';
 
-export function SubuhModeProvider() {
-  useSubuhMode();
-  return null;
+export function SubuhModeProvider({ children }: { children?: React.ReactNode }) {
+  const state = useSubuhModeState();
+
+  return <SubuhModeContext.Provider value={state}>{children ?? null}</SubuhModeContext.Provider>;
 }

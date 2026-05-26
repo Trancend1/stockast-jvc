@@ -12,6 +12,15 @@ import {
 
 const POLL_INTERVAL_MS = 60_000;
 
+type SubuhModeValue = {
+  active: boolean;
+  override: SubuhOverride;
+  setOverride: (next: SubuhOverride) => void;
+  toggle: () => void;
+};
+
+export const SubuhModeContext = React.createContext<SubuhModeValue | null>(null);
+
 /**
  * Manages `html.subuh-mode` class.
  *
@@ -20,6 +29,14 @@ const POLL_INTERVAL_MS = 60_000;
  * Subuh mode is disabled entirely until onboarding is complete.
  */
 export function useSubuhMode() {
+  const context = React.useContext(SubuhModeContext);
+  if (!context) {
+    throw new Error('useSubuhMode must be used within SubuhModeProvider');
+  }
+  return context;
+}
+
+export function useSubuhModeState(): SubuhModeValue {
   const [active, setActive] = React.useState(false);
   const [override, setOverrideState] = React.useState<SubuhOverride>(null);
 

@@ -33,24 +33,38 @@ export interface ToastProps {
   title?: ReactNode;
   message?: ReactNode;
   onClose?: () => void;
+  density?: 'default' | 'compact';
+  align?: 'start' | 'center';
+  maxWidth?: number | string;
 }
 
-export function Toast({ kind = 'success', title, message, onClose }: ToastProps) {
+export function Toast({
+  kind = 'success',
+  title,
+  message,
+  onClose,
+  density = 'default',
+  align = 'start',
+  maxWidth,
+}: ToastProps) {
   const conf = TONE_MAP[kind];
   const Ic = conf.icon;
+  const compact = density === 'compact';
+  const resolvedMaxWidth =
+    typeof maxWidth === 'number' ? `${maxWidth}px` : (maxWidth ?? (compact ? '360px' : '320px'));
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 10,
-        padding: '10px 12px',
+        gap: compact ? 9 : 10,
+        padding: compact ? '9px 12px' : '10px 12px',
         background: 'var(--sk-surface)',
         border: '1px solid var(--sk-line)',
         borderLeft: `3px solid ${conf.color}`,
         borderRadius: 11,
         boxShadow: 'var(--sk-shadow-lift)',
-        maxWidth: 320,
+        maxWidth: resolvedMaxWidth,
       }}
     >
       <div
@@ -68,12 +82,23 @@ export function Toast({ kind = 'success', title, message, onClose }: ToastProps)
       >
         <Ic size={14} />
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, minWidth: 0, textAlign: align }}>
         {title && (
-          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '-0.005em' }}>{title}</div>
+          <div
+            style={{ fontSize: compact ? 12.5 : 13, fontWeight: 700, letterSpacing: '-0.005em' }}
+          >
+            {title}
+          </div>
         )}
         {message && (
-          <div style={{ fontSize: 12, color: 'var(--sk-text-2)', marginTop: 1, lineHeight: 1.38 }}>
+          <div
+            style={{
+              fontSize: compact ? 11.5 : 12,
+              color: 'var(--sk-text-2)',
+              marginTop: 1,
+              lineHeight: compact ? 1.32 : 1.38,
+            }}
+          >
             {message}
           </div>
         )}

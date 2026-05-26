@@ -156,3 +156,88 @@ export async function listRecentStockLogs(
   }
   return (data ?? []) as StockLogRow[];
 }
+
+export async function findStockLogById(
+  db: SupabaseClient,
+  outletId: string,
+  stockLogId: string,
+): Promise<StockLogRow | null> {
+  const { data, error } = await db
+    .from('stock_logs')
+    .select(
+      'id, outlet_id, service_date, items, source_draft_id, confirmed_at, created_at, deleted_at',
+    )
+    .eq('id', stockLogId)
+    .eq('outlet_id', outletId)
+    .is('deleted_at', null)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingTableError(error, 'stock_logs')) return null;
+    throw new Error(`findStockLogById failed: ${error.message}`);
+  }
+
+  return (data ?? null) as StockLogRow | null;
+}
+
+export type UpdateStockLogItemsInput = {
+  outletId: string;
+  stockLogId: string;
+  items: StockLogItemRow[];
+};
+
+export async function updateStockLogItems(
+  db: SupabaseClient,
+  input: UpdateStockLogItemsInput,
+): Promise<StockLogRow> {
+  const { data, error } = await db
+    .from('stock_logs')
+    .update({
+      items: input.items,
+      deleted_at: null,
+    })
+    .eq('id', input.stockLogId)
+    .eq('outlet_id', input.outletId)
+    .is('deleted_at', null)
+    .select(
+      'id, outlet_id, service_date, items, source_draft_id, confirmed_at, created_at, deleted_at',
+    )
+    .single();
+
+  if (error || !data) {
+    throwIfMissingTable(error, 'stock_logs');
+    throw new Error(`updateStockLogItems failed: ${error?.message ?? 'no row returned'}`);
+  }
+
+  return data as StockLogRow;
+}
+
+export type SoftDeleteStockLogInput = {
+  outletId: string;
+  stockLogId: string;
+};
+
+export async function softDeleteStockLog(
+  db: SupabaseClient,
+  input: SoftDeleteStockLogInput,
+): Promise<StockLogRow> {
+  const { data, error } = await db
+    .from('stock_logs')
+    .update({
+      deleted_at: new Date().toISOString(),
+    })
+    .eq('id', input.stockLogId)
+    .eq('outlet_id', input.outletId)
+    .is('deleted_at', null)
+    .select(
+      'id, outlet_id, service_date, items, source_draft_id, confirmed_at, created_at, deleted_at',
+    )
+    .single();
+
+  if (error || !data) {
+    throwIfMissingTable(error, 'stock_logs');
+    throw new Error(`softDeleteStockLog failed: ${error?.message ?? 'no row returned'}`);
+  }
+
+  return data as StockLogRow;
+}

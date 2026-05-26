@@ -11,6 +11,9 @@ describe('notifications density', () => {
         title="Sudah disalin!"
         message="Tinggal paste ke WhatsApp langganan."
         onClose={() => undefined}
+        density="compact"
+        align="center"
+        maxWidth={360}
       />,
     );
 
@@ -19,10 +22,10 @@ describe('notifications density', () => {
     const closeButton = getByLabelText('Tutup');
 
     expect(root).toHaveStyle({
-      gap: '10px',
-      padding: '10px 12px',
+      gap: '9px',
+      padding: '9px 12px',
       borderRadius: '11px',
-      maxWidth: '320px',
+      maxWidth: '360px',
     });
     expect(iconBox).toHaveStyle({
       width: '24px',

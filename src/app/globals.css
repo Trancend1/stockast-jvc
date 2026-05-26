@@ -64,6 +64,10 @@
   --duration-dramatic: 600ms;
 }
 
+:root {
+  --belanja-item-bg: rgba(255, 255, 255, 0.68);
+}
+
 /* Subuh Mode — auto-activates 02:00-05:30 (Asia/Jakarta) via use-subuh-mode hook
    DESIGN_SYSTEM.md §4 — warm dark, never pure black, no harsh white. */
 html.subuh-mode {
@@ -106,6 +110,7 @@ html.subuh-mode {
   /* Deeper shadow on cool dark surface */
   --shadow-card: 0 2px 8px rgba(0, 4, 20, 0.4);
   --shadow-elevated: 0 8px 24px rgba(0, 4, 20, 0.5);
+  --belanja-item-bg: rgba(160, 185, 255, 0.08);
 }
 
 /* Signature animation — Belanja Card reveal (DESIGN_SYSTEM.md §12). */
@@ -123,6 +128,10 @@ html.subuh-mode .belanja-card-surface {
     linear-gradient(135deg, rgba(23, 29, 44, 0.98), rgba(30, 37, 56, 0.94)),
     var(--color-subuh-surface);
   border-color: rgba(160, 190, 255, 0.14);
+}
+
+.belanja-card-shell {
+  max-height: min(40rem, calc(100dvh - 10.5rem));
 }
 
 @keyframes belanja-card-reveal {
@@ -190,6 +199,326 @@ html.subuh-mode .belanja-item-scroll {
 
 html.subuh-mode .belanja-item-scroll::-webkit-scrollbar-thumb {
   background: rgba(230, 235, 245, 0.16);
+}
+
+.app-layout-topbar-shell {
+  padding-inline: 1.5rem;
+}
+
+.app-layout-topbar-content,
+.app-layout-content {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.app-layout-topbar-content {
+  max-width: 86rem;
+}
+
+.app-layout-content--base {
+  max-width: 72rem;
+}
+
+.app-layout-content--wide {
+  max-width: 86rem;
+}
+
+.app-layout-content--full {
+  max-width: 100%;
+}
+
+.page-shell {
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem 1.6rem 2.3rem;
+}
+
+.page-shell--wide {
+  gap: 1.25rem;
+}
+
+.dashboard-shell {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 86rem;
+  margin: 0 auto;
+  padding: 1.35rem 1.6rem 2.3rem;
+}
+
+.dashboard-shell-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-main-column,
+.dashboard-side-column {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.riwayat-shell,
+.stockflow-shell {
+  align-content: start;
+}
+
+.riwayat-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem 1.05rem;
+}
+
+.riwayat-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.riwayat-columns,
+.riwayat-item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.75rem 4.75rem;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.riwayat-columns {
+  padding-top: 0.1rem;
+  color: var(--sk-text-3);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.riwayat-columns-metric {
+  text-align: right;
+}
+
+.riwayat-items {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.riwayat-item-row {
+  border-top: 1px solid color-mix(in srgb, var(--sk-line) 78%, transparent);
+  padding-top: 0.55rem;
+}
+
+.riwayat-item-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sk-text);
+  font-size: 0.95rem;
+}
+
+.riwayat-metric {
+  display: grid;
+  justify-items: end;
+  line-height: 1.05;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.riwayat-metric strong {
+  color: var(--sk-text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.riwayat-metric small {
+  color: var(--sk-text-3);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.riwayat-metric--leftover strong,
+.riwayat-metric--leftover small {
+  color: var(--sk-warn);
+}
+
+.riwayat-metric em {
+  color: var(--sk-text-disabled);
+  font-size: 0.95rem;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.settings-shell {
+  gap: 0.875rem;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.onboarding-page-shell {
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--sk-bg);
+  padding: 1.2rem 1.6rem 2rem;
+}
+
+.onboarding-page-frame {
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.onboarding-back-link {
+  display: inline-flex;
+  width: fit-content;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-neutral-600);
+  text-decoration: none;
+}
+
+.onboarding-form-shell {
+  width: 100%;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  padding-block: 0.5rem 1.5rem;
+}
+
+.onboarding-form-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.onboarding-form-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 0.5rem 0.25rem;
+}
+
+.onboarding-form-visual-frame {
+  height: 8rem;
+  width: 100%;
+  max-width: 15rem;
+}
+
+.onboarding-form-body {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+@media (min-width: 768px) {
+  .app-layout-topbar-shell {
+    padding-inline: 2rem;
+  }
+
+  .page-shell {
+    gap: 1.25rem;
+    padding: 1.7rem 2.1rem 2.8rem;
+  }
+
+  .dashboard-shell {
+    gap: 1.5rem;
+    padding: 1.7rem 2.1rem 2.8rem;
+  }
+
+  .belanja-card-shell {
+    max-height: 42rem;
+  }
+
+  .dashboard-side-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .onboarding-page-shell {
+    padding: 1.5rem 2rem 2.35rem;
+  }
+
+  .onboarding-form-shell {
+    gap: 1.25rem;
+    padding-block: 0.75rem 2rem;
+  }
+
+  .onboarding-form-visual-frame {
+    height: 9rem;
+    max-width: 17.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-layout-topbar-shell {
+    padding-inline: 2.6rem;
+  }
+
+  .page-shell {
+    padding: 2rem 2.6rem 3.3rem;
+  }
+
+  .riwayat-shell {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-shell {
+    grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 0.95fr);
+    align-items: start;
+  }
+
+  .dashboard-side-column {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .belanja-card-shell {
+    max-height: 44rem;
+  }
+
+  .riwayat-card {
+    padding: 1.1rem 1.15rem;
+  }
+
+  .onboarding-page-shell {
+    padding: 1.8rem 2.4rem 3rem;
+  }
+
+  .onboarding-form-shell {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.9fr);
+    grid-template-areas:
+      'header visual'
+      'body visual';
+    gap: 1.5rem 2rem;
+    align-items: start;
+  }
+
+  .onboarding-form-header {
+    grid-area: header;
+  }
+
+  .onboarding-form-body {
+    grid-area: body;
+  }
+
+  .onboarding-form-visual {
+    grid-area: visual;
+    min-height: 100%;
+    align-items: center;
+    padding-block: 1rem;
+  }
+
+  .onboarding-form-visual-frame {
+    height: 14rem;
+    max-width: 22rem;
+  }
 }
 
 /* Skeleton shimmer (E.3) — soft cream-on-cream sweep, no shock. */

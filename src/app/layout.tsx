@@ -74,9 +74,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id" className={fontVariables} suppressHydrationWarning>
       <body>
         <SubuhBootstrapScript />
-        <SubuhModeProvider />
-        <RegisterServiceWorker />
-        {children}
+        <SubuhModeProvider>
+          <RegisterServiceWorker />
+          {children}
+        </SubuhModeProvider>
       </body>
     </html>
   );
