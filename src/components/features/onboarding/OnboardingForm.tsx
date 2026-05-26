@@ -99,9 +99,10 @@ export function OnboardingForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex min-h-[calc(100dvh-3rem)] w-full max-w-[560px] flex-col justify-between gap-4 py-3 sm:min-h-[720px] sm:gap-5 sm:py-6"
+      className="onboarding-form-shell"
+      data-testid="onboarding-form-shell"
     >
-      <header className="flex flex-col gap-2">
+      <header className="onboarding-form-header">
         <SkSteps count={TOTAL_STEPS} current={currentStep} />
         <p className="text-brand-700 mt-2 text-xs font-semibold tracking-wider uppercase">
           {t.step_label(step + 1, TOTAL_STEPS)}
@@ -114,15 +115,15 @@ export function OnboardingForm() {
         </p>
       </header>
 
-      <div className="flex items-center justify-center py-4 sm:py-6" aria-hidden="true">
-        <div className="h-32 w-full max-w-[240px] sm:h-36 sm:max-w-[280px]">
+      <div className="onboarding-form-visual" aria-hidden="true">
+        <div className="onboarding-form-visual-frame">
           {step === 0 ? <OnbDecorNama /> : null}
           {step === 1 ? <OnbDecorLokasi /> : null}
           {step === 2 ? <OnbDecorMenu /> : null}
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="onboarding-form-body">
         {step === 0 ? (
           <div className="flex flex-col gap-2">
             <SkLabel htmlFor="warung-name" hint={t.fields.warung_name.help}>

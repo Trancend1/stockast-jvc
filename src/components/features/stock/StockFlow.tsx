@@ -174,11 +174,12 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
     <AppLayout
       title="Catat Stok"
       topbarMode="task"
+      contentWidth="wide"
       leading={
         voiceEnabled ? <VoiceInputButton compact onTranscript={appendVoiceTranscript} /> : undefined
       }
     >
-      <div className="flex flex-col gap-4 px-4 pt-4">
+      <div className="page-shell stockflow-shell" data-testid="stockflow-shell">
         {phase === 'confirm' ? (
           <ConfirmCard
             items={items}

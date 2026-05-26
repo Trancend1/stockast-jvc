@@ -85,7 +85,27 @@ vi.mock('@/components/layout/AppLayout', () => ({
 }));
 
 vi.mock('@/components/ui-kit/primitives/sk-card', () => ({
-  SkCard: ({ children }: { children: React.ReactNode }) => <section>{children}</section>,
+  SkCard: ({
+    children,
+    className,
+    signature: _signature,
+    style,
+    ...rest
+  }: {
+    children: React.ReactNode;
+    className?: string;
+    signature?: boolean;
+    style?: React.CSSProperties;
+    [key: string]: unknown;
+  }) => {
+    void _signature;
+
+    return (
+      <section className={className} style={style} {...rest}>
+        {children}
+      </section>
+    );
+  },
 }));
 
 vi.mock('@/components/ui-kit/primitives/sk-pill', () => ({
@@ -169,6 +189,17 @@ describe('dashboard belanja navigation', () => {
     expect(screen.queryByRole('button', { name: /catat hari ini/i })).not.toBeInTheDocument();
   });
 
+  it('splits dashboard into main and side columns for tablet and desktop presentation', async () => {
+    render(<DashboardShell />);
+
+    const main = await screen.findByTestId('dashboard-main-column');
+    const side = screen.getByTestId('dashboard-side-column');
+
+    expect(main).toContainElement(screen.getByTestId('belanja-card'));
+    expect(side).toContainElement(screen.getByTestId('cuaca-card'));
+    expect(side).toContainElement(screen.getByTestId('promo-card-list'));
+  });
+
   it('opens item CRUD from the item row instead of visual layout settings', async () => {
     render(<BelanjaCard data={sampleBelanjaData} />);
 
@@ -186,6 +217,16 @@ describe('dashboard belanja navigation', () => {
 
     expect(screen.getByText('28')).toBeInTheDocument();
     expect(screen.getByText('Tambah stok subuh')).toBeInTheDocument();
+  });
+
+  it('uses a responsive card shell instead of locking the card to full viewport height', () => {
+    render(<BelanjaCard data={sampleBelanjaData} />);
+
+    const card = screen.getByTestId('belanja-card');
+    const row = screen.getByRole('button', { name: /ubah nasi uduk/i });
+
+    expect(card).not.toHaveStyle({ maxHeight: 'calc(100dvh - 148px)' });
+    expect(row).toHaveStyle({ background: 'var(--belanja-item-bg)' });
   });
 
   it('keeps row info concise and hides zero fluctuation', async () => {

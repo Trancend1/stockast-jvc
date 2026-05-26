@@ -10,7 +10,11 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@/components/layout/AppLayout', () => ({
-  AppLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppLayout: ({ children, contentWidth }: { children: React.ReactNode; contentWidth?: string }) => (
+    <div data-testid="settings-layout" data-content-width={contentWidth}>
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock('@/components/ui-kit/primitives/sk-button', () => ({
@@ -62,6 +66,8 @@ describe('SetelanView auth section', () => {
     expect(screen.getByRole('button', { name: 'Buka' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Buka Login OTP' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /keluar/i })).toBeInTheDocument();
+    expect(screen.getByTestId('settings-layout')).toHaveAttribute('data-content-width', 'wide');
+    expect(screen.getByTestId('settings-shell')).toBeInTheDocument();
     expect(screen.queryByText(/^Verifikasi akun$/)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Email \/ nomor HP$/)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Keamanan akun$/)).not.toBeInTheDocument();

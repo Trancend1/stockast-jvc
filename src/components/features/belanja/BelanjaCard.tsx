@@ -108,12 +108,13 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
   return (
     <SkCard
       signature
-      className="belanja-card-reveal belanja-card-surface sk-grain border-brand-100"
+      data-testid="belanja-card"
+      className="belanja-card-reveal belanja-card-shell belanja-card-surface sk-grain border-brand-100"
       style={{
         display: 'flex',
-        maxHeight: 'calc(100dvh - 148px)',
         minHeight: 0,
         overflow: 'hidden',
+        width: '100%',
         boxShadow: 'var(--sk-shadow-card), 0 3px 12px rgba(26,22,17,0.035)',
       }}
     >
@@ -224,22 +225,30 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
             variant="brand"
             size="sm"
             className="w-full max-w-[252px]"
-            leading={<IconWhatsapp size={15} />}
+            leading={copied ? undefined : <IconWhatsapp size={15} />}
             onClick={handleCopy}
             aria-label={belanja.share.copy}
-            style={{ minHeight: 36, justifySelf: 'center' }}
+            style={{
+              minHeight: 36,
+              justifySelf: 'center',
+              minWidth: copied ? 234 : undefined,
+              textAlign: 'center',
+            }}
           >
             {copied ? belanja.share.copied : belanja.share.copy}
           </SkButton>
         </div>
 
         {copied ? (
-          <div className="mt-2">
+          <div className="mt-2 flex justify-center">
             <Toast
               kind="success"
               title={belanja.share.copied}
               message="Tinggal paste ke WhatsApp langganan."
               onClose={() => setCopied(false)}
+              density="compact"
+              align="center"
+              maxWidth={360}
             />
           </div>
         ) : null}
@@ -285,7 +294,7 @@ function ItemButton({
         padding: '9px 10px',
         border: '1px solid var(--sk-line)',
         borderRadius: 7,
-        background: 'rgba(255,255,255,0.68)',
+        background: 'var(--belanja-item-bg)',
         color: 'inherit',
         cursor: 'pointer',
         fontFamily: 'inherit',

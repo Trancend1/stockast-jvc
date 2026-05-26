@@ -97,22 +97,14 @@ export function DashboardShell() {
   }
 
   return (
-    <AppLayout warungName={warungName}>
-      <div className="flex flex-col gap-5 px-4 pt-3">
-        {phase === 'loading' ? <BelanjaCardSkeleton /> : null}
-        {phase === 'empty' ? <EmptyCard reason={emptyReason} message={errorMsg} /> : null}
-        {phase === 'error' ? (
-          <ErrorCard
-            message={errorMsg}
-            onRetry={() => loadAll(warungName ?? belanja.warung_fallback)}
-          />
-        ) : null}
-        {phase === 'unavailable' ? <UnavailableCard message={errorMsg} /> : null}
-
-        {phase === 'ready' && card ? (
-          <>
-            {weather ? <CuacaCard weather={weather} /> : null}
+    <AppLayout warungName={warungName} contentWidth="full">
+      {phase === 'ready' && card ? (
+        <div className="dashboard-shell" data-testid="dashboard-layout">
+          <div className="dashboard-main-column" data-testid="dashboard-main-column">
             <BelanjaCard data={card} />
+          </div>
+          <div className="dashboard-side-column" data-testid="dashboard-side-column">
+            {weather ? <CuacaCard weather={weather} /> : null}
             {card.cached ? (
               <Banner
                 kind="info"
@@ -126,9 +118,21 @@ export function DashboardShell() {
               />
             ) : null}
             <PromoCardList promos={promos} />
-          </>
-        ) : null}
-      </div>
+          </div>
+        </div>
+      ) : (
+        <div className="dashboard-shell dashboard-shell-single">
+          {phase === 'loading' ? <BelanjaCardSkeleton /> : null}
+          {phase === 'empty' ? <EmptyCard reason={emptyReason} message={errorMsg} /> : null}
+          {phase === 'error' ? (
+            <ErrorCard
+              message={errorMsg}
+              onRetry={() => loadAll(warungName ?? belanja.warung_fallback)}
+            />
+          ) : null}
+          {phase === 'unavailable' ? <UnavailableCard message={errorMsg} /> : null}
+        </div>
+      )}
     </AppLayout>
   );
 }

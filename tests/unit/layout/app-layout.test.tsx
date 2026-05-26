@@ -86,4 +86,17 @@ describe('AppLayout', () => {
 
     expect(await screen.findByRole('button', { name: /subuh toggle/i })).toBeInTheDocument();
   });
+
+  it('wraps page content in the shared responsive container and honors width variants', () => {
+    render(
+      <AppLayout contentWidth="wide">
+        <div>Body</div>
+      </AppLayout>,
+    );
+
+    expect(screen.getByTestId('app-layout-content')).toHaveClass(
+      'app-layout-content',
+      'app-layout-content--wide',
+    );
+  });
 });

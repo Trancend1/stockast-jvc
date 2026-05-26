@@ -41,9 +41,10 @@ export function PolaMingguanShell() {
     <AppLayout
       title={polaMingguan.page_title}
       topbarMode="task"
+      contentWidth="wide"
       onBack={() => router.push('/dashboard')}
     >
-      <div className="flex flex-col gap-4 px-4 pt-4">
+      <div className="page-shell page-shell--wide" data-testid="pola-mingguan-shell">
         {phase === 'loading' ? (
           <EmptyPanel
             illust={IllustNoHistory}

@@ -108,6 +108,7 @@ describe('OnboardingForm', () => {
   it('uses separate step pages with Next and Previous while preserving filled answers', async () => {
     render(<OnboardingForm />);
 
+    expect(screen.getByTestId('onboarding-form-shell')).toBeInTheDocument();
     expect(screen.getByLabelText(/nama warung/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /nama warung kamu apa/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /masuk di sini/i })).toHaveAttribute('href', '/login');
