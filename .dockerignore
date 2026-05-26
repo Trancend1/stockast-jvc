@@ -1,0 +1,17 @@
+.git
+.github
+.next
+.turbo
+.vercel
+.vite-cache
+.playwright-cli
+.playwright-mcp
+coverage
+dist
+node_modules
+output
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
