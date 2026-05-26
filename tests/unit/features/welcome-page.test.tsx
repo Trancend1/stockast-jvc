@@ -12,6 +12,7 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/components/ui-kit/illustrations/branding', () => ({
   WordLogo: () => <div>Stockast</div>,
+  WelcomeHero: () => <div>Welcome Hero</div>,
 }));
 
 vi.mock('@/components/ui-kit/primitives/sk-button', () => ({
@@ -40,6 +41,8 @@ describe('HomePage', () => {
   it('shows welcome choices for users without an existing local warung setup', async () => {
     render(<HomePage />);
 
+    expect(screen.getByText('Stockast')).toBeInTheDocument();
+    expect(screen.getByText('Welcome Hero')).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: /buat warung baru/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sudah punya warung/i })).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalledWith('/onboarding');

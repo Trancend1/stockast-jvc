@@ -14,6 +14,7 @@ import { MissingTableError } from '@/lib/db/errors';
 import type { Json, StockLogDraftRow, StockLogItemRow, StockLogRow } from '@/lib/db/types';
 import type { ParsedStockPayload } from '@/types/domain';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import { logEvent } from '@/lib/observability';
 import { mapToDomainPayload } from './stock-mapping';
 
 export type StockServiceFailure =
@@ -71,11 +72,32 @@ export async function parseAndStore(
   });
 
   if (!aiResult.ok) {
+    logEvent(
+      'ai_parse_failed',
+      {
+        requestId: aiResult.meta.requestId,
+        outletId: input.outletId,
+        serviceDate: input.serviceDate,
+        attempts: aiResult.meta.attempts,
+        latencyMs: aiResult.meta.latencyMs,
+        failureReason: aiResult.reason,
+      },
+      'warn',
+    );
     await safeMarkDraftRejected(db, draft.id);
     const reason: StockServiceFailure =
       aiResult.reason === 'SCHEMA_VALIDATION_FAILED' ? 'AI_VALIDATION_FAILED' : 'AI_PARSE_FAILED';
     return { ok: false, reason, message: aiFailureMessage(aiResult.reason) };
   }
+
+  logEvent('ai_parse_end', {
+    requestId: aiResult.meta.requestId,
+    outletId: input.outletId,
+    serviceDate: input.serviceDate,
+    attempts: aiResult.meta.attempts,
+    latencyMs: aiResult.meta.latencyMs,
+    result: 'success',
+  });
 
   const mapped = mapToDomainPayload(aiResult.data, menuItems);
   let updated: StockLogDraftRow;

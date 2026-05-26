@@ -1,16 +1,13 @@
 'use client';
 
+import * as React from 'react';
 import { IconMoon, IconSun } from '@/components/ui-kit/icons';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { useSubuhMode } from '@/hooks/use-subuh-mode';
-import { readOnboardingState } from '@/lib/onboarding-state';
 
 export function SubuhToggle() {
   const { active, toggle } = useSubuhMode();
   const ToggleIcon = active ? IconSun : IconMoon;
-
-  // Only render for users who have completed onboarding.
-  if (!readOnboardingState()) return null;
 
   return (
     <SkButton
@@ -23,6 +20,7 @@ export function SubuhToggle() {
       title={active ? 'Subuh Mode aktif' : 'Mode normal'}
       variant={active ? 'brand' : 'secondary'}
       size="sm"
+      style={{ marginLeft: 'auto' }}
       data-icon-only="true"
     >
       <ToggleIcon size={16} />

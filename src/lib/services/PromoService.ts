@@ -13,6 +13,7 @@ import {
 import { listRecentStockLogs } from '@/lib/db/queries/stock-logs';
 import { clampDiscount, validatePromo } from '@/lib/rules/promo';
 import type { Json } from '@/lib/db/types';
+import { logEvent } from '@/lib/observability';
 import { detectOverstock, type OverstockCandidate } from './promo-detection';
 import type { StockLogShape } from './recommendation-mapping';
 
@@ -106,6 +107,21 @@ async function buildOne(
   const finalMessage = aiResult.ok
     ? aiResult.data.message
     : buildFallbackMessage(candidate, finalDiscount);
+
+  if (!aiResult.ok) {
+    logEvent(
+      'ai_parse_failed',
+      {
+        requestId: aiResult.meta.requestId,
+        outletId: args.outletId,
+        serviceDate: args.serviceDate,
+        attempts: aiResult.meta.attempts,
+        latencyMs: aiResult.meta.latencyMs,
+        failureReason: aiResult.reason,
+      },
+      'warn',
+    );
+  }
 
   let row: PromoDraftRow;
   try {

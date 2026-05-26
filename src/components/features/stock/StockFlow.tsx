@@ -88,36 +88,12 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
 
     setPhase('parsing');
     setErrorMessage(null);
-    await runParseWithRetry(value, 0);
-  }
-
-  async function handleRestoreDraft(draft: OfflineDraft) {
-    setRawInput(draft.rawInput);
-    setPhase('input');
-    setErrorMessage(null);
-    await removeDraft(draft.id).catch(() => undefined);
-    refreshDrafts();
-  }
-
-  async function handleDiscardDraft(draft: OfflineDraft) {
-    await removeDraft(draft.id).catch(() => undefined);
-    refreshDrafts();
-  }
-
-  // Auto-retry once on AI_PARSE_FAILED — Gemini is occasionally flaky on
-  // first call; a single silent retry recovers without surfacing churn to
-  // the user. Other error codes surface immediately.
-  async function runParseWithRetry(value: string, attempt: number) {
     const result = await parseAndSaveStockDraft({
       rawInput: value,
       serviceDate: todayIso,
     });
 
     if (result.error) {
-      if (result.error.code === 'AI_PARSE_FAILED' && attempt < 1) {
-        await runParseWithRetry(value, attempt + 1);
-        return;
-      }
       setErrorMessage(result.error.message || t.errors.parse_failed);
       setPhase('error');
       return;
@@ -138,6 +114,22 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
     setPhase('confirm');
   }
 
+  async function handleRestoreDraft(draft: OfflineDraft) {
+    setRawInput(draft.rawInput);
+    setPhase('input');
+    setErrorMessage(null);
+    await removeDraft(draft.id).catch(() => undefined);
+    refreshDrafts();
+  }
+
+  async function handleDiscardDraft(draft: OfflineDraft) {
+    await removeDraft(draft.id).catch(() => undefined);
+    refreshDrafts();
+  }
+
+  // Auto-retry once on AI_PARSE_FAILED — Gemini is occasionally flaky on
+  // first call; a single silent retry recovers without surfacing churn to
+  // the user. Other error codes surface immediately.
   async function handleConfirm() {
     if (!draftId) return;
     const validItems: ConfirmStockInput['items'] = items
@@ -269,10 +261,10 @@ function InputBlock(props: {
   const len = props.value.length;
   const submitLabel = props.online ? t.input.submit : t.input.offline_submit;
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{t.input.heading}</h1>
-        <p className="text-base text-neutral-600">{t.input.subheading}</p>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-0.5">
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900">{t.input.heading}</h1>
+        <p className="text-sm text-neutral-600">{t.input.subheading}</p>
       </div>
       {!props.online ? (
         <Banner kind="warn" title="Mode offline" message={t.offline.offline_indicator} />
@@ -290,7 +282,7 @@ function InputBlock(props: {
         </div>
       ) : null}
       <SkTextarea
-        rows={6}
+        rows={5}
         autoFocus
         placeholder={t.input.placeholder}
         value={props.value}
@@ -311,7 +303,7 @@ function InputBlock(props: {
       ) : null}
       <SkButton
         variant="brand"
-        size="lg"
+        size="md"
         full
         disabled={props.loading || props.value.trim().length === 0}
         onClick={props.onSubmit}
@@ -331,12 +323,12 @@ function OfflineDraftsBanner(props: {
   if (!latest) return null;
   return (
     <SkCard style={{ borderColor: 'var(--sk-brand)', background: 'var(--sk-brand-soft)' }}>
-      <div style={{ padding: '0.75rem' }}>
+      <div style={{ padding: '0.7rem' }}>
         <p className="text-brand-700 text-xs font-semibold tracking-wider uppercase">
           {t.offline.banner_draft_available} · {props.drafts.length}
         </p>
-        <p className="mt-1 line-clamp-2 text-sm text-neutral-700">{latest.rawInput}</p>
-        <div className="mt-3 flex items-center gap-2">
+        <p className="mt-1 line-clamp-2 text-[13px] text-neutral-700">{latest.rawInput}</p>
+        <div className="mt-2.5 flex items-center gap-2">
           <SkButton size="sm" onClick={() => props.onRestore(latest)}>
             {t.offline.banner_restore}
           </SkButton>
@@ -352,11 +344,13 @@ function OfflineDraftsBanner(props: {
 function OfflineQueuedCard({ onAgain }: { onAgain: () => void }) {
   return (
     <SkCard>
-      <div style={{ padding: '1rem' }} aria-live="polite">
-        <p className="text-base font-semibold text-neutral-900">{t.offline.queued_title}</p>
-        <p className="mt-1 text-sm text-neutral-600">{t.offline.queued_description}</p>
-        <div className="mt-4">
-          <SkButton onClick={onAgain}>{t.offline.queued_again}</SkButton>
+      <div style={{ padding: '0.875rem' }} aria-live="polite">
+        <p className="text-sm font-semibold text-neutral-900">{t.offline.queued_title}</p>
+        <p className="mt-1 text-[13px] text-neutral-600">{t.offline.queued_description}</p>
+        <div className="mt-3">
+          <SkButton size="sm" onClick={onAgain}>
+            {t.offline.queued_again}
+          </SkButton>
         </div>
       </div>
     </SkCard>
@@ -376,10 +370,10 @@ function ConfirmCard(props: {
 
   return (
     <SkCard>
-      <div style={{ padding: '1rem' }}>
-        <p className="text-base font-semibold text-neutral-900">{t.confirm.heading}</p>
-        <p className="mt-0.5 text-sm text-neutral-600">{t.confirm.subheading}</p>
-        <div className="mt-3 flex flex-col gap-3">
+      <div style={{ padding: '0.875rem' }}>
+        <p className="text-sm font-semibold text-neutral-900">{t.confirm.heading}</p>
+        <p className="mt-0.5 text-[13px] text-neutral-600">{t.confirm.subheading}</p>
+        <div className="mt-2.5 flex flex-col gap-2.5">
           {props.items.map((it, idx) => (
             <ItemRow key={idx} item={it} onChange={(patch) => update(idx, patch)} />
           ))}
@@ -387,11 +381,11 @@ function ConfirmCard(props: {
         {props.weather ? (
           <p className="mt-2 text-sm text-neutral-600">🌤 {t.confirm.weather[props.weather]}</p>
         ) : null}
-        <div className="mt-4 flex items-center justify-between gap-2">
+        <div className="mt-3.5 flex items-center justify-between gap-2">
           <SkButton variant="ghost" size="sm" onClick={props.onEdit}>
             {t.confirm.edit}
           </SkButton>
-          <SkButton variant="brand" onClick={props.onConfirm}>
+          <SkButton variant="brand" size="sm" onClick={props.onConfirm}>
             {t.confirm.save}
           </SkButton>
         </div>
@@ -412,9 +406,9 @@ function ItemRow(props: { item: EditableItem; onChange: (patch: Partial<Editable
     item.confidence === 'high' ? 'success' : item.confidence === 'medium' ? 'warn' : 'danger';
 
   return (
-    <div className="flex flex-col gap-2 rounded-[12px] border border-neutral-200 bg-neutral-100 p-3">
+    <div className="flex flex-col gap-1.5 rounded-[10px] border border-neutral-200 bg-neutral-100 p-2.5">
       <div className="flex items-center justify-between">
-        <span className="font-semibold text-neutral-900">{item.candidateName}</span>
+        <span className="text-sm font-semibold text-neutral-900">{item.candidateName}</span>
         <SkPill tone={pillTone}>{confidenceLabel}</SkPill>
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -445,7 +439,7 @@ function NumberField(props: {
 }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-semibold text-neutral-600">{props.label}</span>
+      <span className="text-[11px] font-semibold text-neutral-600">{props.label}</span>
       <SkInput
         type="number"
         inputMode="numeric"
@@ -463,8 +457,8 @@ function NumberField(props: {
 function StatusBlock(props: { title: string }) {
   return (
     <SkCard>
-      <div style={{ padding: '1rem' }}>
-        <p className="text-base text-neutral-700">{props.title}</p>
+      <div style={{ padding: '0.875rem' }}>
+        <p className="text-sm text-neutral-700">{props.title}</p>
       </div>
     </SkCard>
   );

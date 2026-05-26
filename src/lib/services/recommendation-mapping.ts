@@ -39,6 +39,8 @@ export type ComputeRecommendationsResult = {
   leftoverYesterday: Map<string, number>;
 };
 
+type MenuWeatherKind = 'warm_fried' | 'cold_drink' | 'neutral';
+
 export function computeRecommendations(
   input: ComputeRecommendationsInput,
 ): ComputeRecommendationsResult {
@@ -63,13 +65,17 @@ export function computeRecommendations(
       weekday: input.weekday,
       weather: input.weather,
     });
+    const overlayFactor = weatherOverlayFactor(
+      classifyMenuWeatherKind(menu.normalized_name),
+      input.weather,
+    );
 
     items.push({
       menuItemId: menu.id,
       base: result.base,
-      weatherFactor: result.weatherFactor,
+      weatherFactor: roundFactor(result.weatherFactor * overlayFactor),
       weekdayFactor: result.weekdayFactor,
-      suggested: result.suggested,
+      suggested: Math.max(0, Math.round(result.suggested * overlayFactor)),
       confidenceLabel: result.confidenceLabel,
     });
 
@@ -97,4 +103,63 @@ function downgrade(current: ConfidenceLabel, candidate: ConfidenceLabel): Confid
 
 export function indonesianWeekdayLabel(weekday: number): string {
   return WEEKDAY_LABELS_ID[weekday] ?? 'hari ini';
+}
+
+function classifyMenuWeatherKind(normalizedName: string): MenuWeatherKind {
+  const value = normalizedName.trim().toLowerCase();
+
+  if (
+    [
+      'goreng',
+      'bakwan',
+      'mendoan',
+      'tahu isi',
+      'pisang goreng',
+      'cireng',
+      'bakso',
+      'soto',
+      'mie',
+      'bubur',
+      'kopi',
+      'teh panas',
+    ].some((keyword) => value.includes(keyword))
+  ) {
+    return 'warm_fried';
+  }
+
+  if (
+    ['es ', 'jus', 'juice', 'teh es', 'kopi dingin', 'soda', 'jeruk', 'kelapa', 'minuman'].some(
+      (keyword) => value.includes(keyword),
+    )
+  ) {
+    return 'cold_drink';
+  }
+
+  return 'neutral';
+}
+
+function weatherOverlayFactor(kind: MenuWeatherKind, weather: WeatherCategory): number {
+  if (weather === 'hujan_deras') {
+    if (kind === 'warm_fried') return 1.1;
+    if (kind === 'cold_drink') return 0.9;
+    return 1;
+  }
+
+  if (weather === 'mendung') {
+    if (kind === 'warm_fried') return 1.05;
+    if (kind === 'cold_drink') return 0.95;
+    return 1;
+  }
+
+  if (weather === 'cerah_libur') {
+    if (kind === 'cold_drink') return 1.1;
+    if (kind === 'neutral') return 1.03;
+    return 1;
+  }
+
+  return 1;
+}
+
+function roundFactor(value: number): number {
+  return Math.round(value * 1000) / 1000;
 }

@@ -12,8 +12,8 @@ import type { PromoSuggestion } from '@/lib/services/PromoService';
 export function PromoCardList({ promos }: { promos: PromoSuggestion[] }) {
   if (promos.length === 0) return null;
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-bold tracking-tight text-neutral-900">{promoCopy.heading}</h2>
+    <section className="flex flex-col gap-2.5">
+      <h2 className="text-base font-bold tracking-tight text-neutral-900">{promoCopy.heading}</h2>
       {promos.map((p) => (
         <PromoCard key={p.promoId} promo={p} />
       ))}
@@ -40,9 +40,9 @@ function PromoCard({ promo }: { promo: PromoSuggestion }) {
       tone="ghost"
       style={{ borderColor: 'var(--sk-warn)', background: 'var(--sk-warn-soft)' }}
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-neutral-900">{promo.menuName}</span>
+          <span className="text-sm font-semibold text-neutral-900">{promo.menuName}</span>
           {promo.discountPercent > 0 ? (
             <SkPill tone="warn" dot>
               <IconPercent size={12} />
@@ -50,14 +50,15 @@ function PromoCard({ promo }: { promo: PromoSuggestion }) {
             </SkPill>
           ) : null}
         </div>
-        <p className="text-sm leading-relaxed whitespace-pre-line text-neutral-800">
+        <p className="text-[13px] leading-5 whitespace-pre-line text-neutral-800">
           {promo.message}
         </p>
         <SkButton
           variant="secondary"
+          size="sm"
+          className="w-full max-w-[252px]"
           onClick={handleCopy}
-          full
-          leading={<IconWhatsapp size={16} />}
+          leading={<IconWhatsapp size={14} />}
         >
           {copied ? promoCopy.copied : promoCopy.copy}
         </SkButton>

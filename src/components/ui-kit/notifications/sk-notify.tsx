@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import type { CSSProperties, ComponentType, ReactNode } from 'react';
 import {
   IconCheckCircle,
@@ -42,21 +43,21 @@ export function Toast({ kind = 'success', title, message, onClose }: ToastProps)
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 12,
-        padding: '12px 14px',
+        gap: 10,
+        padding: '10px 12px',
         background: 'var(--sk-surface)',
         border: '1px solid var(--sk-line)',
         borderLeft: `3px solid ${conf.color}`,
-        borderRadius: 12,
+        borderRadius: 11,
         boxShadow: 'var(--sk-shadow-lift)',
-        maxWidth: 340,
+        maxWidth: 320,
       }}
     >
       <div
         style={{
-          width: 28,
-          height: 28,
-          borderRadius: 8,
+          width: 24,
+          height: 24,
+          borderRadius: 7,
           background: conf.soft,
           color: conf.color,
           display: 'flex',
@@ -65,14 +66,14 @@ export function Toast({ kind = 'success', title, message, onClose }: ToastProps)
           flexShrink: 0,
         }}
       >
-        <Ic size={16} />
+        <Ic size={14} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         {title && (
-          <div style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '-0.005em' }}>{title}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '-0.005em' }}>{title}</div>
         )}
         {message && (
-          <div style={{ fontSize: 12.5, color: 'var(--sk-text-2)', marginTop: 2, lineHeight: 1.4 }}>
+          <div style={{ fontSize: 12, color: 'var(--sk-text-2)', marginTop: 1, lineHeight: 1.38 }}>
             {message}
           </div>
         )}
@@ -85,9 +86,9 @@ export function Toast({ kind = 'success', title, message, onClose }: ToastProps)
           data-variant="ghost"
           data-size="sm"
           aria-label="Tutup"
-          style={{ width: 28, height: 28, padding: 0, marginTop: -2, color: 'var(--sk-text-3)' }}
+          style={{ width: 24, height: 24, padding: 0, marginTop: -1, color: 'var(--sk-text-3)' }}
         >
-          <IconClose size={14} />
+          <IconClose size={13} />
         </button>
       )}
     </div>
@@ -109,18 +110,18 @@ export function Banner({ kind = 'info', title, message, action }: BannerProps) {
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
-        padding: '12px 14px',
+        gap: 12,
+        padding: '10px 12px',
         background: conf.soft,
-        borderRadius: 10,
+        borderRadius: 9,
         color: 'var(--sk-text)',
       }}
     >
       <div
         style={{
-          width: 30,
-          height: 30,
-          borderRadius: 8,
+          width: 28,
+          height: 28,
+          borderRadius: 7,
           background: 'var(--sk-surface)',
           color: conf.color,
           display: 'flex',
@@ -130,12 +131,12 @@ export function Banner({ kind = 'info', title, message, action }: BannerProps) {
           boxShadow: `0 0 0 1px ${conf.color}22`,
         }}
       >
-        <Ic size={16} />
+        <Ic size={15} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        {title && <div style={{ fontSize: 13.5, fontWeight: 700, color: conf.color }}>{title}</div>}
+        {title && <div style={{ fontSize: 13, fontWeight: 700, color: conf.color }}>{title}</div>}
         {message && (
-          <div style={{ fontSize: 12.5, color: 'var(--sk-text-2)', marginTop: 1, lineHeight: 1.4 }}>
+          <div style={{ fontSize: 12, color: 'var(--sk-text-2)', marginTop: 1, lineHeight: 1.35 }}>
             {message}
           </div>
         )}
@@ -160,13 +161,13 @@ export function InlineAlert({ kind = 'warn', children, title }: InlineAlertProps
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 10,
-        padding: '10px 12px',
+        gap: 8,
+        padding: '9px 10px',
         border: `1px dashed ${conf.color}`,
-        borderRadius: 8,
+        borderRadius: 7,
         color: conf.color,
         background: conf.soft,
-        fontSize: 12.5,
+        fontSize: 12,
         lineHeight: 1.45,
       }}
     >
@@ -186,35 +187,40 @@ export interface PushPreviewProps {
   message?: ReactNode;
 }
 
-export function PushPreview({ appName = 'Stockast', time = '03:12', title, message }: PushPreviewProps) {
+export function PushPreview({
+  appName = 'Stockast',
+  time = '03:12',
+  title,
+  message,
+}: PushPreviewProps) {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 12,
-        padding: '10px 12px 12px',
+        gap: 10,
+        padding: '9px 11px 11px',
         background: 'rgba(255,255,255,0.85)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         border: '1px solid rgba(0,0,0,0.05)',
-        borderRadius: 14,
-        boxShadow: '0 8px 22px rgba(0,0,0,0.15)',
-        maxWidth: 320,
+        borderRadius: 12,
+        boxShadow: '0 7px 18px rgba(0,0,0,0.14)',
+        maxWidth: 304,
       }}
     >
       <div
         style={{
-          width: 30,
-          height: 30,
-          borderRadius: 7,
+          width: 28,
+          height: 28,
+          borderRadius: 6,
           background: 'var(--sk-text)',
           color: 'var(--sk-bg)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontWeight: 800,
-          fontSize: 14,
+          fontSize: 13,
           letterSpacing: '-0.04em',
           flexShrink: 0,
         }}
@@ -235,10 +241,14 @@ export function PushPreview({ appName = 'Stockast', time = '03:12', title, messa
           <span style={{ fontWeight: 600 }}>{appName.toUpperCase()}</span>
           <span>{time}</span>
         </div>
-        <div style={{ fontSize: 13.5, fontWeight: 600, color: '#1a1611', letterSpacing: '-0.005em' }}>
+        <div
+          style={{ fontSize: 13.5, fontWeight: 600, color: '#1a1611', letterSpacing: '-0.005em' }}
+        >
           {title}
         </div>
-        <div style={{ fontSize: 12.5, color: '#3a3328', marginTop: 2, lineHeight: 1.35 }}>{message}</div>
+        <div style={{ fontSize: 12.5, color: '#3a3328', marginTop: 2, lineHeight: 1.35 }}>
+          {message}
+        </div>
       </div>
     </div>
   );

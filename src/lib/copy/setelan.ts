@@ -42,6 +42,9 @@ export const setelan = {
     logout_desc: 'Keluar dari perangkat ini.',
     buka: 'Buka',
     keluar: 'Keluar',
+    empty_title: 'Fitur autentikasi lanjutan belum tersedia',
+    empty_desc: 'Verifikasi akun, ubah email/nomor HP, dan keamanan akun belum bisa dipakai dulu.',
+    empty_action: 'Buka Login OTP',
   },
 
   tentang: {

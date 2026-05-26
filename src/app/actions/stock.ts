@@ -7,6 +7,7 @@ import type { StockLogItemRow } from '@/lib/db/types';
 import type { ParsedStockPayload } from '@/types/domain';
 import { type ActionResult, fail, ok } from '@/types/action-result';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import { isAiParseEnabled } from '@/lib/feature-gates';
 import { checkRateLimit } from '@/lib/kv';
 
 export type ParseAndSaveStockInput = {
@@ -23,6 +24,10 @@ export async function parseAndSaveStockDraft(
   input: ParseAndSaveStockInput,
 ): Promise<ActionResult<ParseAndSaveStockData>> {
   const ctx = await requireOutletAccess();
+
+  if (!isAiParseEnabled()) {
+    return fail('SERVICE_UNAVAILABLE', 'Fitur AI parsing lagi dimatikan sementara.');
+  }
 
   const trimmed = input.rawInput?.trim() ?? '';
   if (trimmed.length === 0) {

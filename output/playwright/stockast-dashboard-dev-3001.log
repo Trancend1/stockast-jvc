@@ -1,0 +1,13 @@
+
+> stockast@0.1.0 dev
+> next dev --turbo --port 3001
+
+   ▲ Next.js 15.5.18 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.1.12:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+Creating turbopack project { dir: 'D:\\DevSpace\\Projects\\stockast', testMode: true }
+ ✓ Compiled middleware in 416ms
+ ✓ Ready in 1810ms

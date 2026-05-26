@@ -12,6 +12,24 @@ export type UpdateOutletProfileInput = {
 
 const DEMO_ORGANIZATION_ID = '00000000-0000-0000-0000-000000000100';
 
+export async function getOutletProfile(
+  db: SupabaseClient,
+  outletId: string,
+): Promise<OutletRow | null> {
+  const { data, error } = await db
+    .from('outlets')
+    .select('id, organization_id, name, location_label, adm4_code')
+    .eq('id', outletId)
+    .maybeSingle();
+
+  if (error) {
+    throwIfMissingTable(error, 'outlets');
+    throw new Error(`getOutletProfile failed: ${error.message}`);
+  }
+
+  return data ? (data as OutletRow) : null;
+}
+
 export async function updateOutletProfile(
   db: SupabaseClient,
   input: UpdateOutletProfileInput,

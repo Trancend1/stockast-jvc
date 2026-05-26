@@ -1,0 +1,14 @@
+- generic [ref=e2]:
+  - img [ref=e3]:
+    - generic [ref=e5]: S
+    - generic [ref=e6]: stockast
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - heading "Masuk ke akunmu" [level=1] [ref=e11]
+      - paragraph [ref=e12]: Kami kirim kode 6 angka ke nomor HP-mu.
+    - generic [ref=e13]:
+      - generic [ref=e15]: Nomor HP
+      - textbox "Nomor HP" [ref=e16]:
+        - /placeholder: +62 812 3456 7890
+    - button "Kirim Kode" [disabled] [ref=e17]:
+      - generic [ref=e18]: Kirim Kode

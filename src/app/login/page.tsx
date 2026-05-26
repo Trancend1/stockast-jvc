@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import * as React from 'react';
 import { useState, useTransition } from 'react';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { SkInput } from '@/components/ui-kit/primitives/sk-input';
@@ -51,17 +53,30 @@ export default function LoginPage() {
         gap: 32,
       }}
     >
-      <WordLogo width={125} height={32} />
-
       <div
         style={{
           width: '100%',
           maxWidth: 360,
           display: 'flex',
           flexDirection: 'column',
-          gap: 20,
+          gap: 16,
         }}
       >
+        <Link
+          href="/"
+          style={{
+            alignSelf: 'flex-start',
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--sk-text-2)',
+            textDecoration: 'none',
+          }}
+        >
+          Kembali
+        </Link>
+
+        <WordLogo width={125} height={32} />
+
         {step === 'phone' ? (
           <>
             <div>

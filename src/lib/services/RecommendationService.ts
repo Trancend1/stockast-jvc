@@ -10,6 +10,7 @@ import type { Json, MenuItemRow, StockLogItemRow } from '@/lib/db/types';
 import type { Recommendation, RecommendationItem } from '@/types/domain';
 import type { WeatherCategory } from '@/lib/config/thresholds';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import { logEvent } from '@/lib/observability';
 import {
   computeRecommendations,
   indonesianWeekdayLabel,
@@ -59,6 +60,12 @@ export async function getTomorrowRecommendation(
         safeListMenuItems(db, input.outletId),
       ]);
       if (existing) {
+        logEvent('recommendation_generated', {
+          outletId: input.outletId,
+          serviceDate: input.serviceDate,
+          weather: input.weather ?? 'unknown',
+          result: 'cached',
+        });
         return toCachedResult(existing, menuItemsForCache);
       }
     } catch {
@@ -161,6 +168,14 @@ export async function getTomorrowRecommendation(
     rawSource: reasoningByName.rawSource,
     meta: reasoningByName.auditMeta,
     rawResponse: reasoningByName.rawResponse,
+  });
+
+  logEvent('recommendation_generated', {
+    outletId: input.outletId,
+    serviceDate: input.serviceDate,
+    weather,
+    itemCount: cards.length,
+    result: 'fresh',
   });
 
   return {

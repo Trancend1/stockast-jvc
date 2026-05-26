@@ -2,10 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireOutletAccess } from '@/lib/auth/session';
+import { getOutletProfile } from '@/lib/db/queries/outlets';
 import {
   getTomorrowRecommendation,
   type BelanjaCardItem,
 } from '@/lib/services/RecommendationService';
+import { getWeatherForOutlet } from '@/lib/weather';
 import { type ActionResult, fail, ok } from '@/types/action-result';
 import { tomorrowIsoUtc } from '@/lib/utils';
 import type { Recommendation } from '@/types/domain';
@@ -44,9 +46,16 @@ export async function getBelanjaCard(input?: {
     }
   }
 
+  const outlet = await getOutletProfile(ctx.db, ctx.outletId);
+  const weather = await getWeatherForOutlet({
+    serviceDate,
+    adm4Code: outlet?.adm4_code ?? null,
+  });
+
   const result = await getTomorrowRecommendation(ctx.db, {
     outletId: ctx.outletId,
     serviceDate,
+    weather: weather.category,
     forceRefresh: input?.forceRefresh ?? false,
   });
 

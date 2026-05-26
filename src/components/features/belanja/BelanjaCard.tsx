@@ -114,7 +114,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
         maxHeight: 'calc(100dvh - 148px)',
         minHeight: 0,
         overflow: 'hidden',
-        boxShadow: 'var(--sk-shadow-card), 0 4px 16px rgba(26,22,17,0.04)',
+        boxShadow: 'var(--sk-shadow-card), 0 3px 12px rgba(26,22,17,0.035)',
       }}
     >
       <div
@@ -123,7 +123,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
           minHeight: 0,
           width: '100%',
           flexDirection: 'column',
-          padding: '12px',
+          padding: '10px',
         }}
       >
         <div
@@ -131,8 +131,8 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 10,
-            paddingBottom: 10,
+            gap: 8,
+            paddingBottom: 8,
             borderBottom: '1px solid var(--sk-line)',
           }}
         >
@@ -141,7 +141,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
               className="sk-display"
               style={{
                 color: 'var(--sk-text-2)',
-                fontSize: 12,
+                fontSize: 11,
                 lineHeight: 1,
               }}
             >
@@ -149,9 +149,9 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
             </div>
             <h2
               style={{
-                marginTop: 4,
+                marginTop: 3,
                 color: 'var(--sk-text)',
-                fontSize: 16,
+                fontSize: 15.5,
                 fontWeight: 750,
                 lineHeight: 1.08,
               }}
@@ -160,7 +160,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
             </h2>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
             <SkPill tone={confidenceTone} dot>
               {items.length} item
             </SkPill>
@@ -170,7 +170,7 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
               leading={<IconPlus size={15} />}
               onClick={openCreate}
               aria-label="Tambah item"
-              style={{ minHeight: 34 }}
+              style={{ minHeight: 32, paddingInline: 11 }}
             >
               Tambah
             </SkButton>
@@ -185,8 +185,8 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
             minHeight: 0,
             flex: 1,
             flexDirection: 'column',
-            gap: 8,
-            marginTop: 10,
+            gap: 7,
+            marginTop: 8,
             overflowY: 'auto',
             paddingRight: 2,
           }}
@@ -201,8 +201,8 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
         <div
           style={{
             display: 'grid',
-            gap: 8,
-            paddingTop: 10,
+            gap: 7,
+            paddingTop: 8,
             borderTop: '1px solid var(--sk-line)',
           }}
         >
@@ -212,8 +212,8 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
               margin: 0,
               overflow: 'hidden',
               color: 'var(--sk-text-3)',
-              fontSize: 12,
-              lineHeight: 1.35,
+              fontSize: 11.5,
+              lineHeight: 1.3,
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
             }}
@@ -222,19 +222,19 @@ export function BelanjaCard({ data }: { data: BelanjaCardData }) {
           </p>
           <SkButton
             variant="brand"
-            size="md"
-            full
+            size="sm"
+            className="w-full max-w-[252px]"
             leading={<IconWhatsapp size={15} />}
             onClick={handleCopy}
             aria-label={belanja.share.copy}
-            style={{ minHeight: 40 }}
+            style={{ minHeight: 36, justifySelf: 'center' }}
           >
             {copied ? belanja.share.copied : belanja.share.copy}
           </SkButton>
         </div>
 
         {copied ? (
-          <div className="mt-3">
+          <div className="mt-2">
             <Toast
               kind="success"
               title={belanja.share.copied}
@@ -279,12 +279,12 @@ function ItemButton({
       style={{
         display: 'grid',
         width: '100%',
-        gridTemplateColumns: '32px minmax(0, 1fr) auto',
+        gridTemplateColumns: '28px minmax(0, 1fr) auto',
         alignItems: 'center',
-        gap: 10,
-        padding: '10px 12px',
+        gap: 8,
+        padding: '9px 10px',
         border: '1px solid var(--sk-line)',
-        borderRadius: 8,
+        borderRadius: 7,
         background: 'rgba(255,255,255,0.68)',
         color: 'inherit',
         cursor: 'pointer',
@@ -298,7 +298,7 @@ function ItemButton({
         <div
           style={{
             color: 'var(--sk-text)',
-            fontSize: 14,
+            fontSize: 13.5,
             fontWeight: 700,
             lineHeight: 1.2,
             overflow: 'hidden',
@@ -311,10 +311,10 @@ function ItemButton({
         <p
           style={{
             color: 'var(--sk-text-3)',
-            fontSize: 12,
+            fontSize: 11.5,
             lineHeight: 1.35,
             margin: 0,
-            marginTop: 2,
+            marginTop: 1,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -323,11 +323,11 @@ function ItemButton({
           {formatItemNote(item)}
         </p>
       </div>
-      <div style={{ minWidth: 64, textAlign: 'right' }}>
+      <div style={{ minWidth: 58, textAlign: 'right' }}>
         {delta !== 0 ? (
           <div
             className="sk-mono"
-            style={{ color: trendColor(delta), fontSize: 12, lineHeight: 1 }}
+            style={{ color: trendColor(delta), fontSize: 11, lineHeight: 1 }}
           >
             {formatDelta(delta)}
           </div>
@@ -335,9 +335,9 @@ function ItemButton({
         <div
           className="sk-mono"
           style={{
-            marginTop: delta !== 0 ? 3 : 0,
+            marginTop: delta !== 0 ? 2 : 0,
             color: 'var(--sk-text)',
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: 700,
             lineHeight: 1.05,
           }}
@@ -345,10 +345,10 @@ function ItemButton({
           {Math.round(item.suggested)}
           <span
             style={{
-              marginLeft: 4,
+              marginLeft: 3,
               color: 'var(--sk-text-3)',
               fontFamily: 'var(--sk-font)',
-              fontSize: 11,
+              fontSize: 10.5,
               fontWeight: 500,
               letterSpacing: 0,
             }}
@@ -407,17 +407,17 @@ function ItemModal({
         className="sk-card sk-grain"
         style={{
           width: 'min(100%, 460px)',
-          borderRadius: 12,
-          padding: 16,
+          borderRadius: 11,
+          padding: 14,
           boxShadow: 'var(--sk-shadow-card)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h3 style={{ margin: 0, color: 'var(--sk-text)', fontSize: 17, fontWeight: 750 }}>
+            <h3 style={{ margin: 0, color: 'var(--sk-text)', fontSize: 15.5, fontWeight: 750 }}>
               {title}
             </h3>
-            <p style={{ margin: '3px 0 0', color: 'var(--sk-text-3)', fontSize: 12 }}>
+            <p style={{ margin: '2px 0 0', color: 'var(--sk-text-3)', fontSize: 11.5 }}>
               Kelola item langsung dari kartu belanja.
             </p>
           </div>
@@ -427,8 +427,8 @@ function ItemModal({
             onClick={onClose}
             style={{
               display: 'grid',
-              width: 34,
-              height: 34,
+              width: 32,
+              height: 32,
               placeItems: 'center',
               border: '1px solid var(--sk-line)',
               borderRadius: 8,
@@ -440,7 +440,7 @@ function ItemModal({
           </button>
         </div>
 
-        <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
+        <div style={{ display: 'grid', gap: 10, marginTop: 14 }}>
           <Field label="Item" htmlFor="belanja-item-name">
             <input
               className="sk-input"
