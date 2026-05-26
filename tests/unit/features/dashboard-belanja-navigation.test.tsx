@@ -5,6 +5,7 @@ import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
 import { DashboardShell } from '@/components/features/dashboard/DashboardShell';
 import { getPolaMingguan } from '@/app/actions/pola-mingguan';
 import { getPromosForToday } from '@/app/actions/promo';
+import { getCuacaCardData } from '@/app/actions/weather';
 
 const push = vi.fn();
 
@@ -22,6 +23,24 @@ vi.mock('@/app/actions/recommendation', () => ({
 vi.mock('@/app/actions/promo', () => ({
   getPromosForToday: vi.fn(async () => ({
     data: { promos: [] },
+  })),
+}));
+
+vi.mock('@/app/actions/weather', () => ({
+  getCuacaCardData: vi.fn(async () => ({
+    data: {
+      weather: {
+        serviceDate: '2026-05-24',
+        adm4Code: '31.71.01.1001',
+        category: 'mendung',
+        label: 'Mendung',
+        hint: 'Pagi mendung, stok normal',
+        source: 'bmkg',
+        fetchedAt: '2026-05-23T00:00:00.000Z',
+        cacheHit: false,
+        cacheLayer: 'none',
+      },
+    },
   })),
 }));
 
@@ -123,6 +142,7 @@ describe('dashboard belanja navigation', () => {
     push.mockClear();
     vi.mocked(getPolaMingguan).mockClear();
     vi.mocked(getPromosForToday).mockClear();
+    vi.mocked(getCuacaCardData).mockClear();
     window.localStorage.clear();
     window.localStorage.setItem(
       'stockast.onboarding.v1',
@@ -142,6 +162,7 @@ describe('dashboard belanja navigation', () => {
     expect(screen.getByTestId('dashboard-warung-name')).toHaveTextContent('Warung Subuh');
     expect(getPolaMingguan).not.toHaveBeenCalled();
     expect(getPromosForToday).toHaveBeenCalledWith({ warungName: 'Warung Subuh' });
+    expect(getCuacaCardData).toHaveBeenCalled();
     expect(screen.getByTestId('cuaca-card')).toBeInTheDocument();
     expect(screen.getByTestId('promo-card-list')).toBeInTheDocument();
     expect(screen.queryByText('Pola minggu ini')).not.toBeInTheDocument();

@@ -30,6 +30,7 @@ import {
   type PromoPromptContext,
 } from './prompts/promo-draft-v1';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import { createRequestId, logEvent } from '@/lib/observability';
 
 /**
  * AI wrappers. All Gemini I/O lives here. Services never instantiate the SDK
@@ -55,6 +56,7 @@ export type AIResultMeta = {
   model: string;
   latencyMs: number;
   attempts: number;
+  requestId: string;
 };
 
 export type ParseStockInput = {
@@ -67,10 +69,17 @@ export async function parseStockNote(
 ): Promise<AIResult<ParsedStockPayloadFromAI>> {
   const model = THRESHOLDS.AI_MODEL.PARSE;
   const userMessage = buildParseStockUserMessage(input.rawInput, input.knownMenu);
+  const requestId = createRequestId();
 
   const startedAt = Date.now();
   let attempts = 0;
   let lastError: AIFailureReason = 'API_ERROR';
+
+  logEvent('ai_parse_start', {
+    requestId,
+    model,
+    promptVersion: PARSE_STOCK_PROMPT_VERSION,
+  });
 
   while (attempts < AI_MAX_RETRIES + 1) {
     attempts += 1;
@@ -92,6 +101,9 @@ export async function parseStockNote(
       const text = response.text;
       if (!text || text.trim().length === 0) {
         lastError = 'EMPTY_RESPONSE';
+        if (attempts < AI_MAX_RETRIES + 1) {
+          await delay(backoffMsForAttempt(attempts));
+        }
         continue;
       }
 
@@ -100,15 +112,29 @@ export async function parseStockNote(
         json = JSON.parse(text);
       } catch {
         lastError = 'JSON_PARSE_FAILED';
+        if (attempts < AI_MAX_RETRIES + 1) {
+          await delay(backoffMsForAttempt(attempts));
+        }
         continue;
       }
 
       const parsed = ParsedStockPayloadSchema.safeParse(json);
       if (!parsed.success) {
         lastError = 'SCHEMA_VALIDATION_FAILED';
+        if (attempts < AI_MAX_RETRIES + 1) {
+          await delay(backoffMsForAttempt(attempts));
+        }
         continue;
       }
 
+      logEvent('ai_parse_end', {
+        requestId,
+        model,
+        promptVersion: PARSE_STOCK_PROMPT_VERSION,
+        latencyMs: Date.now() - startedAt,
+        attempts,
+        result: 'success',
+      });
       return {
         ok: true,
         data: parsed.data,
@@ -117,13 +143,30 @@ export async function parseStockNote(
           model,
           latencyMs: Date.now() - startedAt,
           attempts,
+          requestId,
         },
       };
     } catch (err) {
       lastError = err instanceof TimeoutError ? 'TIMEOUT' : 'API_ERROR';
     }
+
+    if (attempts < AI_MAX_RETRIES + 1) {
+      await delay(backoffMsForAttempt(attempts));
+    }
   }
 
+  logEvent(
+    'ai_parse_failed',
+    {
+      requestId,
+      model,
+      promptVersion: PARSE_STOCK_PROMPT_VERSION,
+      latencyMs: Date.now() - startedAt,
+      attempts,
+      failureReason: lastError,
+    },
+    'warn',
+  );
   return {
     ok: false,
     reason: lastError,
@@ -132,6 +175,7 @@ export async function parseStockNote(
       model,
       latencyMs: Date.now() - startedAt,
       attempts,
+      requestId,
     },
   };
 }
@@ -178,6 +222,7 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
   const startedAt = Date.now();
   let attempts = 0;
   let lastError: AIFailureReason = 'API_ERROR';
+  const requestId = createRequestId();
 
   while (attempts < AI_MAX_RETRIES + 1) {
     attempts += 1;
@@ -199,6 +244,9 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
       const text = response.text;
       if (!text || text.trim().length === 0) {
         lastError = 'EMPTY_RESPONSE';
+        if (attempts < AI_MAX_RETRIES + 1) {
+          await delay(backoffMsForAttempt(attempts));
+        }
         continue;
       }
       let json: unknown;
@@ -206,11 +254,17 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
         json = JSON.parse(text);
       } catch {
         lastError = 'JSON_PARSE_FAILED';
+        if (attempts < AI_MAX_RETRIES + 1) {
+          await delay(backoffMsForAttempt(attempts));
+        }
         continue;
       }
       const parsed = args.zodSchema.safeParse(json);
       if (!parsed.success) {
         lastError = 'SCHEMA_VALIDATION_FAILED';
+        if (attempts < AI_MAX_RETRIES + 1) {
+          await delay(backoffMsForAttempt(attempts));
+        }
         continue;
       }
       return {
@@ -221,10 +275,15 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
           model: args.model,
           latencyMs: Date.now() - startedAt,
           attempts,
+          requestId,
         },
       };
     } catch (err) {
       lastError = err instanceof TimeoutError ? 'TIMEOUT' : 'API_ERROR';
+    }
+
+    if (attempts < AI_MAX_RETRIES + 1) {
+      await delay(backoffMsForAttempt(attempts));
     }
   }
 
@@ -236,8 +295,14 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
       model: args.model,
       latencyMs: Date.now() - startedAt,
       attempts,
+      requestId,
     },
   };
+}
+
+export function backoffMsForAttempt(attempt: number): number {
+  if (attempt <= 1) return 250;
+  return 500;
 }
 
 class TimeoutError extends Error {
@@ -261,4 +326,8 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
       },
     );
   });
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

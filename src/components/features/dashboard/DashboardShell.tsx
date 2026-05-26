@@ -13,12 +13,14 @@ import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
 import { BelanjaCardSkeleton } from '@/components/features/belanja/BelanjaCardSkeleton';
 import { PromoCardList } from '@/components/features/belanja/PromoCardList';
 import { CuacaCard } from '@/components/features/cuaca/CuacaCard';
+import { getCuacaCardData } from '@/app/actions/weather';
 import { Banner } from '@/components/ui-kit/notifications';
 import { getBelanjaCard, type BelanjaCardData } from '@/app/actions/recommendation';
 import { getPromosForToday } from '@/app/actions/promo';
 import type { PromoSuggestion } from '@/lib/services/PromoService';
 import { belanja } from '@/lib/copy/belanja';
 import { readOnboardingState } from '@/lib/onboarding-state';
+import type { WeatherSnapshot } from '@/lib/weather';
 
 type Phase = 'loading' | 'ready' | 'empty' | 'error' | 'unavailable';
 type EmptyReason = 'NO_MENU' | 'NO_HISTORY';
@@ -28,6 +30,7 @@ export function DashboardShell() {
   const [phase, setPhase] = React.useState<Phase>('loading');
   const [card, setCard] = React.useState<BelanjaCardData | null>(null);
   const [promos, setPromos] = React.useState<PromoSuggestion[]>([]);
+  const [weather, setWeather] = React.useState<WeatherSnapshot | null>(null);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [emptyReason, setEmptyReason] = React.useState<EmptyReason>('NO_HISTORY');
 
@@ -52,9 +55,10 @@ export function DashboardShell() {
     async (name: string) => {
       setPhase('loading');
       setErrorMsg(null);
-      const [cardResult, promoResult] = await Promise.all([
+      const [cardResult, promoResult, weatherResult] = await Promise.all([
         getBelanjaCard(),
         getPromosForToday({ warungName: name }),
+        getCuacaCardData(),
       ]);
 
       if (cardResult.error) {
@@ -64,6 +68,7 @@ export function DashboardShell() {
 
       setCard(cardResult.data);
       setPromos(promoResult.error ? [] : promoResult.data.promos);
+      setWeather(weatherResult.error ? null : weatherResult.data.weather);
       setPhase('ready');
     },
     [applyCardError],
@@ -86,12 +91,14 @@ export function DashboardShell() {
       return;
     }
     setCard(cardResult.data);
+    const weatherResult = await getCuacaCardData({ serviceDate: cardResult.data.serviceDate });
+    setWeather(weatherResult.error ? null : weatherResult.data.weather);
     setPhase('ready');
   }
 
   return (
     <AppLayout warungName={warungName}>
-      <div className="flex flex-col gap-6 px-4 pt-4">
+      <div className="flex flex-col gap-5 px-4 pt-3">
         {phase === 'loading' ? <BelanjaCardSkeleton /> : null}
         {phase === 'empty' ? <EmptyCard reason={emptyReason} message={errorMsg} /> : null}
         {phase === 'error' ? (
@@ -104,7 +111,7 @@ export function DashboardShell() {
 
         {phase === 'ready' && card ? (
           <>
-            <CuacaCard serviceDate={card.serviceDate} />
+            {weather ? <CuacaCard weather={weather} /> : null}
             <BelanjaCard data={card} />
             {card.cached ? (
               <Banner
@@ -150,7 +157,7 @@ function ErrorCard({ message, onRetry }: { message: string | null; onRetry: () =
       title={belanja.error.title}
       body={message ?? belanja.error.fallback}
       cta={
-        <SkButton variant="brand" size="lg" full onClick={onRetry}>
+        <SkButton variant="brand" size="md" full onClick={onRetry}>
           {belanja.error.retry}
         </SkButton>
       }

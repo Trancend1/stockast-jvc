@@ -55,10 +55,7 @@ describe('computeRecommendations', () => {
   });
 
   it('records leftoverYesterday from latest log', () => {
-    const logs = [
-      makeLog('2026-05-13', 30, 25, 0),
-      makeLog('2026-05-14', 25, 24, 5),
-    ];
+    const logs = [makeLog('2026-05-13', 30, 25, 0), makeLog('2026-05-14', 25, 24, 5)];
     const result = computeRecommendations({
       menuItems: MENU,
       logs,
@@ -82,6 +79,60 @@ describe('computeRecommendations', () => {
     const lele = result.items.find((it) => it.menuItemId === 'm-lele');
     expect(lele).toBeDefined();
     expect(lele!.suggested).toBeLessThan(lele!.base);
+  });
+
+  it('weather overlay favors warm fried items over cold drinks during heavy rain', () => {
+    const menu = [
+      { id: 'm-goreng', name: 'Ayam Goreng', normalized_name: 'ayam goreng', unit: 'porsi' },
+      { id: 'm-es', name: 'Es Teh', normalized_name: 'es teh', unit: 'gelas' },
+    ];
+    const logs = Array.from({ length: 7 }, (_, i) => ({
+      service_date: `2026-05-${String(8 + i).padStart(2, '0')}`,
+      items: [
+        { menu_item_id: 'm-goreng', sold: 20, leftover: 0, unit: 'porsi' },
+        { menu_item_id: 'm-es', sold: 20, leftover: 0, unit: 'gelas' },
+      ],
+    }));
+
+    const result = computeRecommendations({
+      menuItems: menu,
+      logs,
+      weekday: 5,
+      weather: 'hujan_deras',
+    });
+
+    const goreng = result.items.find((it) => it.menuItemId === 'm-goreng');
+    const es = result.items.find((it) => it.menuItemId === 'm-es');
+    expect(goreng).toBeDefined();
+    expect(es).toBeDefined();
+    expect(goreng!.suggested).toBeGreaterThan(es!.suggested);
+  });
+
+  it('weather overlay favors cold drinks on cerah_libur days', () => {
+    const menu = [
+      { id: 'm-neutral', name: 'Nasi Uduk', normalized_name: 'nasi uduk', unit: 'porsi' },
+      { id: 'm-es', name: 'Es Jeruk', normalized_name: 'es jeruk', unit: 'gelas' },
+    ];
+    const logs = Array.from({ length: 7 }, (_, i) => ({
+      service_date: `2026-05-${String(8 + i).padStart(2, '0')}`,
+      items: [
+        { menu_item_id: 'm-neutral', sold: 20, leftover: 0, unit: 'porsi' },
+        { menu_item_id: 'm-es', sold: 20, leftover: 0, unit: 'gelas' },
+      ],
+    }));
+
+    const result = computeRecommendations({
+      menuItems: menu,
+      logs,
+      weekday: 0,
+      weather: 'cerah_libur',
+    });
+
+    const neutral = result.items.find((it) => it.menuItemId === 'm-neutral');
+    const es = result.items.find((it) => it.menuItemId === 'm-es');
+    expect(neutral).toBeDefined();
+    expect(es).toBeDefined();
+    expect(es!.suggested).toBeGreaterThan(neutral!.suggested);
   });
 
   it('downgrades to worst per-item confidence label', () => {

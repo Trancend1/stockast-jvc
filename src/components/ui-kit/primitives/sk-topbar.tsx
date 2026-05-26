@@ -35,10 +35,10 @@ export function SkTopBar({
         className="sk-topbar"
         style={{
           display: 'grid',
-          gridTemplateColumns: '44px minmax(0, 1fr) auto',
-          gap: 8,
-          paddingTop: 8,
-          paddingBottom: 8,
+          gridTemplateColumns: '40px minmax(0, 1fr) auto',
+          gap: 6,
+          paddingTop: 6,
+          paddingBottom: 6,
         }}
       >
         <div style={{ justifySelf: 'start', minWidth: 36 }}>{leadingControl}</div>
@@ -46,7 +46,7 @@ export function SkTopBar({
           style={{
             minWidth: 0,
             textAlign: 'center',
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: 600,
             alignSelf: 'center',
             overflow: 'hidden',
@@ -64,7 +64,7 @@ export function SkTopBar({
     <div className="sk-topbar" style={{ paddingTop: 14, paddingBottom: 10 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.012em' }}>
+          <span style={{ fontSize: 14.5, fontWeight: 680, letterSpacing: '-0.012em' }}>
             {formatWarungName(warungName)}
           </span>
           {status && (
@@ -80,10 +80,10 @@ export function SkTopBar({
           )}
         </div>
         {date && (
-          <span style={{ fontSize: 12, color: 'var(--sk-text-3)', fontWeight: 500 }}>{date}</span>
+          <span style={{ fontSize: 11.5, color: 'var(--sk-text-3)', fontWeight: 500 }}>{date}</span>
         )}
       </div>
-      <div style={{ display: 'flex', gap: 6 }}>{trailing}</div>
+      <div style={{ display: 'flex', gap: 4 }}>{trailing}</div>
     </div>
   );
 }
@@ -97,9 +97,9 @@ function BackButton({ onBack }: { onBack: () => void }) {
       data-variant="ghost"
       data-size="sm"
       aria-label="Kembali"
-      style={{ width: 36, height: 36, padding: 0 }}
+      style={{ width: 32, height: 32, padding: 0 }}
     >
-      <IconArrowL size={18} />
+      <IconArrowL size={16} />
     </button>
   );
 }

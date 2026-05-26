@@ -9,23 +9,20 @@ import { SkInput } from '@/components/ui-kit/primitives/sk-input';
 import { SkLabel } from '@/components/ui-kit/primitives/sk-label';
 import { SkSelect } from '@/components/ui-kit/primitives/sk-select';
 import { SkTextarea } from '@/components/ui-kit/primitives/sk-textarea';
+import { EmptyState, NotebookMark } from '@/components/ui/illustration';
 import { useSubuhMode } from '@/hooks/use-subuh-mode';
 import type { SubuhOverride } from '@/lib/subuh-mode';
 import { applyOnboardingProfile } from '@/app/actions/onboarding';
 import { signOutCurrentDevice } from '@/app/setelan/actions';
 import { readOnboardingState, writeOnboardingState } from '@/lib/onboarding-state';
-import { LOCATION_OPTIONS, findLocation } from '@/lib/config/locations';
+import { LOCATION_GROUPS, findLocation } from '@/lib/config/locations';
 import { THRESHOLDS } from '@/lib/config/thresholds';
 import { setelan as t } from '@/lib/copy/setelan';
 import type { SkIconProps } from '@/components/ui-kit/icons/sk-icons';
 import {
-  IconBellOff,
-  IconCheckCircle,
-  IconChevronR,
   IconEdit,
   IconHistory,
   IconInfo,
-  IconLock,
   IconMoon,
   IconNote,
   IconShop,
@@ -59,9 +56,9 @@ function SectionLabel({ children }: { children: string }) {
       style={{
         fontFamily: 'var(--sk-font-serif)',
         fontStyle: 'italic',
-        fontSize: 12.5,
+        fontSize: 12,
         color: 'var(--sk-text-3)',
-        padding: '0 4px 8px',
+        padding: '0 4px 7px',
         margin: 0,
       }}
     >
@@ -84,16 +81,16 @@ function Row({ icon: Icon, title, detail, trailing, last }: RowProps) {
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
-        padding: '14px 16px',
+        gap: 12,
+        padding: '12px 14px',
         borderBottom: last ? 'none' : '1px solid var(--sk-line)',
       }}
     >
       <div
         style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
+          width: 30,
+          height: 30,
+          borderRadius: 7,
           flexShrink: 0,
           background: 'var(--sk-surface-2)',
           color: 'var(--sk-text-2)',
@@ -102,14 +99,14 @@ function Row({ icon: Icon, title, detail, trailing, last }: RowProps) {
           justifyContent: 'center',
         }}
       >
-        <Icon size={16} />
+        <Icon size={15} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 14.5, fontWeight: 600, margin: 0, lineHeight: 1.3 }}>{title}</p>
+        <p style={{ fontSize: 14, fontWeight: 600, margin: 0, lineHeight: 1.3 }}>{title}</p>
         {detail ? (
           <p
             style={{
-              fontSize: 12,
+              fontSize: 11.5,
               color: 'var(--sk-text-3)',
               margin: 0,
               marginTop: 1,
@@ -125,10 +122,6 @@ function Row({ icon: Icon, title, detail, trailing, last }: RowProps) {
       {trailing}
     </div>
   );
-}
-
-function Chevron() {
-  return <IconChevronR size={16} style={{ color: 'var(--sk-text-3)', flexShrink: 0 }} />;
 }
 
 export function SetelanView() {
@@ -199,14 +192,14 @@ export function SetelanView() {
 
   return (
     <AppLayout warungName={profile.warungName}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '16px 16px 40px' }}>
-        <div className="sk-card sk-grain" style={{ padding: '16px 16px 14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '14px 16px 32px' }}>
+        <div className="sk-card sk-grain" style={{ padding: '14px 14px 12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
-                width: 60,
-                height: 60,
-                borderRadius: 12,
+                width: 52,
+                height: 52,
+                borderRadius: 11,
                 flexShrink: 0,
                 background: 'var(--sk-surface-2)',
                 border: '1px solid var(--sk-line)',
@@ -215,14 +208,14 @@ export function SetelanView() {
                 justifyContent: 'center',
               }}
             >
-              <IconShop size={28} style={{ color: 'var(--sk-text-2)' }} />
+              <IconShop size={24} style={{ color: 'var(--sk-text-2)' }} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p
                 style={{
                   fontFamily: 'var(--sk-font-serif)',
                   fontStyle: 'italic',
-                  fontSize: 19,
+                  fontSize: 17.5,
                   fontWeight: 600,
                   lineHeight: 1.1,
                   margin: 0,
@@ -235,10 +228,10 @@ export function SetelanView() {
               </p>
               <p
                 style={{
-                  fontSize: 12,
+                  fontSize: 11.5,
                   color: 'var(--sk-text-3)',
                   margin: 0,
-                  marginTop: 4,
+                  marginTop: 3,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -254,7 +247,7 @@ export function SetelanView() {
               data-size="sm"
               onClick={startEdit}
               aria-label="Ubah profil"
-              style={{ width: 36, height: 36, padding: 0, flexShrink: 0 }}
+              style={{ width: 34, height: 34, padding: 0, flexShrink: 0 }}
             >
               <IconEdit size={16} />
             </button>
@@ -262,9 +255,9 @@ export function SetelanView() {
         </div>
 
         {editing ? (
-          <div className="sk-card" style={{ padding: '16px 18px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div className="sk-card" style={{ padding: '14px 16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <SkLabel htmlFor="set-warung-name" hint={t.profil.nama_hint}>
                   {t.profil.nama_warung}
                 </SkLabel>
@@ -277,7 +270,7 @@ export function SetelanView() {
                 />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <SkLabel htmlFor="set-location">{t.profil.kota}</SkLabel>
                 <SkSelect
                   id="set-location"
@@ -285,17 +278,21 @@ export function SetelanView() {
                   onChange={(v) => setDraft((d) => ({ ...d, location: v }))}
                 >
                   <option value="" disabled>
-                    Pilih kota
+                    Pilih kota/kabupaten
                   </option>
-                  {LOCATION_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
+                  {LOCATION_GROUPS.map((group) => (
+                    <optgroup key={group.province} label={group.province}>
+                      {group.options.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </SkSelect>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <SkLabel htmlFor="set-menu" hint={t.profil.menu_hint}>
                   {t.profil.menu_utama}
                 </SkLabel>
@@ -310,7 +307,7 @@ export function SetelanView() {
               </div>
 
               {error ? (
-                <p role="alert" style={{ fontSize: 13, color: 'var(--sk-danger)', margin: 0 }}>
+                <p role="alert" style={{ fontSize: 12.5, color: 'var(--sk-danger)', margin: 0 }}>
                   {error}
                 </p>
               ) : null}
@@ -345,21 +342,9 @@ export function SetelanView() {
                   icon={IconShop}
                   title={t.profil.nama_warung}
                   detail={profile.warungName || '-'}
-                  trailing={<Chevron />}
                 />
-                <Row
-                  icon={IconHistory}
-                  title={t.profil.kota}
-                  detail={locationLabel || '-'}
-                  trailing={<Chevron />}
-                />
-                <Row
-                  icon={IconNote}
-                  title={t.profil.menu_utama}
-                  detail={menuDetail}
-                  trailing={<Chevron />}
-                  last
-                />
+                <Row icon={IconHistory} title={t.profil.kota} detail={locationLabel || '-'} />
+                <Row icon={IconNote} title={t.profil.menu_utama} detail={menuDetail} last />
               </div>
             </div>
 
@@ -377,24 +362,6 @@ export function SetelanView() {
                   }
                 />
                 <Row
-                  icon={IconCheckCircle}
-                  title={t.autentikasi.verifikasi}
-                  detail={t.autentikasi.verifikasi_desc}
-                  trailing={<Chevron />}
-                />
-                <Row
-                  icon={IconBellOff}
-                  title={t.autentikasi.kontak}
-                  detail={t.autentikasi.kontak_desc}
-                  trailing={<Chevron />}
-                />
-                <Row
-                  icon={IconLock}
-                  title={t.autentikasi.keamanan}
-                  detail={t.autentikasi.keamanan_desc}
-                  trailing={<Chevron />}
-                />
-                <Row
                   icon={IconUnlock}
                   title={t.autentikasi.logout}
                   detail={t.autentikasi.logout_desc}
@@ -410,6 +377,28 @@ export function SetelanView() {
                   }
                   last
                 />
+                <div
+                  style={{
+                    borderTop: '1px solid var(--sk-line)',
+                    padding: '8px 14px 12px',
+                  }}
+                >
+                  <EmptyState
+                    icon={<NotebookMark size={52} />}
+                    title={t.autentikasi.empty_title}
+                    description={t.autentikasi.empty_desc}
+                    action={
+                      <SkButton
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => router.push('/login')}
+                        style={{ width: '100%' }}
+                      >
+                        {t.autentikasi.empty_action}
+                      </SkButton>
+                    }
+                  />
+                </div>
               </div>
             </div>
           </>
@@ -418,12 +407,12 @@ export function SetelanView() {
         <div>
           <SectionLabel>{t.tampilan.section}</SectionLabel>
           <div className="sk-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px' }}>
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
+                  width: 30,
+                  height: 30,
+                  borderRadius: 7,
                   flexShrink: 0,
                   background: 'var(--sk-surface-2)',
                   color: 'var(--sk-text-2)',
@@ -435,10 +424,8 @@ export function SetelanView() {
                 <IconMoon size={16} />
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14.5, fontWeight: 600, margin: 0 }}>
-                  {t.tampilan.subuh_label}
-                </p>
-                <p style={{ fontSize: 12, color: 'var(--sk-text-3)', margin: 0, marginTop: 1 }}>
+                <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{t.tampilan.subuh_label}</p>
+                <p style={{ fontSize: 11.5, color: 'var(--sk-text-3)', margin: 0, marginTop: 1 }}>
                   02:00 - 05:30 otomatis
                 </p>
               </div>
@@ -446,9 +433,9 @@ export function SetelanView() {
                 style={{
                   display: 'flex',
                   background: 'var(--sk-surface-2)',
-                  padding: 2,
-                  borderRadius: 8,
-                  fontSize: 12,
+                  padding: 1.5,
+                  borderRadius: 7,
+                  fontSize: 11.5,
                   fontWeight: 600,
                   flexShrink: 0,
                 }}
@@ -461,7 +448,7 @@ export function SetelanView() {
                       type="button"
                       onClick={() => setOverride(seg.value)}
                       style={{
-                        padding: '5px 10px',
+                        padding: '4px 9px',
                         borderRadius: 6,
                         background: isActive ? 'var(--sk-surface)' : 'transparent',
                         color: isActive ? 'var(--sk-text)' : 'var(--sk-text-3)',
@@ -470,7 +457,7 @@ export function SetelanView() {
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                         fontWeight: 600,
-                        fontSize: 12,
+                        fontSize: 11.5,
                         lineHeight: 1,
                       }}
                     >
@@ -490,7 +477,6 @@ export function SetelanView() {
               icon={IconInfo}
               title={t.tentang.app_name}
               detail={`v${t.tentang.versi_value} - ${t.tentang.tagline}`}
-              trailing={<Chevron />}
               last
             />
           </div>

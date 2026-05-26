@@ -16,7 +16,7 @@ import {
 } from '@/components/ui-kit/onboarding/onb-decor';
 import { onboarding as t } from '@/lib/copy/onboarding';
 import { common } from '@/lib/copy/common';
-import { LOCATION_OPTIONS } from '@/lib/config/locations';
+import { LOCATION_GROUPS } from '@/lib/config/locations';
 import { THRESHOLDS } from '@/lib/config/thresholds';
 import { applyOnboardingProfile, ensureDemoSeed } from '@/app/actions/onboarding';
 import { type OnboardingState, writeOnboardingState } from '@/lib/onboarding-state';
@@ -149,10 +149,14 @@ export function OnboardingForm() {
               <option value="" disabled>
                 {t.fields.location.placeholder}
               </option>
-              {LOCATION_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
+              {LOCATION_GROUPS.map((group) => (
+                <optgroup key={group.province} label={group.province}>
+                  {group.options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </SkSelect>
           </div>

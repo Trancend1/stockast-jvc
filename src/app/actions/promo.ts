@@ -9,6 +9,7 @@ import {
 import { type ActionResult, fail, ok } from '@/types/action-result';
 import { todayIsoUtc } from '@/lib/utils';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import { isPromoGenerationEnabled } from '@/lib/feature-gates';
 import { checkRateLimit } from '@/lib/kv';
 
 export type GetPromosData = { promos: PromoSuggestion[] };
@@ -20,6 +21,10 @@ export async function getPromosForToday(input?: {
   const ctx = await requireOutletAccess();
   const serviceDate = input?.serviceDate ?? todayIsoUtc();
   const warungName = input?.warungName ?? 'Warung';
+
+  if (!isPromoGenerationEnabled()) {
+    return ok({ promos: [] });
+  }
 
   const quota = await checkRateLimit({
     scope: 'ai',
