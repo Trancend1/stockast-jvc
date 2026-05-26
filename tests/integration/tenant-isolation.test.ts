@@ -13,8 +13,11 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const hasEnvVars = !!(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+const hasRemoteSupabaseEnv = !!(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder.supabase.co') &&
+  process.env.SUPABASE_SERVICE_ROLE_KEY &&
+  !process.env.SUPABASE_SERVICE_ROLE_KEY.startsWith('placeholder-')
 );
 
 const RUN_ID = crypto.randomUUID().slice(0, 8);
@@ -37,7 +40,7 @@ function userClient(accessToken: string): SupabaseClient {
   });
 }
 
-describe.skipIf(!hasEnvVars)('RLS tenant isolation', () => {
+describe.skipIf(!hasRemoteSupabaseEnv)('RLS tenant isolation', () => {
   let userIdA: string;
   let userIdB: string;
   let outletIdA: string;
