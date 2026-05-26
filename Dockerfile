@@ -17,6 +17,16 @@ FROM base AS builder
 RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder-anon-key-for-container-build
+ARG NEXT_PUBLIC_APP_URL=http://localhost:8080
+ARG SUPABASE_SERVICE_ROLE_KEY=placeholder-service-role-key-for-container-build
+ARG GEMINI_API_KEY=placeholder-gemini-key
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
+ENV GEMINI_API_KEY=$GEMINI_API_KEY
 RUN pnpm build
 
 FROM node:22-alpine AS runner
