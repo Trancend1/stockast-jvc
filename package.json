@@ -26,7 +26,7 @@
     "db:types": "supabase gen types typescript --local > src/lib/db/types.ts",
     "db:wipe": "tsx --env-file=.env.local scripts/dev-wipe.ts",
     "seed:dimsum": "tsx --env-file=.env.local scripts/seed-dimsum.ts",
-    "prepare": "lefthook install"
+    "prepare": "node -e \"process.exit(process.env.SKIP_LFTHOOK === '1' ? 0 : 1)\" || lefthook install"
   },
   "dependencies": {
     "@google/genai": "^0.7.0",
