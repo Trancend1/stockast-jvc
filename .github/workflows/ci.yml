@@ -53,7 +53,6 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Check Supabase migration secrets
         id: supabase-secrets
