@@ -1,12 +1,11 @@
 'use client';
 
-import Link from 'next/link';
-import * as React from 'react';
-import { useState, useTransition } from 'react';
+import { WordLogo } from '@/components/ui-kit/illustrations/branding';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { SkInput } from '@/components/ui-kit/primitives/sk-input';
 import { SkLabel } from '@/components/ui-kit/primitives/sk-label';
-import { WordLogo } from '@/components/ui-kit/illustrations/branding';
+import Link from 'next/link';
+import { useState, useTransition } from 'react';
 import { sendOtp, verifyOtp } from './actions';
 
 type Step = 'phone' | 'otp';
@@ -107,8 +106,8 @@ export default function LoginPage() {
             )}
 
             <SkButton
-              data-variant="brand"
-              data-size="lg"
+              variant="brand"
+              size="lg"
               onClick={handleSendOtp}
               disabled={isPending || !phone.trim()}
               style={{ width: '100%' }}
@@ -146,8 +145,8 @@ export default function LoginPage() {
             )}
 
             <SkButton
-              data-variant="brand"
-              data-size="lg"
+              variant="brand"
+              size="lg"
               onClick={handleVerifyOtp}
               disabled={isPending || otp.length < 6}
               style={{ width: '100%' }}

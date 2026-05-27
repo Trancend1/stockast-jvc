@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
 import LoginPage from '@/app/login/page';
 import OnboardingPage from '@/app/onboarding/page';
+import { render, screen } from '@testing-library/react';
+import * as React from 'react';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/app/login/actions', () => ({
   sendOtp: vi.fn(),
@@ -14,21 +14,20 @@ vi.mock('@/components/ui-kit/illustrations/branding', () => ({
 }));
 
 vi.mock('@/components/ui-kit/primitives/sk-button', () => ({
-  SkButton: ({
-    children,
-    onClick,
-    disabled,
-    type,
-    style,
-  }: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    disabled?: boolean;
-    type?: 'button' | 'submit' | 'reset';
-    style?: React.CSSProperties;
-  }) => (
-    <button type={type ?? 'button'} disabled={disabled} onClick={onClick} style={style}>
-      {children}
+  SkButton: (
+    props: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+      variant?: string;
+      size?: string;
+      full?: boolean;
+    },
+  ) => (
+    <button
+      type={props.type ?? 'button'}
+      disabled={props.disabled}
+      onClick={props.onClick}
+      style={props.style}
+    >
+      {props.children}
     </button>
   ),
 }));

@@ -13,7 +13,15 @@ export function readOnboardingState(): OnboardingState | null {
     const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as OnboardingState;
-    if (!parsed.completedAt) return null;
+    // BUG-20: validate required fields — a partial/corrupt entry must not pass
+    if (
+      !parsed.completedAt ||
+      typeof parsed.warungName !== 'string' ||
+      parsed.warungName.trim().length === 0 ||
+      typeof parsed.location !== 'string' ||
+      parsed.location.trim().length === 0
+    )
+      return null;
     return parsed;
   } catch {
     return null;

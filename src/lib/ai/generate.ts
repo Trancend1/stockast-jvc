@@ -1,22 +1,5 @@
-import { ai, AI_MAX_RETRIES, AI_TIMEOUT_MS } from './client';
-import {
-  ExplainRecommendationSchema,
-  EXPLAIN_RECOMMENDATION_RESPONSE_SCHEMA,
-  ParsedStockPayloadSchema,
-  PARSED_STOCK_RESPONSE_SCHEMA,
-  PromoDraftSchema,
-  PROMO_DRAFT_RESPONSE_SCHEMA,
-} from './schemas';
-import type {
-  ExplainRecommendationFromAI,
-  ParsedStockPayloadFromAI,
-  PromoDraftFromAI,
-} from './schemas';
-import {
-  PARSE_STOCK_PROMPT_VERSION,
-  PARSE_STOCK_SYSTEM_INSTRUCTION,
-  buildParseStockUserMessage,
-} from './prompts/parse-stock-v1';
+import { createRequestId, logEvent } from '@/lib/observability';
+import { AI_MAX_RETRIES, AI_TIMEOUT_MS, aiConfig, chatComplete } from './client';
 import {
   EXPLAIN_RECOMMENDATION_PROMPT_VERSION,
   EXPLAIN_RECOMMENDATION_SYSTEM_INSTRUCTION,
@@ -24,18 +7,29 @@ import {
   type ExplainPromptContext,
 } from './prompts/explain-recommendation-v1';
 import {
+  PARSE_STOCK_PROMPT_VERSION,
+  PARSE_STOCK_SYSTEM_INSTRUCTION,
+  buildParseStockUserMessage,
+} from './prompts/parse-stock-v1';
+import {
   PROMO_DRAFT_PROMPT_VERSION,
   PROMO_DRAFT_SYSTEM_INSTRUCTION,
   buildPromoUserMessage,
   type PromoPromptContext,
 } from './prompts/promo-draft-v1';
-import { THRESHOLDS } from '@/lib/config/thresholds';
-import { createRequestId, logEvent } from '@/lib/observability';
+import type {
+  ExplainRecommendationFromAI,
+  ParsedStockPayloadFromAI,
+  PromoDraftFromAI,
+} from './schemas';
+import { ExplainRecommendationSchema, ParsedStockPayloadSchema, PromoDraftSchema } from './schemas';
 
 /**
- * AI wrappers. All Gemini I/O lives here. Services never instantiate the SDK
- * directly. Every call returns a discriminated result so the caller can branch
- * without try/catch.
+ * AI wrappers. All provider I/O lives here. Services never call the AI
+ * client directly. Every call returns a discriminated result so the caller
+ * can branch without try/catch.
+ *
+ * Provider is resolved once at boot in client.ts (Groq → Gemini fallback).
  *
  * Source: .docs/FOUNDATION_BLUEPRINT.md §1.3 (boundary rules).
  */
@@ -47,6 +41,7 @@ export type AIResult<T> =
 export type AIFailureReason =
   | 'TIMEOUT'
   | 'API_ERROR'
+  | 'QUOTA_EXCEEDED'
   | 'EMPTY_RESPONSE'
   | 'JSON_PARSE_FAILED'
   | 'SCHEMA_VALIDATION_FAILED';
@@ -67,10 +62,9 @@ export type ParseStockInput = {
 export async function parseStockNote(
   input: ParseStockInput,
 ): Promise<AIResult<ParsedStockPayloadFromAI>> {
-  const model = THRESHOLDS.AI_MODEL.PARSE;
+  const model = aiConfig.parseModel;
   const userMessage = buildParseStockUserMessage(input.rawInput, input.knownMenu);
   const requestId = createRequestId();
-
   const startedAt = Date.now();
   let attempts = 0;
   let lastError: AIFailureReason = 'API_ERROR';
@@ -78,32 +72,29 @@ export async function parseStockNote(
   logEvent('ai_parse_start', {
     requestId,
     model,
+    provider: aiConfig.provider,
     promptVersion: PARSE_STOCK_PROMPT_VERSION,
   });
 
   while (attempts < AI_MAX_RETRIES + 1) {
     attempts += 1;
-    try {
-      const response = await withTimeout(
-        ai.models.generateContent({
-          model,
-          contents: userMessage,
-          config: {
-            systemInstruction: PARSE_STOCK_SYSTEM_INSTRUCTION,
-            temperature: 0.2,
-            responseMimeType: 'application/json',
-            responseSchema: PARSED_STOCK_RESPONSE_SCHEMA as unknown as Record<string, unknown>,
-          },
-        }),
-        AI_TIMEOUT_MS,
-      );
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
-      const text = response.text;
+    try {
+      const text = await chatComplete({
+        model,
+        systemInstruction: PARSE_STOCK_SYSTEM_INSTRUCTION,
+        userMessage,
+        temperature: 0.2,
+        jsonMode: true,
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
       if (!text || text.trim().length === 0) {
         lastError = 'EMPTY_RESPONSE';
-        if (attempts < AI_MAX_RETRIES + 1) {
-          await delay(backoffMsForAttempt(attempts));
-        }
+        if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
         continue;
       }
 
@@ -112,24 +103,21 @@ export async function parseStockNote(
         json = JSON.parse(text);
       } catch {
         lastError = 'JSON_PARSE_FAILED';
-        if (attempts < AI_MAX_RETRIES + 1) {
-          await delay(backoffMsForAttempt(attempts));
-        }
+        if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
         continue;
       }
 
       const parsed = ParsedStockPayloadSchema.safeParse(json);
       if (!parsed.success) {
         lastError = 'SCHEMA_VALIDATION_FAILED';
-        if (attempts < AI_MAX_RETRIES + 1) {
-          await delay(backoffMsForAttempt(attempts));
-        }
+        if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
         continue;
       }
 
       logEvent('ai_parse_end', {
         requestId,
         model,
+        provider: aiConfig.provider,
         promptVersion: PARSE_STOCK_PROMPT_VERSION,
         latencyMs: Date.now() - startedAt,
         attempts,
@@ -147,12 +135,18 @@ export async function parseStockNote(
         },
       };
     } catch (err) {
-      lastError = err instanceof TimeoutError ? 'TIMEOUT' : 'API_ERROR';
+      clearTimeout(timer);
+      if (isAbortError(err)) {
+        lastError = 'TIMEOUT';
+      } else if (isQuotaError(err)) {
+        lastError = 'QUOTA_EXCEEDED';
+        break;
+      } else {
+        lastError = 'API_ERROR';
+      }
     }
 
-    if (attempts < AI_MAX_RETRIES + 1) {
-      await delay(backoffMsForAttempt(attempts));
-    }
+    if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
   }
 
   logEvent(
@@ -160,6 +154,7 @@ export async function parseStockNote(
     {
       requestId,
       model,
+      provider: aiConfig.provider,
       promptVersion: PARSE_STOCK_PROMPT_VERSION,
       latencyMs: Date.now() - startedAt,
       attempts,
@@ -185,10 +180,9 @@ export async function explainRecommendation(
 ): Promise<AIResult<ExplainRecommendationFromAI>> {
   return runJsonGenerate({
     promptVersion: EXPLAIN_RECOMMENDATION_PROMPT_VERSION,
-    model: THRESHOLDS.AI_MODEL.EXPLAIN,
+    model: aiConfig.generateModel,
     systemInstruction: EXPLAIN_RECOMMENDATION_SYSTEM_INSTRUCTION,
     userMessage: buildExplainUserMessage(ctx),
-    responseSchema: EXPLAIN_RECOMMENDATION_RESPONSE_SCHEMA,
     zodSchema: ExplainRecommendationSchema,
     temperature: 0.5,
   });
@@ -199,10 +193,9 @@ export async function generatePromoDraft(
 ): Promise<AIResult<PromoDraftFromAI>> {
   return runJsonGenerate({
     promptVersion: PROMO_DRAFT_PROMPT_VERSION,
-    model: THRESHOLDS.AI_MODEL.EXPLAIN,
+    model: aiConfig.generateModel,
     systemInstruction: PROMO_DRAFT_SYSTEM_INSTRUCTION,
     userMessage: buildPromoUserMessage(ctx),
-    responseSchema: PROMO_DRAFT_RESPONSE_SCHEMA,
     zodSchema: PromoDraftSchema,
     temperature: 0.6,
   });
@@ -213,7 +206,6 @@ type JsonGenerateArgs<T> = {
   model: string;
   systemInstruction: string;
   userMessage: string;
-  responseSchema: Record<string, unknown>;
   zodSchema: { safeParse: (v: unknown) => { success: true; data: T } | { success: false } };
   temperature: number;
 };
@@ -226,27 +218,23 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
 
   while (attempts < AI_MAX_RETRIES + 1) {
     attempts += 1;
-    try {
-      const response = await withTimeout(
-        ai.models.generateContent({
-          model: args.model,
-          contents: args.userMessage,
-          config: {
-            systemInstruction: args.systemInstruction,
-            temperature: args.temperature,
-            responseMimeType: 'application/json',
-            responseSchema: args.responseSchema as Record<string, unknown>,
-          },
-        }),
-        AI_TIMEOUT_MS,
-      );
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
-      const text = response.text;
+    try {
+      const text = await chatComplete({
+        model: args.model,
+        systemInstruction: args.systemInstruction,
+        userMessage: args.userMessage,
+        temperature: args.temperature,
+        jsonMode: true,
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+
       if (!text || text.trim().length === 0) {
         lastError = 'EMPTY_RESPONSE';
-        if (attempts < AI_MAX_RETRIES + 1) {
-          await delay(backoffMsForAttempt(attempts));
-        }
+        if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
         continue;
       }
       let json: unknown;
@@ -254,17 +242,13 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
         json = JSON.parse(text);
       } catch {
         lastError = 'JSON_PARSE_FAILED';
-        if (attempts < AI_MAX_RETRIES + 1) {
-          await delay(backoffMsForAttempt(attempts));
-        }
+        if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
         continue;
       }
       const parsed = args.zodSchema.safeParse(json);
       if (!parsed.success) {
         lastError = 'SCHEMA_VALIDATION_FAILED';
-        if (attempts < AI_MAX_RETRIES + 1) {
-          await delay(backoffMsForAttempt(attempts));
-        }
+        if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
         continue;
       }
       return {
@@ -279,12 +263,18 @@ async function runJsonGenerate<T>(args: JsonGenerateArgs<T>): Promise<AIResult<T
         },
       };
     } catch (err) {
-      lastError = err instanceof TimeoutError ? 'TIMEOUT' : 'API_ERROR';
+      clearTimeout(timer);
+      if (isAbortError(err)) {
+        lastError = 'TIMEOUT';
+      } else if (isQuotaError(err)) {
+        lastError = 'QUOTA_EXCEEDED';
+        break;
+      } else {
+        lastError = 'API_ERROR';
+      }
     }
 
-    if (attempts < AI_MAX_RETRIES + 1) {
-      await delay(backoffMsForAttempt(attempts));
-    }
+    if (attempts < AI_MAX_RETRIES + 1) await delay(backoffMsForAttempt(attempts));
   }
 
   return {
@@ -305,27 +295,19 @@ export function backoffMsForAttempt(attempt: number): number {
   return 500;
 }
 
-class TimeoutError extends Error {
-  constructor() {
-    super('AI request timed out');
-    this.name = 'TimeoutError';
-  }
+function isQuotaError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    msg.includes('429') ||
+    msg.includes('RESOURCE_EXHAUSTED') ||
+    msg.includes('quota') ||
+    msg.includes('rate_limit_exceeded') ||
+    msg.includes('rate limit')
+  );
 }
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new TimeoutError()), ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (err) => {
-        clearTimeout(timer);
-        reject(err);
-      },
-    );
-  });
+function isAbortError(err: unknown): boolean {
+  return err instanceof Error && (err.name === 'AbortError' || err.message.includes('aborted'));
 }
 
 function delay(ms: number): Promise<void> {

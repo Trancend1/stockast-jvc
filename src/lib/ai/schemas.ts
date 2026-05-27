@@ -1,10 +1,15 @@
 import { z } from 'zod';
 
 /**
- * Zod schemas for AI responses. Every Gemini output must pass through these
+ * Zod schemas for AI responses. Every AI output must pass through these
  * before persistence (per CLAUDE.md §3 — AI output is untrusted).
  *
  * Source: .docs/SYSTEM_ARCHITECTURE.md §2.3 (parse schema discipline).
+ *
+ * Note: Gemini-specific `responseSchema` JSON-schema constants have been
+ * removed. The app now uses Groq (OpenAI-compatible) with `json_object`
+ * mode — structured output is enforced by the system prompt + Zod validation,
+ * not by a provider-specific schema object.
  */
 
 export const ParsedStockItemSchema = z.object({
@@ -27,37 +32,6 @@ export const ParsedStockPayloadSchema = z.object({
 
 export type ParsedStockPayloadFromAI = z.infer<typeof ParsedStockPayloadSchema>;
 
-/**
- * JSON-schema shape passed to Gemini `responseSchema`. Kept in sync with the
- * Zod schema above by hand. If you edit one, edit both.
- */
-export const PARSED_STOCK_RESPONSE_SCHEMA = {
-  type: 'object',
-  properties: {
-    items: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          candidateName: { type: 'string' },
-          sold: { type: 'integer', nullable: true },
-          leftover: { type: 'integer', nullable: true },
-          unit: { type: 'string', nullable: true },
-          confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
-        },
-        required: ['candidateName', 'confidence'],
-      },
-    },
-    weatherMention: {
-      type: 'string',
-      enum: ['unknown', 'hujan_deras', 'mendung', 'cerah_libur'],
-      nullable: true,
-    },
-    notes: { type: 'string', nullable: true },
-  },
-  required: ['items'],
-} as const;
-
 // ──────────────────────────────────────────────────────────────────────────
 // Explain recommendation
 
@@ -73,25 +47,6 @@ export const ExplainRecommendationSchema = z.object({
 
 export type ExplainRecommendationFromAI = z.infer<typeof ExplainRecommendationSchema>;
 
-export const EXPLAIN_RECOMMENDATION_RESPONSE_SCHEMA = {
-  type: 'object',
-  properties: {
-    items: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          itemName: { type: 'string' },
-          reasoning: { type: 'string' },
-        },
-        required: ['itemName', 'reasoning'],
-      },
-    },
-    summary: { type: 'string' },
-  },
-  required: ['items', 'summary'],
-} as const;
-
 // ──────────────────────────────────────────────────────────────────────────
 // Promo draft
 
@@ -101,12 +56,3 @@ export const PromoDraftSchema = z.object({
 });
 
 export type PromoDraftFromAI = z.infer<typeof PromoDraftSchema>;
-
-export const PROMO_DRAFT_RESPONSE_SCHEMA = {
-  type: 'object',
-  properties: {
-    message: { type: 'string' },
-    discountPercent: { type: 'integer' },
-  },
-  required: ['message', 'discountPercent'],
-} as const;

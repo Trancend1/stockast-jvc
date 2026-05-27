@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
 import { readOnboardingState } from '@/lib/onboarding-state';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 /**
  * Phase 1 client-side gate: if onboarding state is missing in localStorage,
@@ -22,12 +22,15 @@ export function AppGate({
   const [ready, setReady] = React.useState(false);
 
   React.useEffect(() => {
+    // BUG-06: authenticated users (allowWithoutOnboarding=true) skip the
+    // localStorage gate entirely — the server already validated their session
+    // and requireOutletAccess() handles the /onboarding redirect server-side.
+    if (allowWithoutOnboarding) {
+      setReady(true);
+      return;
+    }
     const state = readOnboardingState();
     if (!state) {
-      if (allowWithoutOnboarding) {
-        setReady(true);
-        return;
-      }
       router.replace('/onboarding');
       return;
     }

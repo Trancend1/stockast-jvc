@@ -36,7 +36,7 @@ export function weekdayRatio(history: readonly HistoryPoint[], weekday: number):
   const base = rollingAverage(history);
   if (base === 0) return 1;
 
-  const matching = history.filter((p) => new Date(p.date).getDay() === weekday);
+  const matching = history.filter((p) => new Date(p.date + 'T00:00:00Z').getUTCDay() === weekday);
   if (matching.length === 0) return 1;
 
   const ratios = matching.map((p) => p.sold / base);

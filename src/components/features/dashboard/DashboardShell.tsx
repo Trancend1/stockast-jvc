@@ -1,26 +1,26 @@
 'use client';
 
-import * as React from 'react';
+import { getPromosForToday } from '@/app/actions/promo';
+import { getBelanjaCard, type BelanjaCardData } from '@/app/actions/recommendation';
+import { getCuacaCardData } from '@/app/actions/weather';
+import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
+import { BelanjaCardSkeleton } from '@/components/features/belanja/BelanjaCardSkeleton';
+import { PromoCardList } from '@/components/features/belanja/PromoCardList';
+import { CuacaCard } from '@/components/features/cuaca/CuacaCard';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import {
   EmptyPanel,
   IllustError,
   IllustNoData,
   IllustNoHistory,
 } from '@/components/ui-kit/illustrations/empty-states';
-import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
-import { BelanjaCardSkeleton } from '@/components/features/belanja/BelanjaCardSkeleton';
-import { PromoCardList } from '@/components/features/belanja/PromoCardList';
-import { CuacaCard } from '@/components/features/cuaca/CuacaCard';
-import { getCuacaCardData } from '@/app/actions/weather';
 import { Banner } from '@/components/ui-kit/notifications';
-import { getBelanjaCard, type BelanjaCardData } from '@/app/actions/recommendation';
-import { getPromosForToday } from '@/app/actions/promo';
-import type { PromoSuggestion } from '@/lib/services/PromoService';
+import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { belanja } from '@/lib/copy/belanja';
 import { readOnboardingState } from '@/lib/onboarding-state';
+import type { PromoSuggestion } from '@/lib/services/PromoService';
 import type { WeatherSnapshot } from '@/lib/weather';
+import * as React from 'react';
 
 type Phase = 'loading' | 'ready' | 'empty' | 'error' | 'unavailable';
 type EmptyReason = 'NO_MENU' | 'NO_HISTORY';
@@ -75,12 +75,22 @@ export function DashboardShell() {
   );
 
   React.useEffect(() => {
+    // BUG-07: seed warungName from localStorage for the initial promo call,
+    // then overwrite with the authoritative DB value once the card loads.
     const state = readOnboardingState();
     const storedName = state?.warungName?.trim();
     const resolved = storedName || belanja.warung_fallback;
     setWarungName(storedName || undefined);
     void loadAll(resolved);
   }, [loadAll]);
+
+  // Once the card loads, sync warungName from the DB (authoritative source).
+  // This fixes the wrong-name issue on new devices where localStorage is empty.
+  React.useEffect(() => {
+    if (card?.warungName) {
+      setWarungName(card.warungName);
+    }
+  }, [card?.warungName]);
 
   async function handleRefresh() {
     setPhase('loading');
@@ -91,8 +101,13 @@ export function DashboardShell() {
       return;
     }
     setCard(cardResult.data);
-    const weatherResult = await getCuacaCardData({ serviceDate: cardResult.data.serviceDate });
+    // BUG-17: also refresh weather and promos after a force-refresh
+    const [weatherResult, promoResult] = await Promise.all([
+      getCuacaCardData({ serviceDate: cardResult.data.serviceDate }),
+      getPromosForToday({ warungName: warungName ?? belanja.warung_fallback }),
+    ]);
     setWeather(weatherResult.error ? null : weatherResult.data.weather);
+    setPromos(promoResult.error ? [] : promoResult.data.promos);
     setPhase('ready');
   }
 

@@ -1,7 +1,6 @@
-import 'server-only';
-import { createHash } from 'node:crypto';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseStockNote } from '@/lib/ai/generate';
+import { THRESHOLDS } from '@/lib/config/thresholds';
+import { MissingTableError } from '@/lib/db/errors';
 import { insertAIAuditLog } from '@/lib/db/queries/ai-audit';
 import { listMenuItems } from '@/lib/db/queries/menu-items';
 import {
@@ -10,11 +9,12 @@ import {
   updateStockDraftParsed,
   upsertConfirmedStockLog,
 } from '@/lib/db/queries/stock-logs';
-import { MissingTableError } from '@/lib/db/errors';
 import type { Json, StockLogDraftRow, StockLogItemRow, StockLogRow } from '@/lib/db/types';
-import type { ParsedStockPayload } from '@/types/domain';
-import { THRESHOLDS } from '@/lib/config/thresholds';
 import { logEvent } from '@/lib/observability';
+import type { ParsedStockPayload } from '@/types/domain';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createHash } from 'node:crypto';
+import 'server-only';
 import { mapToDomainPayload } from './stock-mapping';
 
 export type StockServiceFailure =
@@ -86,7 +86,11 @@ export async function parseAndStore(
     );
     await safeMarkDraftRejected(db, draft.id);
     const reason: StockServiceFailure =
-      aiResult.reason === 'SCHEMA_VALIDATION_FAILED' ? 'AI_VALIDATION_FAILED' : 'AI_PARSE_FAILED';
+      aiResult.reason === 'SCHEMA_VALIDATION_FAILED'
+        ? 'AI_VALIDATION_FAILED'
+        : aiResult.reason === 'QUOTA_EXCEEDED'
+          ? 'SERVICE_UNAVAILABLE'
+          : 'AI_PARSE_FAILED';
     return { ok: false, reason, message: aiFailureMessage(aiResult.reason) };
   }
 
@@ -187,6 +191,8 @@ function aiFailureMessage(reason: string): string {
   switch (reason) {
     case 'TIMEOUT':
       return 'Lama banget. Coba lagi sebentar.';
+    case 'QUOTA_EXCEEDED':
+      return 'Kuota AI hari ini habis. Coba lagi besok ya.';
     case 'JSON_PARSE_FAILED':
     case 'SCHEMA_VALIDATION_FAILED':
       return 'Aku belum nangkep catatannya. Coba diketik ulang ya.';

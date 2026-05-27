@@ -1,14 +1,14 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { requireOutletAccess } from '@/lib/auth/session';
-import { confirmDraft, parseAndStore } from '@/lib/services/StockService';
-import type { StockLogItemRow } from '@/lib/db/types';
-import type { ParsedStockPayload } from '@/types/domain';
-import { type ActionResult, fail, ok } from '@/types/action-result';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import type { StockLogItemRow } from '@/lib/db/types';
 import { isAiParseEnabled } from '@/lib/feature-gates';
 import { checkRateLimit } from '@/lib/kv';
+import { confirmDraft, parseAndStore } from '@/lib/services/StockService';
+import { type ActionResult, fail, ok } from '@/types/action-result';
+import type { ParsedStockPayload } from '@/types/domain';
+import { revalidatePath } from 'next/cache';
 
 export type ParseAndSaveStockInput = {
   rawInput: string;
@@ -35,6 +35,15 @@ export async function parseAndSaveStockDraft(
   }
   if (trimmed.length > THRESHOLDS.STOCK_NOTE_MAX_CHARS) {
     return fail('INPUT_INVALID', 'Kepanjangan. Ringkas sedikit.');
+  }
+
+  // BUG-01: validate serviceDate format before it reaches the DB date column
+  const serviceDate = input.serviceDate?.trim() ?? '';
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(serviceDate) ||
+    isNaN(new Date(serviceDate + 'T00:00:00Z').getTime())
+  ) {
+    return fail('INPUT_INVALID', 'Tanggal tidak valid.');
   }
 
   const quota = await checkRateLimit({
@@ -77,7 +86,7 @@ export async function confirmStockLog(
 ): Promise<ActionResult<ConfirmStockData>> {
   const ctx = await requireOutletAccess();
 
-  if (!input.draftId || input.items.length === 0) {
+  if (!input.draftId || !input.items || input.items.length === 0) {
     return fail('INPUT_INVALID', 'Catatan kosong.');
   }
 
