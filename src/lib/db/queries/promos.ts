@@ -1,5 +1,5 @@
-import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import 'server-only';
 
 export type PromoDraftRow = {
   id: string;
@@ -48,15 +48,24 @@ export async function countPromosToday(
     .from('promo_drafts')
     .select('id', { count: 'exact', head: true })
     .eq('outlet_id', outletId)
-    .eq('service_date', serviceDate);
+    .eq('service_date', serviceDate)
+    .neq('status', 'dismissed'); // BUG-26: dismissed promos don't count toward frequency cap
   if (error) {
     throw new Error(`countPromosToday failed: ${error.message}`);
   }
   return count ?? 0;
 }
 
-export async function markPromoCopied(db: SupabaseClient, promoId: string): Promise<void> {
-  const { error } = await db.from('promo_drafts').update({ status: 'copied' }).eq('id', promoId);
+export async function markPromoCopied(
+  db: SupabaseClient,
+  promoId: string,
+  outletId: string,
+): Promise<void> {
+  const { error } = await db
+    .from('promo_drafts')
+    .update({ status: 'copied' })
+    .eq('id', promoId)
+    .eq('outlet_id', outletId); // BUG-02: enforce ownership
   if (error) {
     throw new Error(`markPromoCopied failed: ${error.message}`);
   }

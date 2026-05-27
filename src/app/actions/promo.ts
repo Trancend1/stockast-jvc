@@ -1,16 +1,16 @@
 'use server';
 
 import { requireOutletAccess } from '@/lib/auth/session';
+import { THRESHOLDS } from '@/lib/config/thresholds';
+import { isPromoGenerationEnabled } from '@/lib/feature-gates';
+import { checkRateLimit } from '@/lib/kv';
 import {
   generatePromosForLatestStock,
   recordPromoCopied,
   type PromoSuggestion,
 } from '@/lib/services/PromoService';
-import { type ActionResult, fail, ok } from '@/types/action-result';
-import { todayIsoUtc } from '@/lib/utils';
-import { THRESHOLDS } from '@/lib/config/thresholds';
-import { isPromoGenerationEnabled } from '@/lib/feature-gates';
-import { checkRateLimit } from '@/lib/kv';
+import { todayIsoWib } from '@/lib/utils';
+import { fail, ok, type ActionResult } from '@/types/action-result';
 
 export type GetPromosData = { promos: PromoSuggestion[] };
 
@@ -19,7 +19,7 @@ export async function getPromosForToday(input?: {
   serviceDate?: string;
 }): Promise<ActionResult<GetPromosData>> {
   const ctx = await requireOutletAccess();
-  const serviceDate = input?.serviceDate ?? todayIsoUtc();
+  const serviceDate = input?.serviceDate ?? todayIsoWib();
   const warungName = input?.warungName ?? 'Warung';
 
   if (!isPromoGenerationEnabled()) {
@@ -57,7 +57,7 @@ export async function markPromoCopiedAction(promoId: string): Promise<ActionResu
   if (!promoId) return fail('INPUT_INVALID', 'Promo ID kosong.');
   const ctx = await requireOutletAccess();
   try {
-    await recordPromoCopied(ctx.db, promoId);
+    await recordPromoCopied(ctx.db, promoId, ctx.outletId);
     return ok(null);
   } catch (err) {
     return fail('INTERNAL', err instanceof Error ? err.message : 'gagal');

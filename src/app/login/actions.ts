@@ -1,11 +1,11 @@
 'use server';
 
-import { redirect } from 'next/navigation';
-import { createServerClient } from '@/lib/db/supabase-client';
-import { getUserOutlet } from '@/lib/db/queries/users';
-import { type ActionResult, fail, ok } from '@/types/action-result';
 import { THRESHOLDS } from '@/lib/config/thresholds';
+import { getUserOutlet } from '@/lib/db/queries/users';
+import { createServerClient } from '@/lib/db/supabase-client';
 import { checkRateLimit } from '@/lib/kv';
+import { type ActionResult, fail, ok } from '@/types/action-result';
+import { redirect } from 'next/navigation';
 
 const SEED_DIMSUM_PHONE = process.env.SEED_DIMSUM_PHONE?.trim() || '+6281234567000';
 const SEED_DIMSUM_EMAIL = process.env.SEED_DIMSUM_EMAIL?.trim() || 'dimsum-seed@stockast.local';
@@ -58,8 +58,11 @@ export async function sendOtp(phone: string): Promise<ActionResult<null>> {
   });
 
   if (error) {
-    if (isPhoneProviderDisabled(error) && isSeedDimsumLogin(trimmed)) {
-      return ok(null);
+    if (isPhoneProviderDisabled(error)) {
+      // BUG-11: phone auth disabled — seed dimsum can still proceed (uses email/password),
+      // all other phones get a clear actionable message instead of a generic error.
+      if (isSeedDimsumLogin(trimmed)) return ok(null);
+      return fail('SERVICE_UNAVAILABLE', 'Login via HP belum aktif. Hubungi admin.');
     }
     if (error.message.includes('rate')) {
       return fail('QUOTA_EXCEEDED', 'Terlalu sering. Tunggu sebentar ya.');

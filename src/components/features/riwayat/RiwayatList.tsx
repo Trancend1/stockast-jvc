@@ -8,7 +8,6 @@ import {
   type RiwayatDay,
   type RiwayatEditorMenuItem,
 } from '@/app/actions/riwayat';
-import { Toast } from '@/components/ui-kit/notifications';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {
   EmptyPanel,
@@ -16,6 +15,7 @@ import {
   IllustNoData,
   IllustNoHistory,
 } from '@/components/ui-kit/illustrations/empty-states';
+import { Toast } from '@/components/ui-kit/notifications';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { SkCard } from '@/components/ui-kit/primitives/sk-card';
 import { SkInput } from '@/components/ui-kit/primitives/sk-input';
@@ -37,7 +37,7 @@ type FlashState = {
 
 type EditorRow = {
   id: string;
-  menuItemId: string;
+  menuItemId: string | null;
   sold: string;
   leftover: string;
 };
@@ -448,7 +448,7 @@ function EditorSheet({
                 <SkSelect
                   aria-label={`Menu item ${index + 1}`}
                   data-testid={`riwayat-item-menu-${row.id}`}
-                  value={row.menuItemId}
+                  value={row.menuItemId ?? undefined}
                   onChange={(value) => onUpdateRow(row.id, { menuItemId: value })}
                 >
                   <option value="">Pilih item</option>

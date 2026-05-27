@@ -25,12 +25,7 @@ export const THRESHOLDS = {
   HISTORY_WINDOW_DAYS: 7,
   OUTLIER_SIGMA: 2,
 
-  // AI model selection — verify Day 1 via scripts/verify-gemini-model.ts
-  AI_MODEL: {
-    PARSE: 'gemini-2.0-flash',
-    EXPLAIN: 'gemini-2.0-flash',
-    BULK: 'gemini-2.0-flash-lite',
-  },
+  // AI settings
   AI_TIMEOUT_MS: 5_000,
   AI_MAX_RETRIES: 2,
   AI_CACHE_TTL_SEC: 3_600,

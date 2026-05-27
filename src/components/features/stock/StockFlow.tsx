@@ -19,6 +19,7 @@ import { THRESHOLDS } from '@/lib/config/thresholds';
 import { common } from '@/lib/copy/common';
 import { stock as t } from '@/lib/copy/stock';
 import { listDrafts, pushDraft, removeDraft, type OfflineDraft } from '@/lib/offline/draft-queue';
+import { todayIsoWib } from '@/lib/utils';
 import type { ParsedStockPayload } from '@/types/domain';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -45,7 +46,9 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [drafts, setDrafts] = React.useState<OfflineDraft[]>([]);
 
-  const todayIso = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
+  // BUG-24: use WIB-aware today via todayIsoWib() — toISOString() returns UTC
+  // which is 7h behind WIB. At 23:00 WIB the UTC date is already tomorrow.
+  const todayIso = React.useMemo(() => todayIsoWib(), []);
 
   const refreshDrafts = React.useCallback(() => {
     void listDrafts()
@@ -132,17 +135,18 @@ export function StockFlow({ voiceEnabled = false }: { voiceEnabled?: boolean }) 
   // the user. Other error codes surface immediately.
   async function handleConfirm() {
     if (!draftId) return;
-    const validItems: ConfirmStockInput['items'] = items
-      .filter((it) => it.menuItemId !== null)
-      .map((it) => ({
-        menu_item_id: it.menuItemId!,
-        sold: it.sold ?? 0,
-        leftover: it.leftover ?? 0,
-        unit: it.unit,
-      }));
+    // Include all items — matched (menuItemId set) and unmatched (menuItemId null).
+    // Unmatched items are saved with menu_item_id: null so the log is complete
+    // even before the user has configured their full menu.
+    const validItems: ConfirmStockInput['items'] = items.map((it) => ({
+      menu_item_id: it.menuItemId,
+      sold: it.sold ?? 0,
+      leftover: it.leftover ?? 0,
+      unit: it.unit,
+    }));
 
     if (validItems.length === 0) {
-      setErrorMessage('Belum ada item yang cocok ke menu kamu.');
+      setErrorMessage('Belum ada item yang bisa disimpan.');
       setPhase('error');
       return;
     }
@@ -426,7 +430,7 @@ function ItemRow(props: { item: EditableItem; onChange: (patch: Partial<Editable
       </div>
       {item.menuItemId === null ? (
         <p className="text-warning text-xs">
-          Belum cocok ke menu kamu — bakal di-skip pas disimpan.
+          Belum cocok ke menu — akan disimpan sebagai item baru.
         </p>
       ) : null}
     </div>

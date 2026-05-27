@@ -14,6 +14,7 @@
 const DB_NAME = 'stockast-offline';
 const STORE = 'stock-drafts';
 const VERSION = 1;
+const MAX_DRAFTS = 5; // BUG-27: cap queue to prevent IndexedDB bloat
 
 export type OfflineDraft = {
   id: number;
@@ -49,13 +50,42 @@ export async function pushDraft(input: DraftInput): Promise<number | null> {
     return await new Promise<number>((resolve, reject) => {
       const tx = db.transaction(STORE, 'readwrite');
       const store = tx.objectStore(STORE);
-      const req = store.add({
-        rawInput: input.rawInput,
-        serviceDate: input.serviceDate,
-        createdAt: new Date().toISOString(),
-      });
-      req.onsuccess = () => resolve(req.result as number);
-      req.onerror = () => reject(req.error ?? new Error('idb_put_failed'));
+
+      // BUG-27: enforce cap — evict oldest entries before adding a new one
+      const countReq = store.count();
+      countReq.onsuccess = () => {
+        const evictCount = countReq.result - MAX_DRAFTS + 1;
+        if (evictCount > 0) {
+          const cursorReq = store.openCursor();
+          let evicted = 0;
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (cursor && evicted < evictCount) {
+              cursor.delete();
+              evicted += 1;
+              cursor.continue();
+            } else {
+              const addReq = store.add({
+                rawInput: input.rawInput,
+                serviceDate: input.serviceDate,
+                createdAt: new Date().toISOString(),
+              });
+              addReq.onsuccess = () => resolve(addReq.result as number);
+              addReq.onerror = () => reject(addReq.error ?? new Error('idb_put_failed'));
+            }
+          };
+          cursorReq.onerror = () => reject(cursorReq.error ?? new Error('idb_cursor_failed'));
+        } else {
+          const addReq = store.add({
+            rawInput: input.rawInput,
+            serviceDate: input.serviceDate,
+            createdAt: new Date().toISOString(),
+          });
+          addReq.onsuccess = () => resolve(addReq.result as number);
+          addReq.onerror = () => reject(addReq.error ?? new Error('idb_put_failed'));
+        }
+      };
+      countReq.onerror = () => reject(countReq.error ?? new Error('idb_count_failed'));
     });
   } finally {
     db.close();

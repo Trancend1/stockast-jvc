@@ -1,25 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { THRESHOLDS } from '@/lib/config/thresholds';
 import {
   normalizeMenuName,
   normalizeOnboardingProfile,
   parseMenuList,
 } from '@/lib/services/onboarding-profile';
-import { THRESHOLDS } from '@/lib/config/thresholds';
+import { describe, expect, it } from 'vitest';
 
 describe('parseMenuList', () => {
   it('splits on comma, semicolon, newline', () => {
-    expect(parseMenuList('lele, ayam; tahu\ntempe')).toEqual([
-      'Lele',
-      'Ayam',
-      'Tahu',
-      'Tempe',
-    ]);
+    expect(parseMenuList('lele, ayam; tahu\ntempe')).toEqual(['Lele', 'Ayam', 'Tahu', 'Tempe']);
   });
 
   it('drops duplicates after normalization', () => {
-    expect(parseMenuList('Lele Goreng, lele goreng, LELE  GORENG')).toEqual([
-      'Lele Goreng',
-    ]);
+    expect(parseMenuList('Lele Goreng, lele goreng, LELE  GORENG')).toEqual(['Lele Goreng']);
   });
 
   it('drops empty tokens and trims whitespace', () => {
@@ -32,10 +25,13 @@ describe('parseMenuList', () => {
     expect(result.length).toBe(THRESHOLDS.ONBOARDING.MENU_ITEMS_MAX);
   });
 
-  it('drops items longer than MENU_NAME_MAX_CHARS', () => {
-    const tooLong = 'a'.repeat(THRESHOLDS.MENU_NAME_MAX_CHARS + 1);
+  it('truncates items longer than MENU_NAME_MAX_CHARS instead of dropping them', () => {
+    const tooLong = 'a'.repeat(THRESHOLDS.MENU_NAME_MAX_CHARS + 5);
     const result = parseMenuList(`${tooLong},ayam`);
-    expect(result).toEqual(['Ayam']);
+    // The long item is truncated to MENU_NAME_MAX_CHARS, not dropped
+    expect(result).toHaveLength(2);
+    expect(result[0]).toHaveLength(THRESHOLDS.MENU_NAME_MAX_CHARS);
+    expect(result[1]).toBe('Ayam');
   });
 });
 

@@ -18,7 +18,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "verify-gemini": "tsx --env-file=.env.local scripts/verify-gemini-model.ts",
+    "check-ai": "node scripts/check-gemini.mjs",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
@@ -29,7 +29,6 @@
     "prepare": "node -e \"process.exit(process.env.SKIP_LFTHOOK === '1' ? 0 : 1)\" || lefthook install"
   },
   "dependencies": {
-    "@google/genai": "^0.7.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "next": "^15.1.3",

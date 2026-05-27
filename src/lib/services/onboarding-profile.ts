@@ -15,14 +15,21 @@ export function parseMenuList(rawInput: string): string[] {
   for (const token of rawInput.split(/[,;\n]/)) {
     const trimmed = token.trim().replace(/\s+/g, ' ');
     if (trimmed.length === 0) continue;
-    if (trimmed.length > THRESHOLDS.MENU_NAME_MAX_CHARS) continue;
 
-    const normalized = normalizeMenuName(trimmed);
+    // BUG-16: truncate to max chars instead of silently dropping the item.
+    // A name like "Nasi Goreng Spesial Ayam Kampung Bakar Bumbu Rempah Khas Jawa"
+    // becomes "Nasi Goreng Spesial Ayam Kampung Bakar Bumbu Rempah Khas Jaw" (60).
+    const capped =
+      trimmed.length > THRESHOLDS.MENU_NAME_MAX_CHARS
+        ? trimmed.slice(0, THRESHOLDS.MENU_NAME_MAX_CHARS).trimEnd()
+        : trimmed;
+
+    const normalized = normalizeMenuName(capped);
     if (normalized.length === 0) continue;
     if (seen.has(normalized)) continue;
     seen.add(normalized);
 
-    result.push(titleCase(trimmed));
+    result.push(titleCase(capped));
     if (result.length >= THRESHOLDS.ONBOARDING.MENU_ITEMS_MAX) break;
   }
 
@@ -40,7 +47,9 @@ export function normalizeMenuName(name: string): string {
 function titleCase(input: string): string {
   return input
     .split(' ')
-    .map((word) => (word.length === 0 ? word : word[0]!.toUpperCase() + word.slice(1).toLowerCase()))
+    .map((word) =>
+      word.length === 0 ? word : word[0]!.toUpperCase() + word.slice(1).toLowerCase(),
+    )
     .join(' ');
 }
 

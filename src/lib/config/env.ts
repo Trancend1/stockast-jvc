@@ -18,7 +18,8 @@ const optionalUrl = z
 const optionalString = z
   .string()
   .optional()
-  .transform((v) => (v === '' || v === undefined ? undefined : v));
+  .transform((v) => (v === '' || v === undefined ? undefined : v))
+  .pipe(z.string().optional());
 
 const EnvSchema = z.object({
   // Public — safe in client bundle
@@ -28,7 +29,8 @@ const EnvSchema = z.object({
 
   // Server-only
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
-  GEMINI_API_KEY: z.string().min(10),
+  GEMINI_API_KEY: optionalString,
+  GROQ_API_KEY: optionalString,
 
   KV_REST_API_URL: optionalUrl,
   KV_REST_API_TOKEN: optionalString,

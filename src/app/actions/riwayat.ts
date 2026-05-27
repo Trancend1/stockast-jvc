@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { requireOutletAccess } from '@/lib/auth/session';
 import { listMenuItems } from '@/lib/db/queries/menu-items';
 import {
@@ -11,9 +10,10 @@ import {
 } from '@/lib/db/queries/stock-logs';
 import type { MenuItemRow, StockLogItemRow, StockLogRow } from '@/lib/db/types';
 import { type ActionResult, fail, ok } from '@/types/action-result';
+import { revalidatePath } from 'next/cache';
 
 export type RiwayatItem = {
-  menuItemId: string;
+  menuItemId: string | null;
   menuName: string;
   sold: number;
   leftover: number;
@@ -126,11 +126,11 @@ export async function updateRiwayatDay(
       if (!item.menuItemId) {
         return fail('INPUT_INVALID', 'Menu item wajib dipilih.');
       }
-      if (!Number.isInteger(item.sold) || item.sold < 0) {
-        return fail('INPUT_INVALID', 'Angka laku harus bilangan bulat nol atau lebih.');
+      if (!Number.isInteger(item.sold) || item.sold < 0 || item.sold > 10_000) {
+        return fail('INPUT_INVALID', 'Angka laku harus antara 0 dan 10.000.');
       }
-      if (!Number.isInteger(item.leftover) || item.leftover < 0) {
-        return fail('INPUT_INVALID', 'Angka sisa harus bilangan bulat nol atau lebih.');
+      if (!Number.isInteger(item.leftover) || item.leftover < 0 || item.leftover > 10_000) {
+        return fail('INPUT_INVALID', 'Angka sisa harus antara 0 dan 10.000.');
       }
       if (seen.has(item.menuItemId)) {
         return fail('INPUT_INVALID', 'Item menu tidak boleh dobel dalam satu hari.');
@@ -173,6 +173,10 @@ export async function deleteRiwayatDay(
   }
 
   try {
+    const existing = await findStockLogById(ctx.db, ctx.outletId, stockLogId);
+    if (!existing) {
+      return fail('NOT_FOUND', 'Riwayat tidak ditemukan atau sudah dihapus.');
+    }
     await softDeleteStockLog(ctx.db, {
       outletId: ctx.outletId,
       stockLogId,

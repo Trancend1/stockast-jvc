@@ -1,6 +1,3 @@
-import 'server-only';
-import { createHash } from 'node:crypto';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { generatePromoDraft } from '@/lib/ai/generate';
 import { insertAIAuditLog } from '@/lib/db/queries/ai-audit';
 import { listMenuItems } from '@/lib/db/queries/menu-items';
@@ -11,9 +8,12 @@ import {
   type PromoDraftRow,
 } from '@/lib/db/queries/promos';
 import { listRecentStockLogs } from '@/lib/db/queries/stock-logs';
-import { clampDiscount, validatePromo } from '@/lib/rules/promo';
 import type { Json } from '@/lib/db/types';
 import { logEvent } from '@/lib/observability';
+import { clampDiscount, validatePromo } from '@/lib/rules/promo';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createHash } from 'node:crypto';
+import 'server-only';
 import { detectOverstock, type OverstockCandidate } from './promo-detection';
 import type { StockLogShape } from './recommendation-mapping';
 
@@ -131,7 +131,18 @@ async function buildOne(
       message: finalMessage,
       discountPercent: finalDiscount,
     });
-  } catch {
+  } catch (err) {
+    // BUG-25: log the failure so it's visible in observability
+    logEvent(
+      'promo_insert_failed',
+      {
+        outletId: args.outletId,
+        serviceDate: args.serviceDate,
+        menuName: candidate.menuName,
+        error: err instanceof Error ? err.message : 'unknown',
+      },
+      'warn',
+    );
     return null;
   }
 
@@ -191,6 +202,10 @@ function errMsg(err: unknown): string {
   return err instanceof Error ? err.message : 'Terjadi kesalahan.';
 }
 
-export async function recordPromoCopied(db: SupabaseClient, promoId: string): Promise<void> {
-  await markPromoCopied(db, promoId);
+export async function recordPromoCopied(
+  db: SupabaseClient,
+  promoId: string,
+  outletId: string,
+): Promise<void> {
+  await markPromoCopied(db, promoId, outletId);
 }

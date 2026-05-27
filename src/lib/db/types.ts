@@ -16,7 +16,7 @@
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
 export type StockLogItemRow = {
-  menu_item_id: string;
+  menu_item_id: string | null;
   sold: number;
   leftover: number;
   unit: string;

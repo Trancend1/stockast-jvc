@@ -2,9 +2,7 @@
  * Minimal class concatenation. Filters out falsy values.
  * No clsx/tailwind-merge yet — add when conditional classes proliferate.
  */
-export function cn(
-  ...inputs: Array<string | false | null | undefined>
-): string {
+export function cn(...inputs: Array<string | false | null | undefined>): string {
   return inputs.filter(Boolean).join(' ');
 }
 
@@ -33,6 +31,18 @@ export function tomorrowIsoUtc(): string {
 /** YYYY-MM-DD for "today" in UTC. */
 export function todayIsoUtc(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+/**
+ * YYYY-MM-DD for "today" in WIB (Asia/Jakarta, UTC+7).
+ * Use for any date that represents a merchant's business day — merchants
+ * operate in WIB, so at 23:00 WIB it's still "today" for them even though
+ * UTC has already rolled over to tomorrow.
+ */
+export function todayIsoWib(): string {
+  const now = new Date();
+  now.setTime(now.getTime() + 7 * 60 * 60 * 1000);
+  return now.toISOString().slice(0, 10);
 }
 
 /**

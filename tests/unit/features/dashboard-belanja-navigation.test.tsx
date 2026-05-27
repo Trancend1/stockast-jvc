@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
-import { DashboardShell } from '@/components/features/dashboard/DashboardShell';
 import { getPolaMingguan } from '@/app/actions/pola-mingguan';
 import { getPromosForToday } from '@/app/actions/promo';
 import { getCuacaCardData } from '@/app/actions/weather';
+import { BelanjaCard } from '@/components/features/belanja/BelanjaCard';
+import { DashboardShell } from '@/components/features/dashboard/DashboardShell';
+import { fireEvent, render, screen } from '@testing-library/react';
+import * as React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const push = vi.fn();
 
@@ -140,6 +140,7 @@ vi.mock('@/components/ui-kit/primitives/sk-button', () => ({
 const sampleBelanjaData = {
   outletId: 'outlet-1',
   serviceDate: '2026-05-24',
+  warungName: 'Warung Test',
   confidenceLabel: 'Pola jelas' as const,
   cached: false,
   summary: 'Belanja secukupnya untuk besok.',
