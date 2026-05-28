@@ -7,7 +7,12 @@ import { provisionNewUser } from '@/lib/auth/provisioning';
 import { getUserOutlet } from '@/lib/db/queries/users';
 import { listMenuItems, syncOutletMenu } from '@/lib/db/queries/menu-items';
 import { countRecentStockLogDays, upsertStockLogBatch } from '@/lib/db/queries/demo-seed';
-import { updateOutletProfile, upsertDemoOutletProfile } from '@/lib/db/queries/outlets';
+import {
+  getOutletProfile,
+  updateOutletProfile,
+  upsertDemoOutletProfile,
+} from '@/lib/db/queries/outlets';
+import { requireOutletAccess } from '@/lib/auth/session';
 import { buildDemoSeedDays } from '@/lib/services/demo-seed';
 import {
   normalizeOnboardingProfile,
@@ -168,5 +173,18 @@ function normalizationMessage(reason: 'INVALID_NAME' | 'INVALID_LOCATION' | 'NO_
       return 'Pilih kota dulu.';
     case 'NO_MENU':
       return 'Minimal 1 menu ya.';
+  }
+}
+
+/**
+ * Resolves the current outlet name from the database.
+ */
+export async function getActiveWarungName(): Promise<ActionResult<string | null>> {
+  try {
+    const ctx = await requireOutletAccess();
+    const outlet = await getOutletProfile(ctx.db, ctx.outletId);
+    return ok(outlet?.name ?? null);
+  } catch (err) {
+    return fail('INTERNAL', err instanceof Error ? err.message : 'gagal');
   }
 }

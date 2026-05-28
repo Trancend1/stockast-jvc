@@ -3,6 +3,7 @@
 import { requireOutletAccess } from '@/lib/auth/session';
 import { THRESHOLDS } from '@/lib/config/thresholds';
 import { isPromoGenerationEnabled } from '@/lib/feature-gates';
+import { getOutletProfile } from '@/lib/db/queries/outlets';
 import { checkRateLimit } from '@/lib/kv';
 import {
   generatePromosForLatestStock,
@@ -20,7 +21,19 @@ export async function getPromosForToday(input?: {
 }): Promise<ActionResult<GetPromosData>> {
   const ctx = await requireOutletAccess();
   const serviceDate = input?.serviceDate ?? todayIsoWib();
-  const warungName = input?.warungName ?? 'Warung';
+
+  let warungName = input?.warungName;
+  try {
+    const outlet = await getOutletProfile(ctx.db, ctx.outletId);
+    if (outlet?.name) {
+      warungName = outlet.name;
+    }
+  } catch {
+    // Graceful fallback to client input
+  }
+  if (!warungName) {
+    warungName = 'Warung';
+  }
 
   if (!isPromoGenerationEnabled()) {
     return ok({ promos: [] });

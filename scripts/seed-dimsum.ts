@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * scripts/seed-dimsum.ts
  *
