@@ -12,6 +12,7 @@ const config = [
   {
     ignores: [
       '.next/**',
+      '.remember/**',
       'next-env.d.ts',
       'node_modules/**',
       'supabase/.branches/**',
@@ -27,6 +28,12 @@ const config = [
       'react/no-danger-with-children': 'error',
       // Anti-slop: disallow inline English UI strings via custom rule when added
       // For now: encourage centralization via lint-staged grep in pre-commit (lefthook)
+    },
+  },
+  {
+    files: ['scripts/**/*'],
+    rules: {
+      'no-console': 'off',
     },
   },
 ];
