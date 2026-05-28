@@ -17,7 +17,7 @@ import {
 import { Banner } from '@/components/ui-kit/notifications';
 import { SkButton } from '@/components/ui-kit/primitives/sk-button';
 import { belanja } from '@/lib/copy/belanja';
-import { readOnboardingState } from '@/lib/onboarding-state';
+import { readOnboardingState, writeOnboardingState } from '@/lib/onboarding-state';
 import type { PromoSuggestion } from '@/lib/services/PromoService';
 import type { WeatherSnapshot } from '@/lib/weather';
 import * as React from 'react';
@@ -88,7 +88,22 @@ export function DashboardShell() {
   // This fixes the wrong-name issue on new devices where localStorage is empty.
   React.useEffect(() => {
     if (card?.warungName) {
-      setWarungName(card.warungName);
+      const dbName = card.warungName.trim();
+      setWarungName(dbName);
+
+      const state = readOnboardingState();
+      if (!state || state.warungName?.trim() !== dbName) {
+        writeOnboardingState(
+          state
+            ? { ...state, warungName: dbName }
+            : {
+                warungName: dbName,
+                location: '',
+                menu: '',
+                completedAt: new Date().toISOString(),
+              },
+        );
+      }
     }
   }, [card?.warungName]);
 
@@ -101,10 +116,32 @@ export function DashboardShell() {
       return;
     }
     setCard(cardResult.data);
+
+    let nextWarungName = warungName;
+    if (cardResult.data.warungName) {
+      const dbName = cardResult.data.warungName.trim();
+      nextWarungName = dbName;
+      setWarungName(dbName);
+
+      const state = readOnboardingState();
+      if (!state || state.warungName?.trim() !== dbName) {
+        writeOnboardingState(
+          state
+            ? { ...state, warungName: dbName }
+            : {
+                warungName: dbName,
+                location: '',
+                menu: '',
+                completedAt: new Date().toISOString(),
+              },
+        );
+      }
+    }
+
     // BUG-17: also refresh weather and promos after a force-refresh
     const [weatherResult, promoResult] = await Promise.all([
       getCuacaCardData({ serviceDate: cardResult.data.serviceDate }),
-      getPromosForToday({ warungName: warungName ?? belanja.warung_fallback }),
+      getPromosForToday({ warungName: nextWarungName ?? belanja.warung_fallback }),
     ]);
     setWeather(weatherResult.error ? null : weatherResult.data.weather);
     setPromos(promoResult.error ? [] : promoResult.data.promos);

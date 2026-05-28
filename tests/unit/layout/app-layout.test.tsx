@@ -99,4 +99,19 @@ describe('AppLayout', () => {
       'app-layout-content--wide',
     );
   });
+
+  it('syncs incoming warungName prop to local storage cache', async () => {
+    render(
+      <AppLayout warungName="New DB Name">
+        <div>Body</div>
+      </AppLayout>,
+    );
+
+    await waitFor(() => {
+      const stored = window.localStorage.getItem('stockast.onboarding.v1');
+      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored!);
+      expect(parsed.warungName).toBe('New DB Name');
+    });
+  });
 });

@@ -4,7 +4,8 @@ import * as React from 'react';
 import { SubuhToggle } from '@/components/features/subuh/SubuhToggle';
 import { SkBottomNav, type SkBottomNavId } from '@/components/ui-kit/primitives/sk-bottom-nav';
 import { SkTopBar, type SkTopBarProps } from '@/components/ui-kit/primitives/sk-topbar';
-import { readOnboardingState } from '@/lib/onboarding-state';
+import { readOnboardingState, writeOnboardingState } from '@/lib/onboarding-state';
+import { getActiveWarungName } from '@/app/actions/onboarding';
 import { usePathname, useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -61,13 +62,45 @@ export function AppLayout({
 
   React.useEffect(() => {
     if (warungName && warungName.trim().length > 0) {
-      setHydratedWarungName(warungName.trim());
+      const trimmed = warungName.trim();
+      setHydratedWarungName(trimmed);
+
+      const onboarding = readOnboardingState();
+      if (!onboarding || onboarding.warungName !== trimmed) {
+        const nextState = onboarding
+          ? { ...onboarding, warungName: trimmed }
+          : {
+              warungName: trimmed,
+              location: '',
+              menu: '',
+              completedAt: new Date().toISOString(),
+            };
+        writeOnboardingState(nextState);
+      }
       return;
     }
 
     const onboarding = readOnboardingState();
     const storedName = onboarding?.warungName?.trim();
-    setHydratedWarungName(storedName || undefined);
+    if (storedName) {
+      setHydratedWarungName(storedName);
+    }
+
+    void getActiveWarungName().then((result) => {
+      if (!result.error && result.data) {
+        const dbName = result.data.trim();
+        setHydratedWarungName(dbName);
+        const nextState = onboarding
+          ? { ...onboarding, warungName: dbName }
+          : {
+              warungName: dbName,
+              location: '',
+              menu: '',
+              completedAt: new Date().toISOString(),
+            };
+        writeOnboardingState(nextState);
+      }
+    });
   }, [warungName]);
 
   function handleNavChange(id: SkBottomNavId) {
