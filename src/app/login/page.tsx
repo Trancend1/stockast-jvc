@@ -92,7 +92,7 @@ export default function LoginPage() {
               <SkInput
                 id="phone"
                 type="tel"
-                placeholder="+62 812 3456 7890"
+                placeholder="+6281234567000"
                 value={phone}
                 onChange={setPhone}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendOtp()}

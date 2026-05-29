@@ -326,10 +326,10 @@ function DayCard({
     <SkCard>
       <div className="riwayat-card">
         <div className="riwayat-card-header">
-          <span className="min-w-0 flex-1 font-semibold text-neutral-900">
+          <span className="min-w-0 flex-1 text-[13px] font-semibold text-neutral-900">
             {formatDate(day.serviceDate)}
           </span>
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1">
             <SkPill tone="success">
               {riwayat.total_sold} {day.totalSold}
             </SkPill>
@@ -345,8 +345,8 @@ function DayCard({
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 8,
-            marginBottom: 12,
+            gap: 6,
+            marginBottom: 8,
           }}
         >
           <SkButton size="sm" variant="secondary" onClick={onEdit}>

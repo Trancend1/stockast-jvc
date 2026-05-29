@@ -14,7 +14,11 @@ import { useSubuhMode } from '@/hooks/use-subuh-mode';
 import type { SubuhOverride } from '@/lib/subuh-mode';
 import { applyOnboardingProfile } from '@/app/actions/onboarding';
 import { signOutCurrentDevice } from '@/app/setelan/actions';
-import { readOnboardingState, writeOnboardingState } from '@/lib/onboarding-state';
+import {
+  clearOnboardingState,
+  readOnboardingState,
+  writeOnboardingState,
+} from '@/lib/onboarding-state';
 import { LOCATION_GROUPS, findLocation } from '@/lib/config/locations';
 import { THRESHOLDS } from '@/lib/config/thresholds';
 import { setelan as t } from '@/lib/copy/setelan';
@@ -370,7 +374,10 @@ export function SetelanView() {
                       variant="ghost"
                       size="sm"
                       disabled={isSigningOut}
-                      onClick={() => startSignOut(() => void signOutCurrentDevice())}
+                      onClick={() => {
+                        clearOnboardingState();
+                        startSignOut(() => void signOutCurrentDevice());
+                      }}
                     >
                       {t.autentikasi.keluar}
                     </SkButton>

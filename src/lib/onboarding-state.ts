@@ -31,3 +31,7 @@ export function readOnboardingState(): OnboardingState | null {
 export function writeOnboardingState(state: OnboardingState): void {
   localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(state));
 }
+
+export function clearOnboardingState(): void {
+  localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+}
