@@ -374,19 +374,19 @@ function ConfirmCard(props: {
   }
 
   return (
-    <SkCard>
-      <div style={{ padding: '0.875rem' }}>
-        <p className="text-sm font-semibold text-neutral-900">{t.confirm.heading}</p>
-        <p className="mt-0.5 text-[13px] text-neutral-600">{t.confirm.subheading}</p>
-        <div className="mt-2.5 flex flex-col gap-2.5">
+    <SkCard style={{ maxWidth: 560 }} className="mx-auto">
+      <div style={{ padding: '0.7rem' }}>
+        <p className="text-[13px] font-semibold text-neutral-900">{t.confirm.heading}</p>
+        <p className="mt-0.5 text-[12px] text-neutral-600">{t.confirm.subheading}</p>
+        <div className="mt-2 flex flex-col gap-2">
           {props.items.map((it, idx) => (
             <ItemRow key={idx} item={it} onChange={(patch) => update(idx, patch)} />
           ))}
         </div>
         {props.weather ? (
-          <p className="mt-2 text-sm text-neutral-600">🌤 {t.confirm.weather[props.weather]}</p>
+          <p className="mt-1.5 text-sm text-neutral-600">🌤 {t.confirm.weather[props.weather]}</p>
         ) : null}
-        <div className="mt-3.5 flex items-center justify-between gap-2">
+        <div className="mt-3 flex items-center justify-between gap-2">
           <SkButton variant="ghost" size="sm" onClick={props.onEdit}>
             {t.confirm.edit}
           </SkButton>
@@ -411,12 +411,12 @@ function ItemRow(props: { item: EditableItem; onChange: (patch: Partial<Editable
     item.confidence === 'high' ? 'success' : item.confidence === 'medium' ? 'warn' : 'danger';
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-[10px] border border-neutral-200 bg-neutral-100 p-2.5">
+    <div className="flex flex-col gap-1 rounded-[10px] border border-neutral-200 bg-neutral-100 p-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-neutral-900">{item.candidateName}</span>
+        <span className="text-[13px] font-semibold text-neutral-900">{item.candidateName}</span>
         <SkPill tone={pillTone}>{confidenceLabel}</SkPill>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-1.5">
         <NumberField
           label={t.confirm.item.sold_label}
           value={item.sold}
@@ -443,7 +443,7 @@ function NumberField(props: {
   onChange: (v: number | null) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1">
+    <label className="flex flex-col gap-0.5">
       <span className="text-[11px] font-semibold text-neutral-600">{props.label}</span>
       <SkInput
         type="number"
@@ -454,6 +454,7 @@ function NumberField(props: {
         onChange={(v) => {
           props.onChange(v === '' ? null : Math.max(0, Number(v)));
         }}
+        style={{ height: 30, fontSize: 13, padding: '0 8px' }}
       />
     </label>
   );

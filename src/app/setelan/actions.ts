@@ -11,5 +11,5 @@ export async function signOutCurrentDevice(): Promise<ActionResult<null>> {
   } catch (err) {
     return fail('INTERNAL', err instanceof Error ? err.message : 'Gagal keluar.');
   }
-  redirect('/login');
+  redirect('/homepage');
 }

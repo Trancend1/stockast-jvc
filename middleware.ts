@@ -1,14 +1,13 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const AUTH_ROUTE = '/login';
+const PUBLIC_ROUTES = ['/login', '/homepage'];
 
 /**
- * Middleware: session refresh + login-route hygiene.
+ * Middleware: session refresh + route hygiene.
  *
  * 1. Refreshes the Supabase session cookie on every request.
- * 2. Lets onboarding/dashboard stay local-first before account verification.
- * 3. Redirects authenticated users away from /login to /dashboard.
+ * 2. Redirects authenticated users away from public routes to /dashboard.
  */
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -44,7 +43,7 @@ export async function middleware(request: NextRequest) {
 
   if (!authRequired) return response;
 
-  if (user && pathname === AUTH_ROUTE) {
+  if (user && PUBLIC_ROUTES.includes(pathname)) {
     const dashboardUrl = new URL('/dashboard', request.url);
     return NextResponse.redirect(dashboardUrl);
   }
